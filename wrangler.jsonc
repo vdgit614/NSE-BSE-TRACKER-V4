@@ -1,1 +1,12 @@
-
+{
+  "name": "nse-bse-tracker-v4",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-25",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "nse-bse-tracker-v4-db",
+      "database_id": "f560de86-69e0-4d94-ba7a-c9796baf6733"
+    }
+  ]
+}
