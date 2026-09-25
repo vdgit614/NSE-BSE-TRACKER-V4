@@ -33,8 +33,9 @@ function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
     headers: {
-      "Content-Type": "application/json; charset=UTF-8",
-      "Cache-Control": "no-store"
+  "Content-Type": "application/json; charset=UTF-8",
+  "Cache-Control": "no-store",
+  "Access-Control-Allow-Origin": "*"
     }
   });
 }
