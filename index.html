@@ -3,10 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSE BSE TRACKER V4</title>
+
+    <title>NSE TRACKER V4</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .menu {
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: #111;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #666;
+        }
+
+        .search-box button {
+            padding: 14px 18px;
+            border: 0;
+            border-radius: 10px;
+            background: #fff;
+            color: #000;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .status {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .result-card {
+            padding: 15px;
+            border: 1px solid #222;
+            border-radius: 12px;
+            background: #0d0d0d;
+            cursor: pointer;
+        }
+
+        .result-card:hover {
+            background: #151515;
+        }
+
+        .symbol {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .company {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .details {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .empty {
+            padding: 25px 10px;
+            text-align: center;
+            color: #777;
+        }
+
+        @media (max-width: 480px) {
+            .app {
+                padding: 16px 12px 30px;
+            }
+
+            .title {
+                font-size: 21px;
+            }
+
+            .search-box button {
+                padding: 14px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <h1>NSE BSE TRACKER V4</h1>
-    <p>New project started successfully.</p>
+
+<div class="app">
+
+    <div class="header">
+        <h1 class="title">NSE TRACKER V4</h1>
+        <div class="menu">☰</div>
+    </div>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search NSE stock..."
+            autocomplete="off"
+        >
+
+        <button id="searchButton">
+            Search
+        </button>
+    </div>
+
+    <div class="status" id="status">
+        Search NSE stocks by symbol or company name.
+    </div>
+
+    <div class="results" id="results"></div>
+
+</div>
+
+<script>
+
+    const API_BASE =
+        "https://nse-bse-tracker-v4.vasimbhaipainter.workers.dev";
+
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchButton");
+    const resultsBox = document.getElementById("results");
+    const statusBox = document.getElementById("status");
+
+    async function searchNSE() {
+
+        const query = searchInput.value.trim();
+
+        resultsBox.innerHTML = "";
+
+        if (!query) {
+            statusBox.textContent =
+                "Please enter an NSE stock name or symbol.";
+            return;
+        }
+
+        statusBox.textContent = "Searching NSE...";
+
+        try {
+
+            const response = await fetch(
+                `${API_BASE}/search?q=${encodeURIComponent(query)}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Search API failed");
+            }
+
+            const data = await response.json();
+
+            if (data.status !== "ok") {
+                throw new Error(
+                    data.message || "Search failed"
+                );
+            }
+
+            if (!data.results || data.results.length === 0) {
+
+                statusBox.textContent =
+                    `No NSE stock found for "${query}".`;
+
+                resultsBox.innerHTML = `
+                    <div class="empty">
+                        No matching NSE stock found.
+                    </div>
+                `;
+
+                return;
+            }
+
+            statusBox.textContent =
+                `${data.count} NSE result(s) found.`;
+
+            data.results.forEach(stock => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "result-card";
+
+                card.innerHTML = `
+                    <div class="symbol">
+                        ${escapeHtml(stock.symbol || "")}
+                    </div>
+
+                    <div class="company">
+                        ${escapeHtml(stock.company_name || "")}
+                    </div>
+
+                    <div class="details">
+                        NSE
+                        ${stock.sector
+                            ? " • " + escapeHtml(stock.sector)
+                            : ""}
+                    </div>
+                `;
+
+                card.addEventListener("click", () => {
+                    selectStock(stock);
+                });
+
+                resultsBox.appendChild(card);
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            statusBox.textContent =
+                "Unable to connect to NSE Search API.";
+
+            resultsBox.innerHTML = `
+                <div class="empty">
+                    Search service is temporarily unavailable.
+                </div>
+            `;
+        }
+    }
+
+    function selectStock(stock) {
+
+        searchInput.value =
+            stock.symbol || "";
+
+        statusBox.textContent =
+            `${stock.symbol} selected`;
+
+        resultsBox.innerHTML = `
+            <div class="result-card">
+
+                <div class="symbol">
+                    ${escapeHtml(stock.symbol || "")}
+                </div>
+
+                <div class="company">
+                    ${escapeHtml(stock.company_name || "")}
+                </div>
+
+                <div class="details">
+                    Exchange: NSE
+                    ${stock.isin
+                        ? " • ISIN: " + escapeHtml(stock.isin)
+                        : ""}
+                </div>
+
+            </div>
+        `;
+    }
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    searchButton.addEventListener(
+        "click",
+        searchNSE
+    );
+
+    searchInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+                searchNSE();
+            }
+
+        }
+    );
+
+</script>
+
 </body>
-</html>
+    </html>
