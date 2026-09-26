@@ -1,337 +1,863 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>NSE TRACKER V4</title>
+<title>NSE BSE TRACKER V4</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #000;
-            color: #fff;
-        }
+* {
+box-sizing: border-box;
+}
 
-        .app {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px 16px 40px;
-        }
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background: #000;
+color: #fff;
+}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
+.app {
+width: 100%;
+max-width: 700px;
+margin: 0 auto;
+padding: 20px 16px 40px;
+}
 
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
-        }
+.header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 24px;
+}
 
-        .menu {
-            font-size: 28px;
-            cursor: pointer;
-        }
+.title {
+font-size: 24px;
+font-weight: 700;
+margin: 0;
+}
 
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+.menu {
+font-size: 28px;
+cursor: pointer;
+}
 
-        .search-box input {
-            flex: 1;
-            min-width: 0;
-            padding: 14px;
-            border: 1px solid #333;
-            border-radius: 10px;
-            background: #111;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-        }
+.exchange-box {
+display: flex;
+gap: 10px;
+margin-bottom: 15px;
+}
 
-        .search-box input:focus {
-            border-color: #666;
-        }
+.exchange-button {
+flex: 1;
+padding: 12px;
+border: 1px solid #333;
+border-radius: 10px;
+background: #111;
+color: #aaa;
+font-size: 15px;
+font-weight: 700;
+cursor: pointer;
+}
 
-        .search-box button {
-            padding: 14px 18px;
-            border: 0;
-            border-radius: 10px;
-            background: #fff;
-            color: #000;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+.exchange-button.active {
+background: #fff;
+color: #000;
+border-color: #fff;
+}
 
-        .status {
-            color: #aaa;
-            font-size: 14px;
-            margin-bottom: 14px;
-        }
+.search-box {
+display: flex;
+gap: 10px;
+margin-bottom: 20px;
+}
 
-        .results {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+.search-box input {
+flex: 1;
+min-width: 0;
+padding: 14px;
+border: 1px solid #333;
+border-radius: 10px;
+background: #111;
+color: #fff;
+font-size: 16px;
+outline: none;
+}
 
-        .result-card {
-            padding: 15px;
-            border: 1px solid #222;
-            border-radius: 12px;
-            background: #0d0d0d;
-            cursor: pointer;
-        }
+.search-box input:focus {
+border-color: #666;
+}
 
-        .result-card:hover {
-            background: #151515;
-        }
+.search-box button {
+padding: 14px 18px;
+border: 0;
+border-radius: 10px;
+background: #fff;
+color: #000;
+font-size: 15px;
+font-weight: 700;
+cursor: pointer;
+}
 
-        .symbol {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
+.status {
+color: #aaa;
+font-size: 14px;
+margin-bottom: 14px;
+}
 
-        .company {
-            font-size: 14px;
-            color: #ccc;
-            line-height: 1.4;
-        }
+.results {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
 
-        .details {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #888;
-        }
+.result-card {
+padding: 15px;
+border: 1px solid #222;
+border-radius: 12px;
+background: #0d0d0d;
+cursor: pointer;
+}
 
-        .empty {
-            padding: 25px 10px;
-            text-align: center;
-            color: #777;
-        }
+.result-card:hover {
+background: #151515;
+}
 
-        @media (max-width: 480px) {
-            .app {
-                padding: 16px 12px 30px;
-            }
+.symbol {
+font-size: 18px;
+font-weight: 700;
+margin-bottom: 5px;
+}
 
-            .title {
-                font-size: 21px;
-            }
+.company {
+font-size: 14px;
+color: #ccc;
+line-height: 1.4;
+}
 
-            .search-box button {
-                padding: 14px;
-            }
-        }
-    </style>
+.details {
+margin-top: 8px;
+font-size: 12px;
+color: #888;
+}
+
+.exchange-badge {
+display: inline-block;
+margin-top: 8px;
+padding: 4px 8px;
+border-radius: 6px;
+background: #222;
+color: #fff;
+font-size: 11px;
+font-weight: 700;
+}
+
+.empty {
+padding: 25px 10px;
+text-align: center;
+color: #777;
+}
+
+.stock-details {
+margin-top: 15px;
+padding: 16px;
+border: 1px solid #222;
+border-radius: 12px;
+background: #0d0d0d;
+}
+
+.stock-price {
+font-size: 28px;
+font-weight: 700;
+margin-top: 8px;
+}
+
+.stock-change {
+font-size: 15px;
+margin-top: 5px;
+}
+
+.history-box {
+margin-top: 15px;
+}
+
+.period-buttons {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-top: 10px;
+}
+
+.period-button {
+padding: 9px 13px;
+border: 1px solid #333;
+border-radius: 8px;
+background: #111;
+color: #aaa;
+cursor: pointer;
+}
+
+.period-button.active {
+background: #fff;
+color: #000;
+}
+
+@media (max-width: 480px) {
+
+.app {
+padding: 16px 12px 30px;
+}
+
+.title {
+font-size: 21px;
+}
+
+.search-box button {
+padding: 14px;
+}
+
+}
+
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-    <div class="header">
-        <h1 class="title">NSE TRACKER V4</h1>
-        <div class="menu">☰</div>
-    </div>
+<div class="header">
 
-    <div class="search-box">
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search NSE stock..."
-            autocomplete="off"
-        >
+<h1 class="title">
+NSE BSE TRACKER V4
+</h1>
 
-        <button id="searchButton">
-            Search
-        </button>
-    </div>
+<div class="menu">
+☰
+</div>
 
-    <div class="status" id="status">
-        Search NSE stocks by symbol or company name.
-    </div>
+</div>
 
-    <div class="results" id="results"></div>
+<div class="exchange-box">
+
+<button
+id="nseButton"
+class="exchange-button active"
+>
+NSE
+</button>
+
+<button
+id="bseButton"
+class="exchange-button"
+>
+BSE
+</button>
+
+</div>
+
+<div class="search-box">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search NSE stock..."
+autocomplete="off"
+>
+
+<button id="searchButton">
+Search
+</button>
+
+</div>
+
+<div
+class="status"
+id="status"
+>
+Search NSE stocks by symbol or company name.
+</div>
+
+<div
+class="results"
+id="results"
+></div>
 
 </div>
 
 <script>
 
-    const API_BASE =
-        "https://nse-bse-tracker-v4.vasimbhaipainter.workers.dev";
+const API_BASE =
+"https://nse-bse-tracker-v4.vasimbhaipainter.workers.dev";
 
-    const searchInput = document.getElementById("searchInput");
-    const searchButton = document.getElementById("searchButton");
-    const resultsBox = document.getElementById("results");
-    const statusBox = document.getElementById("status");
+const searchInput =
+document.getElementById("searchInput");
 
-    async function searchNSE() {
+const searchButton =
+document.getElementById("searchButton");
 
-        const query = searchInput.value.trim();
+const resultsBox =
+document.getElementById("results");
 
-        resultsBox.innerHTML = "";
+const statusBox =
+document.getElementById("status");
 
-        if (!query) {
-            statusBox.textContent =
-                "Please enter an NSE stock name or symbol.";
-            return;
-        }
+const nseButton =
+document.getElementById("nseButton");
 
-        statusBox.textContent = "Searching NSE...";
+const bseButton =
+document.getElementById("bseButton");
 
-        try {
+let selectedExchange = "NSE";
 
-            const response = await fetch(
-                `${API_BASE}/search?q=${encodeURIComponent(query)}`
-            );
+function setExchange(exchange) {
 
-            if (!response.ok) {
-                throw new Error("Search API failed");
-            }
+selectedExchange = exchange;
 
-            const data = await response.json();
+if (exchange === "NSE") {
 
-            if (data.status !== "ok") {
-                throw new Error(
-                    data.message || "Search failed"
-                );
-            }
+nseButton.classList.add("active");
+bseButton.classList.remove("active");
 
-            if (!data.results || data.results.length === 0) {
+searchInput.placeholder =
+"Search NSE stock...";
 
-                statusBox.textContent =
-                    `No NSE stock found for "${query}".`;
+statusBox.textContent =
+"Search NSE stocks by symbol or company name.";
 
-                resultsBox.innerHTML = `
-                    <div class="empty">
-                        No matching NSE stock found.
-                    </div>
-                `;
+} else {
 
-                return;
-            }
+bseButton.classList.add("active");
+nseButton.classList.remove("active");
 
-            statusBox.textContent =
-                `${data.count} NSE result(s) found.`;
+searchInput.placeholder =
+"Search BSE stock...";
 
-            data.results.forEach(stock => {
+statusBox.textContent =
+"Search BSE stocks by symbol or company name.";
 
-                const card =
-                    document.createElement("div");
+}
 
-                card.className = "result-card";
+resultsBox.innerHTML = "";
 
-                card.innerHTML = `
-                    <div class="symbol">
-                        ${escapeHtml(stock.symbol || "")}
-                    </div>
+}
 
-                    <div class="company">
-                        ${escapeHtml(stock.company_name || "")}
-                    </div>
+nseButton.addEventListener(
+"click",
+() => setExchange("NSE")
+);
 
-                    <div class="details">
-                        NSE
-                        ${stock.sector
-                            ? " • " + escapeHtml(stock.sector)
-                            : ""}
-                    </div>
-                `;
+bseButton.addEventListener(
+"click",
+() => setExchange("BSE")
+);
 
-                card.addEventListener("click", () => {
-                    selectStock(stock);
-                });
+async function searchStocks() {
 
-                resultsBox.appendChild(card);
-            });
+const query =
+searchInput.value.trim();
 
-        } catch (error) {
+resultsBox.innerHTML = "";
 
-            console.error(error);
+if (!query) {
 
-            statusBox.textContent =
-                "Unable to connect to NSE Search API.";
+statusBox.textContent =
+`Please enter a ${selectedExchange} stock name or symbol.`;
 
-            resultsBox.innerHTML = `
-                <div class="empty">
-                    Search service is temporarily unavailable.
-                </div>
-            `;
-        }
-    }
+return;
 
-    function selectStock(stock) {
+}
 
-        searchInput.value =
-            stock.symbol || "";
+statusBox.textContent =
+`Searching ${selectedExchange}...`;
 
-        statusBox.textContent =
-            `${stock.symbol} selected`;
+try {
 
-        resultsBox.innerHTML = `
-            <div class="result-card">
+const response = await fetch(
+`${API_BASE}/search?exchange=${encodeURIComponent(selectedExchange)}&q=${encodeURIComponent(query)}`
+);
 
-                <div class="symbol">
-                    ${escapeHtml(stock.symbol || "")}
-                </div>
+if (!response.ok) {
 
-                <div class="company">
-                    ${escapeHtml(stock.company_name || "")}
-                </div>
+throw new Error(
+"Search API failed"
+);
 
-                <div class="details">
-                    Exchange: NSE
-                    ${stock.isin
-                        ? " • ISIN: " + escapeHtml(stock.isin)
-                        : ""}
-                </div>
+}
 
-            </div>
-        `;
-    }
+const data =
+await response.json();
 
-    function escapeHtml(value) {
+if (data.status !== "ok") {
 
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+throw new Error(
+data.message ||
+"Search failed"
+);
 
-    searchButton.addEventListener(
-        "click",
-        searchNSE
-    );
+}
 
-    searchInput.addEventListener(
-        "keydown",
-        event => {
+if (
+!data.results ||
+data.results.length === 0
+) {
 
-            if (event.key === "Enter") {
-                searchNSE();
-            }
+statusBox.textContent =
+`No ${selectedExchange} stock found for "${query}".`;
 
-        }
-    );
+resultsBox.innerHTML = `
+<div class="empty">
+No matching ${selectedExchange} stock found.
+</div>
+`;
+
+return;
+
+}
+
+statusBox.textContent =
+`${data.count} ${selectedExchange} result(s) found.`;
+
+data.results.forEach(
+stock => {
+
+const card =
+document.createElement("div");
+
+card.className =
+"result-card";
+
+const exchange =
+stock.exchange ||
+selectedExchange;
+
+card.innerHTML = `
+
+<div class="symbol">
+${escapeHtml(stock.symbol || "")}
+</div>
+
+<div class="company">
+${escapeHtml(
+stock.company_name ||
+stock.longname ||
+stock.shortname ||
+""
+)}
+</div>
+
+<div class="details">
+
+${stock.isin
+? "ISIN: " +
+escapeHtml(stock.isin)
+: ""}
+
+${stock.security_id
+? " • Code: " +
+escapeHtml(stock.security_id)
+: ""}
+
+</div>
+
+<div class="exchange-badge">
+${escapeHtml(exchange)}
+</div>
+
+`;
+
+card.addEventListener(
+"click",
+() => selectStock(stock)
+);
+
+resultsBox.appendChild(card);
+
+});
+
+} catch (error) {
+
+console.error(error);
+
+statusBox.textContent =
+`Unable to connect to ${selectedExchange} Search API.`;
+
+resultsBox.innerHTML = `
+<div class="empty">
+Search service is temporarily unavailable.
+</div>
+`;
+
+}
+
+}
+
+async function selectStock(stock) {
+
+const symbol =
+stock.symbol || "";
+
+const exchange =
+stock.exchange ||
+selectedExchange;
+
+searchInput.value =
+symbol;
+
+statusBox.textContent =
+`Loading ${exchange} ${symbol}...`;
+
+resultsBox.innerHTML = `
+<div class="empty">
+Loading stock data...
+</div>
+`;
+
+try {
+
+const response = await fetch(
+`${API_BASE}/stock?exchange=${encodeURIComponent(exchange)}&symbol=${encodeURIComponent(symbol)}`
+);
+
+if (!response.ok) {
+
+throw new Error(
+"Stock API failed"
+);
+
+}
+
+const data =
+await response.json();
+
+if (data.status !== "ok") {
+
+throw new Error(
+data.message ||
+"Stock data unavailable"
+);
+
+}
+
+renderStock(data);
+
+} catch (error) {
+
+console.error(error);
+
+statusBox.textContent =
+"Unable to load stock data.";
+
+resultsBox.innerHTML = `
+<div class="empty">
+Stock data is temporarily unavailable.
+</div>
+`;
+
+}
+
+}
+
+function renderStock(data) {
+
+const stock =
+data.stock || {};
+
+const market =
+data.market || {};
+
+const exchange =
+data.exchange || selectedExchange;
+
+const symbol =
+data.symbol ||
+stock.symbol ||
+"";
+
+const company =
+stock.company_name ||
+"";
+
+let priceText =
+market.price !== null &&
+market.price !== undefined
+? Number(market.price).toFixed(2)
+: "N/A";
+
+let changeText =
+"N/A";
+
+if (
+market.change !== null &&
+market.change !== undefined &&
+market.change_percent !== null &&
+market.change_percent !== undefined
+) {
+
+const change =
+Number(market.change);
+
+const percent =
+Number(market.change_percent);
+
+changeText =
+`${change >= 0 ? "+" : ""}${change.toFixed(2)}
+(${percent >= 0 ? "+" : ""}${percent.toFixed(2)}%)`;
+
+}
+
+statusBox.textContent =
+`${exchange} ${symbol}`;
+
+resultsBox.innerHTML = `
+
+<div class="stock-details">
+
+<div class="symbol">
+${escapeHtml(symbol)}
+</div>
+
+<div class="company">
+${escapeHtml(company)}
+</div>
+
+<div class="exchange-badge">
+${escapeHtml(exchange)}
+</div>
+
+<div class="stock-price">
+₹${priceText}
+</div>
+
+<div class="stock-change">
+${escapeHtml(changeText)}
+</div>
+
+<div class="details">
+
+Previous Close:
+${market.previous_close !== null &&
+market.previous_close !== undefined
+? "₹" +
+Number(
+market.previous_close
+).toFixed(2)
+: "N/A"}
+
+<br>
+
+Market:
+${escapeHtml(
+market.market_state ||
+"N/A"
+)}
+
+</div>
+
+<div class="history-box">
+
+<div class="details">
+Historical Data
+</div>
+
+<div class="period-buttons">
+
+<button
+class="period-button active"
+data-period="7d"
+>
+7 Days
+</button>
+
+<button
+class="period-button"
+data-period="1m"
+>
+1 Month
+</button>
+
+<button
+class="period-button"
+data-period="6m"
+>
+6 Months
+</button>
+
+<button
+class="period-button"
+data-period="1y"
+>
+1 Year
+</button>
+
+</div>
+
+<div
+id="historyStatus"
+class="details"
+style="margin-top:10px;"
+>
+Select a period.
+</div>
+
+</div>
+
+</div>
+
+`;
+
+const buttons =
+document.querySelectorAll(
+".period-button"
+);
+
+buttons.forEach(
+button => {
+
+button.addEventListener(
+"click",
+() => {
+
+buttons.forEach(
+b => b.classList.remove(
+"active"
+)
+);
+
+button.classList.add(
+"active"
+);
+
+loadHistory(
+symbol,
+exchange,
+button.dataset.period
+);
+
+}
+);
+
+}
+);
+
+loadHistory(
+symbol,
+exchange,
+"7d"
+);
+
+}
+
+async function loadHistory(
+symbol,
+exchange,
+period
+) {
+
+const historyStatus =
+document.getElementById(
+"historyStatus"
+);
+
+if (!historyStatus) {
+return;
+}
+
+historyStatus.textContent =
+`Loading ${period} history...`;
+
+try {
+
+const response =
+await fetch(
+`${API_BASE}/history?exchange=${encodeURIComponent(exchange)}&symbol=${encodeURIComponent(symbol)}&period=${encodeURIComponent(period)}`
+);
+
+if (!response.ok) {
+
+throw new Error(
+"History API failed"
+);
+
+}
+
+const data =
+await response.json();
+
+if (data.status !== "ok") {
+
+throw new Error(
+data.message ||
+"History unavailable"
+);
+
+}
+
+historyStatus.textContent =
+`${data.history?.length || 0} data points available.`;
+
+} catch (error) {
+
+console.error(error);
+
+historyStatus.textContent =
+"Historical data unavailable.";
+
+}
+
+}
+
+function escapeHtml(value) {
+
+return String(value)
+
+.replace(
+/&/g,
+"&amp;"
+)
+
+.replace(
+/</g,
+"&lt;"
+)
+
+.replace(
+/>/g,
+"&gt;"
+)
+
+.replace(
+/"/g,
+"&quot;"
+)
+
+.replace(
+/'/g,
+"&#039;"
+);
+
+}
+
+searchButton.addEventListener(
+"click",
+searchStocks
+);
+
+searchInput.addEventListener(
+"keydown",
+event => {
+
+if (event.key === "Enter") {
+
+searchStocks();
+
+}
+
+}
+);
 
 </script>
 
 </body>
-    </html>
+</html>
