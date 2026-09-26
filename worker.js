@@ -297,7 +297,6 @@ function buildMarketFromChart(
   };
 
 }
-
 export default {
 
   async fetch(
@@ -928,9 +927,8 @@ export default {
 
         });
 
-      }
-
-      // --------------------------------------------------
+          }
+            // --------------------------------------------------
       // STOCK DETAILS
       // /stock?exchange=NSE&symbol=TCS
       // /stock?exchange=BSE&symbol=TCS
@@ -1078,4 +1076,520 @@ export default {
 
             stock.company_name =
               meta.longName ||
-          
+              meta.shortName ||
+              symbol;
+
+          }
+
+          market =
+            buildMarketFromChart(
+              chart
+            );
+
+        } catch (
+          marketError
+        ) {
+
+          market = {
+
+            price:
+              null,
+
+            previous_close:
+              null,
+
+            change:
+              null,
+
+            change_percent:
+              null,
+
+            currency:
+              "INR",
+
+            market_state:
+              null,
+
+            data_error:
+              marketError.message
+
+          };
+
+        }
+
+        return jsonResponse({
+
+          status:
+            "ok",
+
+          exchange,
+
+          symbol,
+
+          stock,
+
+          market
+
+        });
+
+      }
+
+      // --------------------------------------------------
+      // HISTORICAL DATA
+      // --------------------------------------------------
+
+      if (path === "/history") {
+
+        const symbol =
+          normalize(
+            url.searchParams.get(
+              "symbol"
+            )
+          );
+
+        const exchange =
+          normalizeExchange(
+            url.searchParams.get(
+              "exchange"
+            )
+          );
+
+        const period =
+          String(
+            url.searchParams.get(
+              "period"
+            ) || "1y"
+          ).toLowerCase();
+
+        if (!symbol) {
+
+          return jsonResponse(
+            {
+
+              status:
+                "error",
+
+              message:
+                "Stock symbol is required"
+
+            },
+            400
+          );
+
+        }
+
+        let stock = null;
+
+        // -------------------------
+        // NSE
+        // -------------------------
+
+        if (
+          exchange === "NSE"
+        ) {
+
+          stock =
+            await env.DB.prepare(`
+              SELECT
+                symbol,
+                company_name,
+                sector,
+                isin
+              FROM instruments
+              WHERE exchange = 'NSE'
+                AND search_symbol = ?
+              LIMIT 1
+            `)
+              .bind(symbol)
+              .first();
+
+          if (!stock) {
+
+            return jsonResponse(
+              {
+
+                status:
+                  "error",
+
+                message:
+                  "NSE stock not found",
+
+                symbol
+
+              },
+              404
+            );
+
+          }
+
+        }
+
+        // -------------------------
+        // BSE
+        // -------------------------
+
+        else {
+
+          stock = {
+
+            symbol,
+
+            company_name:
+              symbol,
+
+            sector:
+              "",
+
+            isin:
+              ""
+
+          };
+
+        }
+
+        const settings =
+          periodToRange(
+            period
+          );
+
+        const chart =
+          await fetchYahooChart(
+            symbol,
+            exchange,
+            settings.range,
+            settings.interval
+          );
+
+        const timestamps =
+          chart.timestamp || [];
+
+        const quote =
+          chart.indicators
+            ?.quote?.[0] || {};
+
+        const opens =
+          quote.open || [];
+
+        const highs =
+          quote.high || [];
+
+        const lows =
+          quote.low || [];
+
+        const closes =
+          quote.close || [];
+
+        const volumes =
+          quote.volume || [];
+
+        const history = [];
+
+        for (
+          let i = 0;
+          i < timestamps.length;
+          i++
+        ) {
+
+          if (
+            closes[i] === null ||
+            closes[i] === undefined
+          ) {
+            continue;
+          }
+
+          history.push({
+
+            timestamp:
+              timestamps[i],
+
+            open:
+              opens[i],
+
+            high:
+              highs[i],
+
+            low:
+              lows[i],
+
+            close:
+              closes[i],
+
+            volume:
+              volumes[i]
+
+          });
+
+        }
+
+        return jsonResponse({
+
+          status:
+            "ok",
+
+          exchange,
+
+          symbol,
+
+          company_name:
+            stock.company_name,
+
+          period,
+
+          currency:
+            chart.meta?.currency ||
+            "INR",
+
+          history
+
+        });
+
+      }
+
+      // --------------------------------------------------
+      // NEWS
+      // --------------------------------------------------
+
+      if (path === "/news") {
+
+        const symbol =
+          normalize(
+            url.searchParams.get(
+              "symbol"
+            )
+          );
+
+        const exchange =
+          normalizeExchange(
+            url.searchParams.get(
+              "exchange"
+            )
+          );
+
+        if (!symbol) {
+
+          return jsonResponse(
+            {
+
+              status:
+                "error",
+
+              message:
+                "Stock symbol is required"
+
+            },
+            400
+          );
+
+        }
+
+        let companyName =
+          symbol;
+
+        if (
+          exchange === "NSE"
+        ) {
+
+          const stock =
+            await env.DB.prepare(`
+              SELECT company_name
+              FROM instruments
+              WHERE exchange = 'NSE'
+                AND search_symbol = ?
+              LIMIT 1
+            `)
+              .bind(symbol)
+              .first();
+
+          if (!stock) {
+
+            return jsonResponse(
+              {
+
+                status:
+                  "error",
+
+                message:
+                  "NSE stock not found",
+
+                symbol
+
+              },
+              404
+            );
+
+          }
+
+          companyName =
+            stock.company_name ||
+            symbol;
+
+        }
+
+        const searchText =
+          `${symbol} ${companyName}`;
+
+        const newsUrl =
+          `https://news.google.com/rss/search?q=${encodeURIComponent(searchText)}&hl=en-IN&gl=IN&ceid=IN:en`;
+
+        const response =
+          await fetch(
+            newsUrl,
+            {
+              headers: {
+
+                "User-Agent":
+                  "Mozilla/5.0",
+
+                "Accept":
+                  "application/rss+xml,application/xml,text/xml,*/*"
+
+              }
+            }
+          );
+
+        if (!response.ok) {
+
+          return jsonResponse({
+
+            status:
+              "ok",
+
+            exchange,
+
+            symbol,
+
+            news: [],
+
+            message:
+              "News source unavailable"
+
+          });
+
+        }
+
+        const xml =
+          await response.text();
+
+        const items = [];
+
+        const itemMatches =
+          xml.match(
+            /<item>[\s\S]*?<\/item>/g
+          ) || [];
+
+        for (
+          const item
+          of itemMatches.slice(0, 10)
+        ) {
+
+          const titleMatch =
+            item.match(
+              /<title><!\[CDATA\[(.*?)\]\]><\/title>/
+            );
+
+          const linkMatch =
+            item.match(
+              /<link>(.*?)<\/link>/
+            );
+
+          const dateMatch =
+            item.match(
+              /<pubDate>(.*?)<\/pubDate>/
+            );
+
+          const title =
+            titleMatch
+              ? titleMatch[1]
+              : "";
+
+          const link =
+            linkMatch
+              ? linkMatch[1]
+              : "";
+
+          const published =
+            dateMatch
+              ? dateMatch[1]
+              : "";
+
+          if (title) {
+
+            items.push({
+
+              title,
+
+              link,
+
+              published
+
+            });
+
+          }
+
+        }
+
+        return jsonResponse({
+
+          status:
+            "ok",
+
+          exchange,
+
+          symbol,
+
+          company_name:
+            companyName,
+
+          news:
+            items
+
+        });
+
+      }
+
+      // --------------------------------------------------
+      // UNKNOWN ROUTE
+      // --------------------------------------------------
+
+      return jsonResponse(
+
+        {
+
+          status:
+            "error",
+
+          message:
+            "Route not found",
+
+          path
+
+        },
+
+        404
+
+      );
+
+    } catch (error) {
+
+      return jsonResponse(
+
+        {
+
+          status:
+            "error",
+
+          message:
+            error?.message ||
+            String(error)
+
+        },
+
+        500
+
+      );
+
+    }
+
+  }
+
+};
