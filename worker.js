@@ -1428,203 +1428,481 @@ export default {
       // NEWS
       // --------------------------------------------------
 
-      if (path === "/news") {
+     if (path === "/news") {
 
-        const symbol =
-          normalize(
-            url.searchParams.get(
-              "symbol"
-            )
-          );
+  const symbol =
+    normalize(
+      url.searchParams.get("symbol")
+    );
+
+  const exchange =
+    normalizeExchange(
+      url.searchParams.get("exchange")
+    );
+
+  if (!symbol) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message: "Stock symbol is required"
+      },
+      400
+    );
+
+  }
+
+  let companyName = symbol;
+
+  if (exchange === "NSE") {
+
+    const stock =
+      await env.DB.prepare(`
+        SELECT company_name
+        FROM instruments
+        WHERE exchange = 'NSE'
+          AND search_symbol = ?
+        LIMIT 1
+      `)
+        .bind(symbol)
+        .first();
+
+    if (!stock) {
+
+      return jsonResponse(
+        {
+          status: "error",
+          message: "NSE stock not found",
+          symbol
+        },
+        404
+      );
+
+    }
+
+    companyName =
+      stock.company_name ||
+      symbol;
+
+  }
+
+  /*
+    ------------------------------------------------
+    NEWS SOURCES
+    ------------------------------------------------
+
+    केवल इन Hindi business-news sources को
+    search किया जाएगा:
+
+    1. Economic Times Hindi
+    2. CNBC Awaaz
+    3. Zee Business
+    4. Moneycontrol Hindi
+    5. Money9
+  */
+
+  const sourceDomains = [
+    "hindi.economictimes.com",
+    "hindi.cnbctv18.com",
+    "zeebiz.com",
+    "hindi.moneycontrol.com",
+    "money9live.com"
+  ];
+
+  const sourceQuery =
+    sourceDomains
+      .map(
+        domain =>
+          `site:${domain}`
+      )
+      .join(" OR ");
+
+  /*
+    ------------------------------------------------
+    LAST 15 DAYS
+    ------------------------------------------------
+  */
+
+  const searchText =
+    `"${symbol}" "${companyName}" (${sourceQuery}) when:15d`;
+
+  const newsUrl =
+    `https://news.google.com/rss/search?q=` +
+    `${encodeURIComponent(searchText)}` +
+    `&hl=hi&gl=IN&ceid=IN:hi`;
+
+  const response =
+    await fetch(
+      newsUrl,
+      {
+        headers: {
+
+          "User-Agent":
+            "Mozilla/5.0",
+
+          "Accept":
+            "application/rss+xml,application/xml,text/xml,*/*"
+
+        }
+      }
+    );
+
+  if (!response.ok) {
+
+    return jsonResponse({
+
+      status: "ok",
+
+      exchange,
+
+      symbol,
+
+      company_name:
+        companyName,
+
+      news: [],
+
+      message:
+        "News source unavailable",
+
+      news_period:
+        "Last 15 Days"
+
+    });
+
+  }
+
+  const xml =
+    await response.text();
+
+  const items = [];
+
+  const itemMatches =
+    xml.match(
+      /<item>[\s\S]*?<\/item>/gi
+    ) || [];
+
+  /*
+    ------------------------------------------------
+    HELPER: XML TEXT
+    ------------------------------------------------
+  */
+
+  function extractXML(
+    item,
+    tag
+  ) {
+
+    const match =
+      item.match(
+        new RegExp(
+          `<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`,
+          "i"
+        )
+      );
+
+    if (!match) {
+      return "";
+    }
+
+    return match[1]
+      .replace(
+        /<!\[CDATA\[([\s\S]*?)\]\]>/gi,
+        "$1"
+      )
+      .replace(
+        /<[^>]+>/g,
+        ""
+      )
+      .trim();
+
+  }
+
+  /*
+    ------------------------------------------------
+    15 DAY DATE FILTER
+    ------------------------------------------------
+  */
+
+  const now =
+    Date.now();
+
+  const fifteenDays =
+    15 *
+    24 *
+    60 *
+    60 *
+    1000;
+
+  /*
+    ------------------------------------------------
+    READ NEWS ITEMS
+    ------------------------------------------------
+  */
+
+  for (
+    const item
+    of itemMatches
+  ) {
+
+    const title =
+      extractXML(
+        item,
+        "title"
+      );
+
+    const link =
+      extractXML(
+        item,
+        "link"
+      );
+
+    const published =
+      extractXML(
+        item,
+        "pubDate"
+      );
+
+    const source =
+      extractXML(
+        item,
+        "source"
+      );
+
+    if (!title || !published) {
+      continue;
+    }
+
+    const publishedTime =
+      Date.parse(
+        published
+      );
+
+    /*
+      Ignore invalid dates
+    */
+
+    if (
+      !Number.isFinite(
+        publishedTime
+      )
+    ) {
+      continue;
+    }
+
+    /*
+      IMPORTANT:
+      केवल पिछले 15 दिनों की खबर
+    */
+
+    if (
+      now -
+        publishedTime >
+      fifteenDays
+    ) {
+      continue;
+    }
+
+    /*
+      Future-dated items भी नहीं
+    */
+
+    if (
+      publishedTime >
+      now
+    ) {
+      continue;
+    }
+
+    /*
+      ------------------------------------------------
+      SOURCE IDENTIFICATION
+      ------------------------------------------------
+    */
+
+    let sourceName =
+      source ||
+      "";
+
+    const lowerSource =
+      sourceName.toLowerCase();
+
+    const lowerLink =
+      link.toLowerCase();
+
+    if (
+      lowerSource.includes(
+        "economic times"
+      ) ||
+      lowerLink.includes(
+        "economictimes"
+      )
+    ) {
+
+      sourceName =
+        "Economic Times Hindi";
+
+    } else if (
+      lowerSource.includes(
+        "cnbc"
+      ) ||
+      lowerLink.includes(
+        "cnbctv18"
+      )
+    ) {
+
+      sourceName =
+        "CNBC Awaaz";
+
+    } else if (
+      lowerSource.includes(
+        "zee"
+      ) ||
+      lowerLink.includes(
+        "zeebiz"
+      )
+    ) {
+
+      sourceName =
+        "Zee Business";
+
+    } else if (
+      lowerSource.includes(
+        "moneycontrol"
+      ) ||
+      lowerLink.includes(
+        "moneycontrol"
+      )
+    ) {
+
+      sourceName =
+        "Moneycontrol Hindi";
+
+    } else if (
+      lowerSource.includes(
+        "money9"
+      ) ||
+      lowerLink.includes(
+        "money9live"
+      )
+    ) {
+
+      sourceName =
+        "Money9";
+
+    }
+
+    /*
+      ------------------------------------------------
+      ADD NEWS
+      ------------------------------------------------
+    */
+
+    items.push({
+
+      title,
+
+      source:
+        sourceName,
+
+      published,
+
+      link
+
+    });
+
+  }
+
+  /*
+    ------------------------------------------------
+    REMOVE DUPLICATES
+    ------------------------------------------------
+  */
+
+  const uniqueNews =
+    [];
+
+  const seen =
+    new Set();
+
+  for (
+    const item
+    of items
+  ) {
+
+    const key =
+      `${item.title}`
+        .trim()
+        .toLowerCase();
+
+    if (
+      seen.has(key)
+    ) {
+      continue;
+    }
+
+    seen.add(key);
+
+    uniqueNews.push(
+      item
+    );
+
+  }
+
+  /*
+    ------------------------------------------------
+    SORT:
+    NEWEST FIRST
+    ------------------------------------------------
+  */
+
+  uniqueNews.sort(
+    (a, b) =>
+      Date.parse(
+        b.published
+      ) -
+      Date.parse(
+        a.published
+      )
+  );
+
+  /*
+    Maximum 20 headlines
+  */
+
+  const finalNews =
+    uniqueNews
+      .slice(0, 20);
+
+  return jsonResponse({
+
+    status:
+      "ok",
+
+    exchange,
+
+    symbol,
+
+    company_name:
+      companyName,
+
+    news_period:
+      "Last 15 Days",
+
+    news_count:
+      finalNews.length,
+
+    news:
+      finalNews
+
+  });
+
+} 
 
         const exchange =
           normalizeExchange(
             url.searchParams.get(
               "exchange"
-            )
-          );
-
-        if (!symbol) {
-
-          return jsonResponse(
-            {
-
-              status:
-                "error",
-
-              message:
-                "Stock symbol is required"
-
-            },
-            400
-          );
-
-        }
-
-        let companyName =
-          symbol;
-
-        if (
-          exchange === "NSE"
-        ) {
-
-          const stock =
-            await env.DB.prepare(`
-              SELECT company_name
-              FROM instruments
-              WHERE exchange = 'NSE'
-                AND search_symbol = ?
-              LIMIT 1
-            `)
-              .bind(symbol)
-              .first();
-
-          if (!stock) {
-
-            return jsonResponse(
-              {
-
-                status:
-                  "error",
-
-                message:
-                  "NSE stock not found",
-
-                symbol
-
-              },
-              404
-            );
-
-          }
-
-          companyName =
-            stock.company_name ||
-            symbol;
-
-        }
-
-        const searchText =
-          `${symbol} ${companyName}`;
-
-        const newsUrl =
-          `https://news.google.com/rss/search?q=${encodeURIComponent(searchText)}&hl=en-IN&gl=IN&ceid=IN:en`;
-
-        const response =
-          await fetch(
-            newsUrl,
-            {
-              headers: {
-
-                "User-Agent":
-                  "Mozilla/5.0",
-
-                "Accept":
-                  "application/rss+xml,application/xml,text/xml,*/*"
-
-              }
-            }
-          );
-
-        if (!response.ok) {
-
-          return jsonResponse({
-
-            status:
-              "ok",
-
-            exchange,
-
-            symbol,
-
-            news: [],
-
-            message:
-              "News source unavailable"
-
-          });
-
-        }
-
-        const xml =
-          await response.text();
-
-        const items = [];
-
-        const itemMatches =
-          xml.match(
-            /<item>[\s\S]*?<\/item>/g
-          ) || [];
-
-        for (
-          const item
-          of itemMatches.slice(0, 10)
-        ) {
-
-          const titleMatch =
-            item.match(
-              /<title><!\[CDATA\[(.*?)\]\]><\/title>/
-            );
-
-          const linkMatch =
-            item.match(
-              /<link>(.*?)<\/link>/
-            );
-
-          const dateMatch =
-            item.match(
-              /<pubDate>(.*?)<\/pubDate>/
-            );
-
-          const title =
-            titleMatch
-              ? titleMatch[1]
-              : "";
-
-          const link =
-            linkMatch
-              ? linkMatch[1]
-              : "";
-
-          const published =
-            dateMatch
-              ? dateMatch[1]
-              : "";
-
-          if (title) {
-
-            items.push({
-
-              title,
-
-              link,
-
-              published
-
-            });
-
-          }
-
-        }
-
-        return jsonResponse({
-
-          status:
-            "ok",
-
-          exchange,
-
-          symbol,
-
-          company_name:
-            companyName,
-
-          news:
-            items
-
-        });
-
-      }
 
       // --------------------------------------------------
       // UNKNOWN ROUTE
