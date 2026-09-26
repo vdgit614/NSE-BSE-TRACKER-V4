@@ -1717,7 +1717,118 @@ export default {
     );
   }
      }
+// --------------------------------------------------
+// MONEYCONTROL RSS TEST
+// --------------------------------------------------
 
+if (path === "/news-test") {
+
+  const rssUrl =
+    "https://hindi.moneycontrol.com/news/rss/feeds/latest-news.xml";
+
+  try {
+
+    const response =
+      await fetch(
+        rssUrl,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 NSE-BSE-TRACKER-V4",
+
+            "Accept":
+              "application/rss+xml, application/xml, text/xml, */*"
+          }
+        }
+      );
+
+    const xml =
+      await response.text();
+
+    const itemMatches =
+      xml.match(
+        /<item[\s\S]*?<\/item>/gi
+      ) || [];
+
+    const testItems =
+      itemMatches
+        .slice(0, 3)
+        .map(item => {
+
+          const titleMatch =
+            item.match(
+              /<title(?:\s[^>]*)?>([\s\S]*?)<\/title>/i
+            );
+
+          const linkMatch =
+            item.match(
+              /<link(?:\s[^>]*)?>([\s\S]*?)<\/link>/i
+            );
+
+          const dateMatch =
+            item.match(
+              /<pubDate(?:\s[^>]*)?>([\s\S]*?)<\/pubDate>/i
+            );
+
+          return {
+            title:
+              titleMatch
+                ? titleMatch[1]
+                    .replace(
+                      /<!\[CDATA\[([\s\S]*?)\]\]>/gi,
+                      "$1"
+                    )
+                    .trim()
+                : "",
+
+            link:
+              linkMatch
+                ? linkMatch[1].trim()
+                : "",
+
+            pubDate:
+              dateMatch
+                ? dateMatch[1].trim()
+                : ""
+          };
+
+        });
+
+    return jsonResponse({
+
+      status: "ok",
+
+      http_status:
+        response.status,
+
+      content_type:
+        response.headers.get(
+          "content-type"
+        ),
+
+      rss_items:
+        itemMatches.length,
+
+      first_3_items:
+        testItems
+
+    });
+
+  } catch (error) {
+
+    return jsonResponse({
+
+      status: "error",
+
+      message:
+        error?.message ||
+        String(error)
+
+    }, 500);
+
+  }
+
+}
       // --------------------------------------------------
       // UNKNOWN ROUTE
       // --------------------------------------------------
