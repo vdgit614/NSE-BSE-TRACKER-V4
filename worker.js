@@ -246,34 +246,111 @@ function buildMarketFromChart(
   const meta =
     chart.meta || {};
 
-  const price =
-    Number(meta.regularMarketPrice) ||
-    Number(meta.previousClose) ||
-    null;
+  const timestamps =
+    chart.timestamp || [];
 
-  const previousClose =
-    Number(meta.previousClose) ||
-    null;
+  const quote =
+    chart.indicators
+      ?.quote?.[0] || {};
+
+  const closes =
+    quote.close || [];
+
+  // ------------------------------------
+  // Current price
+  // ------------------------------------
+
+  const price =
+    Number(meta.regularMarketPrice);
+
+  // ------------------------------------
+  // Previous trading-day close
+  // ------------------------------------
+
+  let previousClose =
+    Number(meta.previousClose);
+
+  // If Yahoo meta.previousClose is missing,
+  // use the previous valid historical close.
+  if (
+    !Number.isFinite(previousClose) &&
+    closes.length >= 2
+  ) {
+
+    const validCloses =
+      closes.filter(
+        value =>
+          value !== null &&
+          value !== undefined &&
+          Number.isFinite(
+            Number(value)
+          )
+      );
+
+    if (
+      validCloses.length >= 2
+    ) {
+
+      previousClose =
+        Number(
+          validCloses[
+            validCloses.length - 2
+          ]
+        );
+
+    }
+
+  }
+
+  // ------------------------------------
+  // Fallback current price
+  // ------------------------------------
+
+  const finalPrice =
+    Number.isFinite(price)
+      ? price
+      : (
+          closes.length > 0
+            ? Number(
+                closes[
+                  closes.length - 1
+                ]
+              )
+            : null
+        );
+
+  // ------------------------------------
+  // Change
+  // ------------------------------------
 
   const change =
-    price !== null &&
-    previousClose !== null
-      ? price - previousClose
+    finalPrice !== null &&
+    Number.isFinite(previousClose)
+      ? finalPrice - previousClose
       : null;
 
+  // ------------------------------------
+  // Change %
+  // ------------------------------------
+
   const changePercent =
-    price !== null &&
-    previousClose !== null &&
+    change !== null &&
     previousClose !== 0
-      ? (change / previousClose) * 100
+      ? (
+          change /
+          previousClose
+        ) * 100
       : null;
 
   return {
 
-    price,
+    price:
+      finalPrice,
 
     previous_close:
-      previousClose,
+      Number.isFinite(previousClose)
+        ? previousClose
+        : null,
 
     change,
 
@@ -281,10 +358,12 @@ function buildMarketFromChart(
       changePercent,
 
     currency:
-      meta.currency || "INR",
+      meta.currency ||
+      "INR",
 
     market_state:
-      meta.marketState || null,
+      meta.marketState ||
+      null,
 
     fifty_two_week_high:
       meta.fiftyTwoWeekHigh ??
