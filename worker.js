@@ -46,7 +46,6 @@ function jsonResponse(data, status = 200) {
 }
 
 async function ensureSchema(env) {
-
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS instruments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,75 +71,64 @@ async function ensureSchema(env) {
     CREATE INDEX IF NOT EXISTS idx_instruments_name
     ON instruments(search_name)
   `).run();
-
 }
 
 function normalizeExchange(exchange) {
-
-  const value =
-    normalize(exchange);
+  const value = normalize(exchange);
 
   return value === "BSE"
     ? "BSE"
     : "NSE";
-
 }
 
-function yahooSymbol(
-  symbol,
-  exchange = "NSE"
-) {
-
+function yahooSymbol(symbol, exchange = "NSE") {
   const cleanSymbol =
     normalize(symbol)
       .replace(/\.NS$/i, "")
       .replace(/\.BO$/i, "");
 
-  const exc =
-    normalizeExchange(exchange);
+  const exc = normalizeExchange(exchange);
 
   return `${cleanSymbol}.${exc === "BSE" ? "BO" : "NS"}`;
-
 }
 
 function periodToRange(period) {
-
   const p =
     String(period || "1y")
       .toLowerCase();
 
   if (p === "7d") {
-
     return {
       range: "5d",
       interval: "1d"
     };
-
   }
 
   if (p === "1m") {
-
     return {
       range: "1mo",
       interval: "1d"
     };
+  }
 
+  if (p === "3m") {
+    return {
+      range: "3mo",
+      interval: "1d"
+    };
   }
 
   if (p === "6m") {
-
     return {
       range: "6mo",
       interval: "1d"
     };
-
   }
 
   return {
     range: "1y",
     interval: "1d"
   };
-
 }
 
 async function fetchYahooChart(
@@ -149,7 +137,6 @@ async function fetchYahooChart(
   range = "1y",
   interval = "1d"
 ) {
-
   const ticker =
     yahooSymbol(
       symbol,
@@ -167,20 +154,16 @@ async function fetchYahooChart(
       url,
       {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0",
-          "Accept":
-            "application/json"
+          "User-Agent": "Mozilla/5.0",
+          "Accept": "application/json"
         }
       }
     );
 
   if (!response.ok) {
-
     throw new Error(
       `Market data request failed: HTTP ${response.status}`
     );
-
   }
 
   const data =
@@ -192,21 +175,15 @@ async function fetchYahooChart(
     !data.chart.result ||
     !data.chart.result[0]
   ) {
-
     throw new Error(
       "Market data not available"
     );
-
   }
 
   return data.chart.result[0];
-
 }
 
-async function searchYahoo(
-  query
-) {
-
+async function searchYahoo(query) {
   const searchUrl =
     `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}` +
     `&quotesCount=20&newsCount=0`;
@@ -216,67 +193,47 @@ async function searchYahoo(
       searchUrl,
       {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0",
-          "Accept":
-            "application/json"
+          "User-Agent": "Mozilla/5.0",
+          "Accept": "application/json"
         }
       }
     );
 
   if (!response.ok) {
-
     throw new Error(
       `Yahoo search failed: HTTP ${response.status}`
     );
-
   }
 
   const data =
     await response.json();
 
   return data.quotes || [];
-
 }
 
-function buildMarketFromChart(
-  chart
-) {
-
+function buildMarketFromChart(chart) {
   const meta =
     chart.meta || {};
 
-  const timestamps =
-    chart.timestamp || [];
-
-  const quote =
-    chart.indicators
-      ?.quote?.[0] || {};
-
   const closes =
-    quote.close || [];
-
-  // ------------------------------------
-  // Current price
-  // ------------------------------------
+    chart.indicators
+      ?.quote?.[0]
+      ?.close || [];
 
   const price =
-    Number(meta.regularMarketPrice);
-
-  // ------------------------------------
-  // Previous trading-day close
-  // ------------------------------------
+    Number(
+      meta.regularMarketPrice
+    );
 
   let previousClose =
-    Number(meta.previousClose);
+    Number(
+      meta.previousClose
+    );
 
-  // If Yahoo meta.previousClose is missing,
-  // use the previous valid historical close.
   if (
-    !Number.isFinite(previousClose) &&
-    closes.length >= 2
+    !Number.isFinite(previousClose) ||
+    previousClose <= 0
   ) {
-
     const validCloses =
       closes.filter(
         value =>
@@ -290,38 +247,43 @@ function buildMarketFromChart(
     if (
       validCloses.length >= 2
     ) {
-
       previousClose =
         Number(
           validCloses[
             validCloses.length - 2
           ]
         );
-
     }
-
   }
 
-  // ------------------------------------
-  // Fallback current price
-  // ------------------------------------
-
-  const finalPrice =
+  let finalPrice =
     Number.isFinite(price)
       ? price
-      : (
-          closes.length > 0
-            ? Number(
-                closes[
-                  closes.length - 1
-                ]
-              )
-            : null
-        );
+      : null;
 
-  // ------------------------------------
-  // Change
-  // ------------------------------------
+  if (
+    finalPrice === null &&
+    closes.length > 0
+  ) {
+    const validCloses =
+      closes.filter(
+        value =>
+          value !== null &&
+          value !== undefined &&
+          Number.isFinite(
+            Number(value)
+          )
+      );
+
+    if (validCloses.length > 0) {
+      finalPrice =
+        Number(
+          validCloses[
+            validCloses.length - 1
+          ]
+        );
+    }
+  }
 
   const change =
     finalPrice !== null &&
@@ -329,12 +291,9 @@ function buildMarketFromChart(
       ? finalPrice - previousClose
       : null;
 
-  // ------------------------------------
-  // Change %
-  // ------------------------------------
-
   const changePercent =
     change !== null &&
+    Number.isFinite(previousClose) &&
     previousClose !== 0
       ? (
           change /
@@ -343,7 +302,6 @@ function buildMarketFromChart(
       : null;
 
   return {
-
     price:
       finalPrice,
 
@@ -372,16 +330,11 @@ function buildMarketFromChart(
     fifty_two_week_low:
       meta.fiftyTwoWeekLow ??
       null
-
   };
-
 }
-export default {
 
-  async fetch(
-    request,
-    env
-  ) {
+export default {
+  async fetch(request, env) {
 
     try {
 
@@ -389,11 +342,9 @@ export default {
         request.method ===
         "OPTIONS"
       ) {
-
         return jsonResponse({
           status: "ok"
         });
-
       }
 
       const url =
@@ -411,7 +362,6 @@ export default {
       if (path === "/") {
 
         return jsonResponse({
-
           status: "ok",
 
           project:
@@ -426,7 +376,6 @@ export default {
           ]
 
         });
-
       }
 
       // --------------------------------------------------
@@ -443,7 +392,6 @@ export default {
             nseUrl,
             {
               headers: {
-
                 "User-Agent":
                   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
 
@@ -452,7 +400,6 @@ export default {
 
                 "Referer":
                   "https://www.nseindia.com/"
-
               }
             }
           );
@@ -461,18 +408,17 @@ export default {
 
           return jsonResponse(
             {
-              status: "error",
+              status:
+                "error",
 
               message:
                 "NSE instrument file download failed",
 
               http_status:
                 response.status
-
             },
             502
           );
-
         }
 
         const csvText =
@@ -491,15 +437,14 @@ export default {
 
           return jsonResponse(
             {
-              status: "error",
+              status:
+                "error",
 
               message:
                 "NSE CSV file is empty or invalid"
-
             },
             500
           );
-
         }
 
         const headers =
@@ -507,17 +452,18 @@ export default {
             .map(
               h =>
                 normalize(h)
-                  .replace(/\s+/g, "_")
+                  .replace(
+                    /\s+/g,
+                    "_"
+                  )
             );
 
         const headerIndex = {};
 
         headers.forEach(
           (header, index) => {
-
             headerIndex[header] =
               index;
-
           }
         );
 
@@ -540,13 +486,10 @@ export default {
                   headerIndex[name]
                 ] || ""
               );
-
             }
-
           }
 
           return "";
-
         }
 
         const records = [];
@@ -638,7 +581,6 @@ export default {
           }
 
           records.push({
-
             exchange:
               "NSE",
 
@@ -665,9 +607,7 @@ export default {
               normalize(
                 companyName
               )
-
           });
-
         }
 
         await env.DB.prepare(
@@ -718,7 +658,6 @@ export default {
                     search_symbol = excluded.search_symbol,
                     search_name = excluded.search_name
                 `).bind(
-
                   record.exchange,
                   record.symbol,
                   record.company_name,
@@ -728,7 +667,6 @@ export default {
                   record.trading_status,
                   record.search_symbol,
                   record.search_name
-
                 )
             );
 
@@ -738,12 +676,12 @@ export default {
 
           imported +=
             batch.length;
-
         }
 
         return jsonResponse({
 
-          status: "ok",
+          status:
+            "ok",
 
           message:
             "NSE instrument master imported successfully",
@@ -754,7 +692,6 @@ export default {
           imported
 
         });
-
       }
 
       // --------------------------------------------------
@@ -772,7 +709,8 @@ export default {
 
         return jsonResponse({
 
-          status: "ok",
+          status:
+            "ok",
 
           exchange:
             "NSE",
@@ -783,14 +721,12 @@ export default {
             )
 
         });
-
       }
 
       // --------------------------------------------------
       // SEARCH
-      //
       // NSE -> D1
-      // BSE -> Yahoo search
+      // BSE -> Yahoo
       // --------------------------------------------------
 
       if (path === "/search") {
@@ -800,7 +736,9 @@ export default {
           "";
 
         const query =
-          normalize(rawQuery);
+          normalize(
+            rawQuery
+          );
 
         const exchange =
           normalizeExchange(
@@ -813,23 +751,24 @@ export default {
 
           return jsonResponse({
 
-            status: "ok",
+            status:
+              "ok",
 
             exchange,
 
-            query: "",
+            query:
+              "",
 
-            count: 0,
+            count:
+              0,
 
-            results: []
+            results:
+              []
 
           });
-
         }
 
-        // -------------------------
         // NSE SEARCH
-        // -------------------------
 
         if (
           exchange === "NSE"
@@ -884,7 +823,8 @@ export default {
 
           return jsonResponse({
 
-            status: "ok",
+            status:
+              "ok",
 
             exchange:
               "NSE",
@@ -896,15 +836,13 @@ export default {
               0,
 
             results:
-              result.results || []
+              result.results ||
+              []
 
           });
-
         }
 
-        // -------------------------
         // BSE SEARCH
-        // -------------------------
 
         const quotes =
           await searchYahoo(
@@ -930,13 +868,14 @@ export default {
 
                 return (
                   symbol.endsWith(".BO") ||
-                  exchangeName ===
-                    "BSE"
+                  exchangeName === "BSE"
                 );
-
               }
             )
-            .slice(0, 20)
+            .slice(
+              0,
+              20
+            )
             .map(
               quote => {
 
@@ -986,13 +925,13 @@ export default {
                     yahooTicker
 
                 };
-
               }
             );
 
         return jsonResponse({
 
-          status: "ok",
+          status:
+            "ok",
 
           exchange:
             "BSE",
@@ -1005,12 +944,10 @@ export default {
           results
 
         });
+      }
 
-          }
-            // --------------------------------------------------
+      // --------------------------------------------------
       // STOCK DETAILS
-      // /stock?exchange=NSE&symbol=TCS
-      // /stock?exchange=BSE&symbol=TCS
       // --------------------------------------------------
 
       if (path === "/stock") {
@@ -1038,18 +975,14 @@ export default {
 
               message:
                 "Stock symbol is required"
-
             },
             400
           );
-
         }
 
         let stock = null;
 
-        // -------------------------
         // NSE
-        // -------------------------
 
         if (
           exchange === "NSE"
@@ -1078,7 +1011,6 @@ export default {
 
             return jsonResponse(
               {
-
                 status:
                   "error",
 
@@ -1086,18 +1018,14 @@ export default {
                   "NSE stock not found",
 
                 symbol
-
               },
               404
             );
-
           }
 
         }
 
-        // -------------------------
-        // BSE
-        // -------------------------
+          // BSE
 
         else {
 
@@ -1124,9 +1052,7 @@ export default {
 
             trading_status:
               ""
-
           };
-
         }
 
         let market = null;
@@ -1148,8 +1074,7 @@ export default {
             exchange === "BSE" &&
             (
               !stock.company_name ||
-              stock.company_name ===
-                symbol
+              stock.company_name === symbol
             )
           ) {
 
@@ -1157,7 +1082,6 @@ export default {
               meta.longName ||
               meta.shortName ||
               symbol;
-
           }
 
           market =
@@ -1191,9 +1115,7 @@ export default {
 
             data_error:
               marketError.message
-
           };
-
         }
 
         return jsonResponse({
@@ -1210,10 +1132,7 @@ export default {
           market
 
         });
-
-      }
-
-      // --------------------------------------------------
+              // --------------------------------------------------
       // HISTORICAL DATA
       // --------------------------------------------------
 
@@ -1244,24 +1163,19 @@ export default {
 
           return jsonResponse(
             {
-
               status:
                 "error",
 
               message:
                 "Stock symbol is required"
-
             },
             400
           );
-
         }
 
         let stock = null;
 
-        // -------------------------
         // NSE
-        // -------------------------
 
         if (
           exchange === "NSE"
@@ -1286,7 +1200,6 @@ export default {
 
             return jsonResponse(
               {
-
                 status:
                   "error",
 
@@ -1294,18 +1207,14 @@ export default {
                   "NSE stock not found",
 
                 symbol
-
               },
               404
             );
-
           }
 
         }
 
-        // -------------------------
         // BSE
-        // -------------------------
 
         else {
 
@@ -1321,9 +1230,7 @@ export default {
 
             isin:
               ""
-
           };
-
         }
 
         const settings =
@@ -1363,6 +1270,9 @@ export default {
 
         const history = [];
 
+        let previousClose =
+          null;
+
         for (
           let i = 0;
           i < timestamps.length;
@@ -1376,28 +1286,83 @@ export default {
             continue;
           }
 
+          const close =
+            Number(
+              closes[i]
+            );
+
+          if (
+            !Number.isFinite(close)
+          ) {
+            continue;
+          }
+
+          let change = null;
+          let changePercent = null;
+
+          if (
+            previousClose !== null &&
+            Number.isFinite(
+              previousClose
+            ) &&
+            previousClose !== 0
+          ) {
+
+            change =
+              close -
+              previousClose;
+
+            changePercent =
+              (
+                change /
+                previousClose
+              ) * 100;
+          }
+
           history.push({
 
             timestamp:
               timestamps[i],
 
+            date:
+              new Date(
+                timestamps[i] * 1000
+              ).toISOString(),
+
             open:
-              opens[i],
+              opens[i] !== null &&
+              opens[i] !== undefined
+                ? Number(opens[i])
+                : null,
 
             high:
-              highs[i],
+              highs[i] !== null &&
+              highs[i] !== undefined
+                ? Number(highs[i])
+                : null,
 
             low:
-              lows[i],
+              lows[i] !== null &&
+              lows[i] !== undefined
+                ? Number(lows[i])
+                : null,
 
-            close:
-              closes[i],
+            close,
+
+            change,
+
+            change_percent:
+              changePercent,
 
             volume:
-              volumes[i]
-
+              volumes[i] !== null &&
+              volumes[i] !== undefined
+                ? Number(volumes[i])
+                : null
           });
 
+          previousClose =
+            close;
         }
 
         return jsonResponse({
@@ -1421,350 +1386,121 @@ export default {
           history
 
         });
-
-      }
-
-      // --------------------------------------------------
+          }
+              // --------------------------------------------------
       // NEWS
       // --------------------------------------------------
+      // News is now handled from the frontend through
+      // ChatGPT Search and Google Search.
+      // This route is retained so the old endpoint
+      // does not break unexpectedly.
+      // --------------------------------------------------
 
-     if (path === "/news") {
-  try {
-    const symbol = normalize(url.searchParams.get("symbol"));
-    const exchange = normalizeExchange(url.searchParams.get("exchange"));
+      if (path === "/news") {
 
-    if (!symbol) {
-      return jsonResponse(
-        {
-          status: "error",
-          message: "Symbol is required"
-        },
-        400
-      );
-    }
+        const symbol =
+          normalize(
+            url.searchParams.get(
+              "symbol"
+            )
+          );
 
-    // Get company name from D1
-    const instrument = await env.DB.prepare(`
-      SELECT symbol, company_name
-      FROM instruments
-      WHERE exchange = ? AND symbol = ?
-      LIMIT 1
-    `)
-      .bind(exchange, symbol)
-      .first();
+        const exchange =
+          normalizeExchange(
+            url.searchParams.get(
+              "exchange"
+            )
+          );
 
-    if (!instrument) {
-      return jsonResponse(
-        {
-          status: "error",
-          message: "Stock not found"
-        },
-        404
-      );
-    }
+        if (!symbol) {
 
-    const companyName = String(instrument.company_name || "").trim();
+          return jsonResponse(
+            {
+              status:
+                "error",
 
-    // Moneycontrol Hindi RSS feeds
-    const rssFeeds = [
-      {
-        name: "Moneycontrol Hindi",
-        url: "https://hindi.moneycontrol.com/news/rss/feeds/latest-news.xml"
-      },
-      {
-        name: "Moneycontrol Hindi",
-        url: "https://hindi.moneycontrol.com/news/rss/feeds/markets.xml"
-      },
-      {
-        name: "Moneycontrol Hindi",
-        url: "https://hindi.moneycontrol.com/news/rss/feeds/india.xml"
-      },
-      {
-        name: "Moneycontrol Hindi",
-        url: "https://hindi.moneycontrol.com/news/rss/feeds/your-money.xml"
-      }
-    ];
-
-    // XML entity decoder
-    function decodeXml(value) {
-      return String(value || "")
-        .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-        .replace(/&amp;/gi, "&")
-        .replace(/&quot;/gi, '"')
-        .replace(/&#39;/gi, "'")
-        .replace(/&apos;/gi, "'")
-        .replace(/&lt;/gi, "<")
-        .replace(/&gt;/gi, ">")
-        .replace(/&#(\d+);/g, (_, n) =>
-          String.fromCharCode(Number(n))
-        )
-        .replace(/&#x([0-9a-f]+);/gi, (_, n) =>
-          String.fromCharCode(parseInt(n, 16))
-        )
-        .trim();
-    }
-
-    function getTag(item, tagName) {
-      const regex = new RegExp(
-        `<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tagName}>`,
-        "i"
-      );
-
-      const match = item.match(regex);
-      return match ? decodeXml(match[1]) : "";
-    }
-
-    function parseRSS(xmlText) {
-      const items = [];
-      const itemMatches = xmlText.match(/<item\b[\s\S]*?<\/item>/gi) || [];
-
-      for (const item of itemMatches) {
-        const title = getTag(item, "title");
-        const link = getTag(item, "link");
-        const pubDate =
-          getTag(item, "pubDate") ||
-          getTag(item, "dc:date");
-
-        const description =
-          getTag(item, "description") ||
-          getTag(item, "content:encoded");
-
-        if (!title || !link) {
-          continue;
-        }
-
-        items.push({
-          title,
-          link,
-          pubDate,
-          description
-        });
-      }
-
-      return items;
-    }
-
-    // Fetch all RSS feeds together
-    const feedResults = await Promise.allSettled(
-      rssFeeds.map(async (feed) => {
-        const response = await fetch(feed.url, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 NSE-BSE-TRACKER-V4",
-            "Accept": "application/rss+xml, application/xml, text/xml, */*"
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `RSS request failed: HTTP ${response.status}`
+              message:
+                "Symbol is required"
+            },
+            400
           );
         }
 
-        const xml = await response.text();
+        let companyName =
+          symbol;
 
-        return {
-          source: feed.name,
-          items: parseRSS(xml)
-        };
-      })
-    );
-
-    // Last 15 days
-    const now = Date.now();
-    const fifteenDaysAgo =
-      now - 15 * 24 * 60 * 60 * 1000;
-
-    // Search terms
-    const stockSymbol = symbol.toUpperCase();
-    const company = companyName.toUpperCase();
-
-    // Create useful company-name words
-    const companyWords = company
-      .replace(/[^A-Z0-9\s]/g, " ")
-      .split(/\s+/)
-      .filter(word => word.length >= 4)
-      .filter(word =>
-        ![
-          "LIMITED",
-          "LTD",
-          "INDIA",
-          "PRIVATE",
-          "PVT",
-          "COMPANY",
-          "CORPORATION",
-          "CORP"
-        ].includes(word)
-      );
-
-    const allNews = [];
-
-    for (const result of feedResults) {
-      if (result.status !== "fulfilled") {
-        continue;
-      }
-
-      const source = result.value.source;
-
-      for (const item of result.value.items) {
-        const publishedTime = Date.parse(item.pubDate);
-
-        // Ignore articles where date cannot be understood
-        if (!Number.isFinite(publishedTime)) {
-          continue;
-        }
-
-        // Only last 15 days
-        if (publishedTime < fifteenDaysAgo || publishedTime > now) {
-          continue;
-        }
-
-        const searchText = (
-          item.title +
-          " " +
-          item.description
-        ).toUpperCase();
-
-        let isRelevant = false;
-
-        // Exact stock symbol
-        const symbolRegex = new RegExp(
-          `(^|[^A-Z0-9])${stockSymbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^A-Z0-9]|$)`,
-          "i"
-        );
-
-        if (symbolRegex.test(searchText)) {
-          isRelevant = true;
-        }
-
-        // Full company name
         if (
-          !isRelevant &&
-          company.length >= 5 &&
-          searchText.includes(company)
+          exchange === "NSE"
         ) {
-          isRelevant = true;
-        }
 
-        // Important words from company name
-        if (!isRelevant && companyWords.length > 0) {
-          const matchingWords = companyWords.filter(word =>
-            searchText.includes(word)
-          );
+          const instrument =
+            await env.DB.prepare(`
+              SELECT company_name
+              FROM instruments
+              WHERE exchange = 'NSE'
+                AND symbol = ?
+              LIMIT 1
+            `)
+              .bind(symbol)
+              .first();
 
-          if (matchingWords.length >= 2) {
-            isRelevant = true;
+          if (
+            instrument?.company_name
+          ) {
+            companyName =
+              instrument.company_name;
           }
         }
 
-        if (!isRelevant) {
-          continue;
-        }
+        return jsonResponse({
 
-        allNews.push({
-          title: item.title,
-          source,
-          published_at: new Date(publishedTime).toISOString(),
-          link: item.link
+          status:
+            "ok",
+
+          exchange,
+
+          symbol,
+
+          company_name:
+            companyName,
+
+          period:
+            "last_15_days",
+
+          news:
+            [],
+
+          message:
+            "News search is available through ChatGPT Search and Google Search buttons in the app."
+
         });
       }
-    }
 
-    // Remove duplicate headlines
-    const uniqueNews = [];
-    const seen = new Set();
+      // --------------------------------------------------
+      // OLD NEWS TEST ROUTE
+      // --------------------------------------------------
 
-    for (const item of allNews) {
-      const key = item.title
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .trim();
+      if (
+        path === "/news-test"
+      ) {
 
-      if (seen.has(key)) {
-        continue;
+        return jsonResponse({
+
+          status:
+            "ok",
+
+          message:
+            "News API test route retained. The app now uses ChatGPT Search and Google Search for news."
+
+        });
       }
 
-      seen.add(key);
-      uniqueNews.push(item);
-    }
-
-    // Latest first
-    uniqueNews.sort(
-      (a, b) =>
-        new Date(b.published_at) -
-        new Date(a.published_at)
-    );
-
-    // Maximum 20 news items
-    const news = uniqueNews.slice(0, 20);
-
-    return jsonResponse({
-      status: "ok",
-      exchange,
-      symbol,
-      company_name: companyName,
-      period: "last_15_days",
-      news,
-      count: news.length
-    });
-
-  } catch (error) {
-    return jsonResponse(
-      {
-        status: "error",
-        message: error.message || "News request failed"
-      },
-      500
-    );
-  }
-     }
-// --------------------------------------------------
-// MONEYCONTROL HTML NEWS TEST
-// -----------------------------------
-      if (url.pathname === "/news-test") {
-  try {
-    const newsUrl =
-      `https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php` +
-      `?classic=true` +
-      `&query=${encodeURIComponent("TCS")}` +
-      `&type=3` +
-      `&format=json`;
-
-    const response = await fetch(newsUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-        "Accept": "application/json, text/javascript, text/html, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.moneycontrol.com/",
-        "Origin": "https://www.moneycontrol.com",
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    });
-
-    const rawText = await response.text();
-
-    return jsonResponse({
-      status: "ok",
-      http_status: response.status,
-      content_type: response.headers.get("content-type"),
-      body_length: rawText.length,
-      first_2000_chars: rawText.slice(0, 2000)
-    });
-
-  } catch (error) {
-    return jsonResponse({
-      status: "error",
-      message: error.message
-    }, 500);
-  }
-      }
       // --------------------------------------------------
       // UNKNOWN ROUTE
       // --------------------------------------------------
 
       return jsonResponse(
-
         {
-
           status:
             "error",
 
@@ -1772,34 +1508,23 @@ export default {
             "Route not found",
 
           path
-
         },
-
         404
-
       );
 
     } catch (error) {
 
       return jsonResponse(
-
         {
-
           status:
             "error",
 
           message:
             error?.message ||
             String(error)
-
         },
-
         500
-
       );
-
     }
-
   }
-
 };
