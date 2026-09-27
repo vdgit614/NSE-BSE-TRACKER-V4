@@ -1718,81 +1718,101 @@ export default {
   }
      }
 // --------------------------------------------------
-// MONEYCONTROL RSS TEST
+// MONEYCONTROL HTML NEWS TEST
 // --------------------------------------------------
 
 if (path === "/news-test") {
 
-  const rssUrl =
-    "https://hindi.moneycontrol.com/news/rss/feeds/latest-news.xml";
+  const newsUrl =
+    "https://hindi.moneycontrol.com/news/";
 
   try {
 
     const response =
       await fetch(
-        rssUrl,
+        newsUrl,
         {
           headers: {
             "User-Agent":
               "Mozilla/5.0 NSE-BSE-TRACKER-V4",
 
             "Accept":
-              "application/rss+xml, application/xml, text/xml, */*"
+              "text/html,application/xhtml+xml"
           }
         }
       );
 
-    const xml =
+    const html =
       await response.text();
 
-    const itemMatches =
-      xml.match(
-        /<item[\s\S]*?<\/item>/gi
+    // सभी headline links ढूँढने की कोशिश
+    const linkMatches =
+      html.match(
+        /<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi
       ) || [];
 
-    const testItems =
-      itemMatches
-        .slice(0, 3)
-        .map(item => {
+    const headlines = [];
 
-          const titleMatch =
-            item.match(
-              /<title(?:\s[^>]*)?>([\s\S]*?)<\/title>/i
-            );
+    for (
+      const tag
+      of linkMatches
+    ) {
 
-          const linkMatch =
-            item.match(
-              /<link(?:\s[^>]*)?>([\s\S]*?)<\/link>/i
-            );
+      const match =
+        tag.match(
+          /<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i
+        );
 
-          const dateMatch =
-            item.match(
-              /<pubDate(?:\s[^>]*)?>([\s\S]*?)<\/pubDate>/i
-            );
+      if (!match) {
+        continue;
+      }
 
-          return {
-            title:
-              titleMatch
-                ? titleMatch[1]
-                    .replace(
-                      /<!\[CDATA\[([\s\S]*?)\]\]>/gi,
-                      "$1"
-                    )
-                    .trim()
-                : "",
+      let link =
+        match[1];
 
-            link:
-              linkMatch
-                ? linkMatch[1].trim()
-                : "",
+      let title =
+        match[2]
+          .replace(
+            /<[^>]+>/g,
+            ""
+          )
+          .replace(
+            /\s+/g,
+            " "
+          )
+          .trim();
 
-            pubDate:
-              dateMatch
-                ? dateMatch[1].trim()
-                : ""
-          };
+      if (
+        !title ||
+        title.length < 15
+      ) {
+        continue;
+      }
 
-        });
+      if (
+        !link.startsWith("http")
+      ) {
+        link =
+          "https://hindi.moneycontrol.com" +
+          (
+            link.startsWith("/")
+              ? link
+              : "/" + link
+          );
+      }
+
+      headlines.push({
+        title,
+        link
+      });
+
+      if (
+        headlines.length >= 10
+      ) {
+        break;
+      }
+
+    }
 
     return jsonResponse({
 
@@ -1806,11 +1826,13 @@ if (path === "/news-test") {
           "content-type"
         ),
 
-      rss_items:
-        itemMatches.length,
+      html_length:
+        html.length,
 
-      first_3_items:
-        testItems
+      headline_count:
+        headlines.length,
+
+      headlines
 
     });
 
