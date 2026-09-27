@@ -203,7 +203,47 @@ cursor: pointer;
 background: #fff;
 color: #000;
 }
+.deep-research-box,
+.news-box {
+margin-top: 18px;
+padding-top: 15px;
+border-top: 1px solid #222;
+}
 
+.section-title {
+font-size: 14px;
+font-weight: 700;
+color: #aaa;
+margin-bottom: 10px;
+}
+
+.research-buttons,
+.news-buttons {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+}
+
+.research-button,
+.news-button {
+flex: 1;
+min-width: 120px;
+padding: 11px 10px;
+border: 1px solid #333;
+border-radius: 9px;
+background: #111;
+color: #fff;
+font-size: 13px;
+font-weight: 700;
+cursor: pointer;
+text-align: center;
+}
+
+.research-button:hover,
+.news-button:hover {
+background: #1b1b1b;
+border-color: #555;
+}
 @media (max-width: 480px) {
 
 .app {
@@ -655,6 +695,9 @@ market.market_state ||
 
 </div>
 
+
+<!-- STOCK HISTORY -->
+
 <div class="history-box">
 
 <div class="details">
@@ -703,9 +746,89 @@ Select a period.
 
 </div>
 
+
+<!-- DEEP RESEARCH -->
+
+<div class="deep-research-box">
+
+<div class="section-title">
+Deep Research
+</div>
+
+<div class="research-buttons">
+
+<button
+class="research-button"
+id="googleFinanceButton"
+>
+Google Finance
+</button>
+
+<button
+class="research-button"
+id="yahooFinanceButton"
+>
+Yahoo Finance
+</button>
+
+<button
+class="research-button"
+id="screenerButton"
+>
+Screener
+</button>
+
+<button
+class="research-button"
+id="nseButtonResearch"
+>
+NSE
+</button>
+
+</div>
+
+</div>
+
+
+<!-- NEWS -->
+
+<div class="news-box">
+
+<div class="section-title">
+News
+</div>
+
+<div class="news-buttons">
+
+<button
+class="news-button"
+id="chatGPTNewsButton"
+>
+🤖 ChatGPT Search
+</button>
+
+<button
+class="news-button"
+id="googleNewsButton"
+>
+🔎 Google Search
+</button>
+
+</div>
+
+<div
+class="details"
+style="margin-top:10px;"
+>
+Search the latest news from the last 15 days.
+</div>
+
+</div>
+
 </div>
 
 `;
+
 
 const buttons =
 document.querySelectorAll(
@@ -740,6 +863,178 @@ button.dataset.period
 
 }
 );
+
+
+// --------------------------------
+// DEEP RESEARCH LINKS
+// --------------------------------
+
+const encodedCompany =
+encodeURIComponent(company);
+
+const encodedSymbol =
+encodeURIComponent(symbol);
+
+const encodedExchange =
+encodeURIComponent(exchange);
+
+
+// Google Finance
+
+document
+.getElementById("googleFinanceButton")
+.addEventListener(
+"click",
+() => {
+
+const url =
+`https://www.google.com/finance/quote/${encodedSymbol}:${encodedExchange}`;
+
+window.open(
+url,
+"_blank"
+);
+
+}
+);
+
+
+// Yahoo Finance
+
+document
+.getElementById("yahooFinanceButton")
+.addEventListener(
+"click",
+() => {
+
+const yahooExchange =
+exchange === "BSE"
+? "BO"
+: "NS";
+
+const url =
+`https://finance.yahoo.com/quote/${encodedSymbol}.${yahooExchange}/`;
+
+window.open(
+url,
+"_blank"
+);
+
+}
+);
+
+
+// Screener
+
+document
+.getElementById("screenerButton")
+.addEventListener(
+"click",
+() => {
+
+const url =
+`https://www.google.com/search?q=${encodeURIComponent(
+"Screener " +
+symbol +
+" " +
+company
+)}`;
+
+window.open(
+url,
+"_blank"
+);
+
+}
+);
+
+
+// NSE
+
+document
+.getElementById("nseButtonResearch")
+.addEventListener(
+"click",
+() => {
+
+const url =
+exchange === "NSE"
+? `https://www.google.com/search?q=${encodeURIComponent(
+"NSE " +
+symbol +
+" " +
+company
+)}`
+: `https://www.google.com/search?q=${encodeURIComponent(
+"BSE " +
+symbol +
+" " +
+company
+)}`;
+
+window.open(
+url,
+"_blank"
+);
+
+}
+);
+
+
+// --------------------------------
+// NEWS SEARCH
+// --------------------------------
+
+const newsQuery =
+`${symbol} ${company} news last 15 days`;
+
+
+// ChatGPT Search
+
+document
+.getElementById("chatGPTNewsButton")
+.addEventListener(
+"click",
+() => {
+
+const prompt =
+`${symbol} (${company}) की पिछले 15 दिनों की महत्वपूर्ण खबरों की headlines बताइए। हर खबर के साथ source, date और original article link दें। केवल verified/current web sources का उपयोग करें।`;
+
+const url =
+`https://chatgpt.com/?prompt=${encodeURIComponent(
+prompt
+)}`;
+
+window.open(
+url,
+"_blank"
+);
+
+}
+);
+
+
+// Google News Search
+
+document
+.getElementById("googleNewsButton")
+.addEventListener(
+"click",
+() => {
+
+const url =
+`https://www.google.com/search?tbm=nws&q=${encodeURIComponent(
+newsQuery
+)}`;
+
+window.open(
+url,
+"_blank"
+);
+
+}
+);
+
 
 loadHistory(
 symbol,
