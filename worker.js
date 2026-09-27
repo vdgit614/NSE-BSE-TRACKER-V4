@@ -1719,138 +1719,44 @@ export default {
      }
 // --------------------------------------------------
 // MONEYCONTROL HTML NEWS TEST
-// --------------------------------------------------
-
-if (path === "/news-test") {
-
-  const newsUrl =
-    "https://hindi.moneycontrol.com/news/";
-
+// -----------------------------------
+      if (url.pathname === "/news-test") {
   try {
+    const newsUrl =
+      `https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php` +
+      `?classic=true` +
+      `&query=${encodeURIComponent("TCS")}` +
+      `&type=3` +
+      `&format=json`;
 
-    const response =
-      await fetch(
-        newsUrl,
-        {
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 NSE-BSE-TRACKER-V4",
-
-            "Accept":
-              "text/html,application/xhtml+xml"
-          }
-        }
-      );
-
-    const html =
-      await response.text();
-
-    // सभी headline links ढूँढने की कोशिश
-    const linkMatches =
-      html.match(
-        /<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi
-      ) || [];
-
-    const headlines = [];
-
-    for (
-      const tag
-      of linkMatches
-    ) {
-
-      const match =
-        tag.match(
-          /<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i
-        );
-
-      if (!match) {
-        continue;
+    const response = await fetch(newsUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+        "Accept": "application/json, text/javascript, text/html, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.moneycontrol.com/",
+        "Origin": "https://www.moneycontrol.com",
+        "X-Requested-With": "XMLHttpRequest"
       }
+    });
 
-      let link =
-        match[1];
-
-      let title =
-        match[2]
-          .replace(
-            /<[^>]+>/g,
-            ""
-          )
-          .replace(
-            /\s+/g,
-            " "
-          )
-          .trim();
-
-      if (
-        !title ||
-        title.length < 15
-      ) {
-        continue;
-      }
-
-      if (
-        !link.startsWith("http")
-      ) {
-        link =
-          "https://hindi.moneycontrol.com" +
-          (
-            link.startsWith("/")
-              ? link
-              : "/" + link
-          );
-      }
-
-      headlines.push({
-        title,
-        link
-      });
-
-      if (
-        headlines.length >= 10
-      ) {
-        break;
-      }
-
-    }
+    const rawText = await response.text();
 
     return jsonResponse({
-
       status: "ok",
-
-      http_status:
-        response.status,
-
-      content_type:
-        response.headers.get(
-          "content-type"
-        ),
-
-      html_length:
-        html.length,
-
-      headline_count:
-        headlines.length,
-
-      headlines
-
+      http_status: response.status,
+      content_type: response.headers.get("content-type"),
+      body_length: rawText.length,
+      first_2000_chars: rawText.slice(0, 2000)
     });
 
   } catch (error) {
-
     return jsonResponse({
-
       status: "error",
-
-      message:
-        error?.message ||
-        String(error)
-
+      message: error.message
     }, 500);
-
   }
-
-}
+      }
       // --------------------------------------------------
       // UNKNOWN ROUTE
       // --------------------------------------------------
