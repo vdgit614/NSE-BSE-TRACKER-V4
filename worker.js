@@ -947,6 +947,137 @@ export default {
       }
 
       // --------------------------------------------------
+// HISTORY
+// --------------------------------------------------
+if (path === "/history") {
+
+const symbol =
+  normalize(
+    url.searchParams.get("symbol")
+  );
+
+const exchange =
+  normalizeExchange(
+    url.searchParams.get("exchange")
+  );
+
+const period =
+  String(
+    url.searchParams.get("period") || "7d"
+  ).toLowerCase();
+
+if (!symbol) {
+
+  return jsonResponse(
+    {
+      status: "error",
+      message: "Stock symbol is required"
+    },
+    400
+  );
+}
+
+const allowedPeriods = [
+  "7d",
+  "1m",
+  "3m",
+  "6m",
+  "1y"
+];
+
+const selectedPeriod =
+  allowedPeriods.includes(period)
+    ? period
+    : "7d";
+
+const rangeInfo =
+  periodToRange(selectedPeriod);
+
+const chart =
+  await fetchYahooChart(
+    symbol,
+    exchange,
+    rangeInfo.range,
+    rangeInfo.interval
+  );
+
+const timestamps =
+  chart.timestamp || [];
+
+const closes =
+  chart.indicators
+    ?.quote?.[0]
+    ?.close || [];
+
+const history = [];
+
+for (
+  let i = 0;
+  i < timestamps.length;
+  i++
+) {
+
+  const timestamp =
+    timestamps[i];
+
+  const close =
+    closes[i];
+
+  if (
+    timestamp === null ||
+    timestamp === undefined ||
+    close === null ||
+    close === undefined
+  ) {
+    continue;
+  }
+
+  const numericClose =
+    Number(close);
+
+  if (
+    !Number.isFinite(numericClose)
+  ) {
+    continue;
+  }
+
+  history.push({
+    timestamp:
+      Number(timestamp),
+
+    date:
+      new Date(
+        Number(timestamp) * 1000
+      ).toISOString(),
+
+    close:
+      numericClose
+  });
+}
+
+return jsonResponse({
+  status: "ok",
+
+  symbol,
+
+  exchange,
+
+  period:
+    selectedPeriod,
+
+  count:
+    history.length,
+
+  history
+});
+
+}
+
+// --------------------------------------------------
+// STOCK DETAILS
+// --------------------------------------------------
+if (path === "/stock") {
+      // --------------------------------------------------
       // STOCK DETAILS
       // --------------------------------------------------
 
