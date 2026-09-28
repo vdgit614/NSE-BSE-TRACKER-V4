@@ -333,6 +333,259 @@ function buildMarketFromChart(chart) {
   };
 }
 
+// --------------------------------------------------
+// AI NEWS HELPERS
+// --------------------------------------------------
+
+function buildNewsPrompt(
+  symbol,
+  exchange,
+  companyName
+) {
+
+  return `
+Search the web for the latest news about the Indian listed company:
+
+Company: ${companyName}
+Stock Symbol: ${symbol}
+Exchange: ${exchange}
+
+IMPORTANT:
+- Search only news published during the LAST 15 DAYS from today.
+- Use current web search results.
+- Do not use old news unless it was published within the last 15 days.
+- Focus specifically on this company and its stock/business.
+- Include important company announcements, business developments,
+  contracts/orders, financial developments, management news,
+  regulatory news, major partnerships, acquisitions, technology news,
+  and other developments that may be relevant to investors.
+- Prefer reliable original sources and established financial/business news sources.
+- Do not invent or guess any news.
+- Do not include unrelated news about similarly named companies.
+
+Return the result as JSON only.
+
+For every news item return:
+{
+  "title": "Very short Hindi headline",
+  "summary": "One very short Hindi sentence explaining the news",
+  "sentiment": "positive" | "negative" | "neutral",
+  "source": "Original source/publication name",
+  "url": "Original article URL",
+  "published_at": "Publication date"
+}
+
+Rules:
+- Maximum 10 important news items.
+- Sort newest first.
+- Headlines and summaries must be short.
+- Use Hindi for title and summary.
+- Keep the original source name.
+- Give the direct original article URL whenever available.
+- Do not provide investment advice.
+- Do not say buy, sell or hold.
+- Do not fabricate URLs.
+`;
+}
+
+// --------------------------------------------------
+// OPENAI / CHATGPT NEWS
+// --------------------------------------------------
+
+async function getOpenAINews(prompt, env) {
+
+  const apiKey = env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    return {
+      status: "error",
+      message: "OPENAI_API_KEY is not configured"
+    };
+  }
+
+  const response = await fetch(
+    "https://api.openai.com/v1/responses",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + apiKey
+      },
+
+      body: JSON.stringify({
+
+        model: "gpt-5.6",
+
+        tools: [
+          {
+            type: "web_search"
+          }
+        ],
+
+        input: prompt
+      })
+    }
+  );
+
+  if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    return {
+      status: "error",
+      message:
+        "OpenAI API error",
+      details:
+        errorText
+    };
+  }
+
+  const data =
+    await response.json();
+
+  let outputText = "";
+
+  if (data.output_text) {
+
+    outputText =
+      data.output_text;
+
+  } else if (Array.isArray(data.output)) {
+
+    for (const item of data.output) {
+
+      if (
+        item.type === "message" &&
+        Array.isArray(item.content)
+      ) {
+
+        for (
+          const content
+          of item.content
+        ) {
+
+          if (
+            content.type === "output_text"
+          ) {
+
+            outputText +=
+              content.text || "";
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    status: "ok",
+    provider: "chatgpt",
+    text: outputText
+  };
+}
+
+
+// --------------------------------------------------
+// GEMINI NEWS
+// --------------------------------------------------
+
+async function getGeminiNews(prompt, env) {
+
+  const apiKey =
+    env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+
+    return {
+      status: "error",
+      message:
+        "GEMINI_API_KEY is not configured"
+    };
+  }
+
+  const response = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/interactions",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+
+        "x-goog-api-key":
+          apiKey
+      },
+
+      body: JSON.stringify({
+
+        model:
+          "gemini-3.8-flash",
+
+        input:
+          prompt,
+
+        tools: [
+          {
+            type:
+              "google_search"
+          }
+        ]
+      })
+    }
+  );
+
+  if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    return {
+      status: "error",
+      message:
+        "Gemini API error",
+      details:
+        errorText
+    };
+  }
+
+  const data =
+    await response.json();
+
+  let outputText = "";
+
+  if (data.output_text) {
+
+    outputText =
+      data.output_text;
+
+  } else if (
+    data.outputs &&
+    Array.isArray(data.outputs)
+  ) {
+
+    for (
+      const item
+      of data.outputs
+    ) {
+
+      if (
+        item.type ===
+        "text"
+      ) {
+
+        outputText +=
+          item.text || "";
+      }
+    }
+  }
+
+  return {
+    status: "ok",
+    provider: "gemini",
+    text: outputText
+  };
+}
 export default {
   async fetch(request, env) {
 
@@ -355,6 +608,7 @@ export default {
 
       await ensureSchema(env);
 
+    
       // --------------------------------------------------
       // ROOT
       // --------------------------------------------------
@@ -1073,10 +1327,427 @@ return jsonResponse({
 
 }
 
+      // --------------------------------------------------
+// EXTRACT AI NEWS JSON
 // --------------------------------------------------
-// STOCK DETAILS
+
+function extractNewsJson(text) {
+
+  if (!text) {
+    return [];
+  }
+
+  let clean =
+    String(text)
+      .trim();
+
+  // Remove markdown code fences
+  clean =
+    clean
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+  // Try direct JSON first
+  try {
+
+    const direct =
+      JSON.parse(clean);
+
+    if (
+      Array.isArray(direct)
+    ) {
+      return direct;
+    }
+
+    if (
+      Array.isArray(
+        direct.news
+      )
+    ) {
+      return direct.news;
+    }
+
+  } catch (error) {
+    // Continue with extraction
+  }
+
+  // Find JSON object
+  const firstBrace =
+    clean.indexOf("{");
+
+  const lastBrace =
+    clean.lastIndexOf("}");
+
+  if (
+    firstBrace >= 0 &&
+    lastBrace > firstBrace
+  ) {
+
+    try {
+
+      const jsonText =
+        clean.substring(
+          firstBrace,
+          lastBrace + 1
+        );
+
+      const parsed =
+        JSON.parse(jsonText);
+
+      if (
+        Array.isArray(
+          parsed.news
+        )
+      ) {
+        return parsed.news;
+      }
+
+    } catch (error) {
+      // Invalid JSON
+    }
+  }
+
+  // Find JSON array
+  const firstBracket =
+    clean.indexOf("[");
+
+  const lastBracket =
+    clean.lastIndexOf("]");
+
+  if (
+    firstBracket >= 0 &&
+    lastBracket > firstBracket
+  ) {
+
+    try {
+
+      const jsonText =
+        clean.substring(
+          firstBracket,
+          lastBracket + 1
+        );
+
+      const parsed =
+        JSON.parse(jsonText);
+
+      if (
+        Array.isArray(parsed)
+      ) {
+        return parsed;
+      }
+
+    } catch (error) {
+      // Invalid JSON
+    }
+  }
+
+  return [];
+}
 // --------------------------------------------------
-if (path === "/stock") {
+// AI NEWS
+// --------------------------------------------------
+
+if (path === "/news") {
+
+  const symbol =
+    normalize(
+      url.searchParams.get("symbol")
+    );
+
+  const exchange =
+    normalizeExchange(
+      url.searchParams.get("exchange")
+    );
+
+  const provider =
+    String(
+      url.searchParams.get("provider") ||
+      "chatgpt"
+    ).toLowerCase();
+
+  if (!symbol) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message: "Stock symbol is required"
+      },
+      400
+    );
+  }
+
+  if (
+    provider !== "chatgpt" &&
+    provider !== "gemini"
+  ) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message:
+          "Provider must be chatgpt or gemini"
+      },
+      400
+    );
+  }
+
+  // --------------------------------------------------
+  // FIND COMPANY NAME
+  // --------------------------------------------------
+
+  let companyName = "";
+
+  // NSE -> D1
+  if (exchange === "NSE") {
+
+    const stock =
+      await env.DB.prepare(`
+        SELECT
+          symbol,
+          company_name
+        FROM instruments
+        WHERE exchange = 'NSE'
+          AND search_symbol = ?
+        LIMIT 1
+      `)
+        .bind(symbol)
+        .first();
+
+    if (stock) {
+
+      companyName =
+        String(
+          stock.company_name || ""
+        ).trim();
+    }
+  }
+
+  // BSE -> Yahoo search
+  if (
+    exchange === "BSE" &&
+    !companyName
+  ) {
+
+    try {
+
+      const quotes =
+        await searchYahoo(
+          symbol
+        );
+
+      const match =
+        quotes.find(
+          quote => {
+
+            const yahooSymbol =
+              String(
+                quote.symbol || ""
+              ).toUpperCase();
+
+            return (
+              yahooSymbol ===
+              `${symbol}.BO`
+            );
+          }
+        );
+
+      if (match) {
+
+        companyName =
+          String(
+            match.longname ||
+            match.shortname ||
+            ""
+          ).trim();
+      }
+
+    } catch (error) {
+
+      companyName = "";
+    }
+  }
+
+  if (!companyName) {
+
+    companyName =
+      symbol;
+  }
+
+  // --------------------------------------------------
+  // BUILD READY-MADE PROMPT
+  // --------------------------------------------------
+
+  const prompt =
+    buildNewsPrompt(
+      symbol,
+      exchange,
+      companyName
+    );
+
+  // --------------------------------------------------
+  // CALL SELECTED AI
+  // --------------------------------------------------
+
+  let aiResult;
+
+  if (provider === "chatgpt") {
+
+    aiResult =
+      await getOpenAINews(
+        prompt,
+        env
+      );
+
+  } else {
+
+    aiResult =
+      await getGeminiNews(
+        prompt,
+        env
+      );
+  }
+
+  if (
+    !aiResult ||
+    aiResult.status !== "ok"
+  ) {
+
+    return jsonResponse(
+      {
+        status: "error",
+
+        provider,
+
+        symbol,
+
+        exchange,
+
+        company_name:
+          companyName,
+
+        message:
+          aiResult?.message ||
+          "News search failed",
+
+        details:
+          aiResult?.details || ""
+      },
+      502
+    );
+  }
+
+  // --------------------------------------------------
+  // PARSE AI JSON
+  // --------------------------------------------------
+
+  let news =
+  extractNewsJson(
+    aiResult.text || ""
+  );
+
+  // --------------------------------------------------
+  // CLEAN NEWS ITEMS
+  // --------------------------------------------------
+
+  news =
+    news
+      .map(
+        item => {
+
+          const sentiment =
+            String(
+              item.sentiment ||
+              "neutral"
+            ).toLowerCase();
+
+          let cleanSentiment =
+            "neutral";
+
+          if (
+            sentiment === "positive"
+          ) {
+
+            cleanSentiment =
+              "positive";
+
+          } else if (
+            sentiment === "negative"
+          ) {
+
+            cleanSentiment =
+              "negative";
+          }
+
+          return {
+
+            title:
+              String(
+                item.title || ""
+              ).trim(),
+
+            summary:
+              String(
+                item.summary || ""
+              ).trim(),
+
+            sentiment:
+              cleanSentiment,
+
+            source:
+              String(
+                item.source || ""
+              ).trim(),
+
+            url:
+              String(
+                item.url || ""
+              ).trim(),
+
+            published_at:
+              String(
+                item.published_at || ""
+              ).trim()
+          };
+        }
+      )
+      .filter(
+        item =>
+          item.title &&
+          item.url
+      )
+      .slice(
+        0,
+        10
+      );
+
+  // --------------------------------------------------
+  // FINAL RESPONSE
+  // --------------------------------------------------
+
+  return jsonResponse({
+
+    status: "ok",
+
+    provider,
+
+    symbol,
+
+    exchange,
+
+    company_name:
+      companyName,
+
+    period:
+      "last_15_days",
+
+    count:
+      news.length,
+
+    news
+  });
+}
       // --------------------------------------------------
       // STOCK DETAILS
       // --------------------------------------------------
