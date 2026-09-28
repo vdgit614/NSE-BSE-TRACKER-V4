@@ -9,254 +9,780 @@
 <style>
 
 * {
-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: #000;
-color: #fff;
+  margin: 0;
+  padding: 0;
+  background: #050505;
+  color: #f5f5f5;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
 }
 
 .app {
-width: 100%;
-max-width: 700px;
-margin: 0 auto;
-padding: 20px 16px 40px;
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 12px;
 }
+
+/* ==============================
+   HEADER
+   ============================== */
 
 .header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.title {
-font-size: 24px;
-font-weight: 700;
-margin: 0;
+.logo {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
-.menu {
-font-size: 28px;
-cursor: pointer;
+.menu-button {
+  width: 42px;
+  height: 38px;
+  border: 1px solid #333;
+  border-radius: 9px;
+  background: #151515;
+  color: #fff;
+  font-size: 21px;
 }
+
+/* ==============================
+   MENU
+   ============================== */
+
+.menu-panel {
+  display: none;
+  background: #111;
+  border: 1px solid #292929;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.menu-panel.show {
+  display: block;
+}
+
+.menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  margin-bottom: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 14px;
+}
+
+.menu-item:last-child {
+  margin-bottom: 0;
+}
+
+.menu-item:hover {
+  background: #242424;
+}
+
+/* ==============================
+   EXCHANGE
+   ============================== */
 
 .exchange-box {
-display: flex;
-gap: 10px;
-margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .exchange-button {
-flex: 1;
-padding: 12px;
-border: 1px solid #333;
-border-radius: 10px;
-background: #111;
-color: #aaa;
-font-size: 15px;
-font-weight: 700;
-cursor: pointer;
+  flex: 0 0 auto;
+  min-width: 76px;
+  padding: 7px 15px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #151515;
+  color: #ddd;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .exchange-button.active {
-background: #fff;
-color: #000;
-border-color: #fff;
+  background: #252525;
+  color: #fff;
+  border-color: #666;
 }
 
-.search-box {
-display: flex;
-gap: 10px;
-margin-bottom: 20px;
+/* ==============================
+   SEARCH
+   ============================== */
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
 }
 
-.search-box input {
-flex: 1;
-min-width: 0;
-padding: 14px;
-border: 1px solid #333;
-border-radius: 10px;
-background: #111;
-color: #fff;
-font-size: 16px;
-outline: none;
+.search-input {
+  min-width: 0;
+  flex: 1;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #333;
+  border-radius: 9px;
+  outline: none;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
 }
 
-.search-box input:focus {
-border-color: #666;
+.search-input:focus {
+  border-color: #666;
 }
 
-.search-box button {
-padding: 14px 18px;
-border: 0;
-border-radius: 10px;
-background: #fff;
-color: #000;
-font-size: 15px;
-font-weight: 700;
-cursor: pointer;
+.action-button {
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid #333;
+  border-radius: 9px;
+  background: #181818;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.status {
-color: #aaa;
-font-size: 14px;
-margin-bottom: 14px;
+.clip-button {
+  width: 42px;
+  padding: 0;
+  font-size: 19px;
 }
 
-.results {
-display: flex;
-flex-direction: column;
-gap: 10px;
+/* ==============================
+   SEARCH RESULTS
+   ============================== */
+
+.search-results {
+  display: none;
+  background: #101010;
+  border: 1px solid #292929;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
 }
 
-.result-card {
-padding: 15px;
-border: 1px solid #222;
-border-radius: 12px;
-background: #0d0d0d;
-cursor: pointer;
+.search-result {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 11px;
+  border: 0;
+  border-bottom: 1px solid #252525;
+  background: transparent;
+  color: #fff;
 }
 
-.result-card:hover {
-background: #151515;
+.search-result:last-child {
+  border-bottom: 0;
 }
 
-.symbol {
-font-size: 18px;
-font-weight: 700;
-margin-bottom: 5px;
+.search-result:hover {
+  background: #1c1c1c;
 }
 
-.company {
-font-size: 14px;
-color: #ccc;
-line-height: 1.4;
+.result-symbol {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.result-company {
+  display: block;
+  margin-top: 3px;
+  color: #aaa;
+  font-size: 12px;
+}
+
+/* ==============================
+   GENERAL CARDS
+   ============================== */
+
+.card {
+  background: #0f0f0f;
+  border: 1px solid #252525;
+  border-radius: 12px;
+  padding: 13px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .details {
-margin-top: 8px;
-font-size: 12px;
-color: #888;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==============================
+   STOCK HEADER
+   ============================== */
+
+.stock-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.stock-symbol {
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.stock-company {
+  margin-top: 4px;
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .exchange-badge {
-display: inline-block;
-margin-top: 8px;
-padding: 4px 8px;
-border-radius: 6px;
-background: #222;
-color: #fff;
-font-size: 11px;
-font-weight: 700;
+  padding: 4px 7px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #bbb;
+  font-size: 11px;
 }
 
-.empty {
-padding: 25px 10px;
-text-align: center;
-color: #777;
+/* ==============================
+   PRICE
+   ============================== */
+
+.price-box {
+  margin-top: 14px;
 }
 
-.stock-details {
-margin-top: 15px;
-padding: 16px;
-border: 1px solid #222;
-border-radius: 12px;
-background: #0d0d0d;
+.current-price {
+  font-size: 29px;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
-.stock-price {
-font-size: 28px;
-font-weight: 700;
-margin-top: 8px;
+.price-change {
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.stock-change {
-font-size: 15px;
-margin-top: 5px;
+.up {
+  color: #25d366;
 }
 
-.history-box {
-margin-top: 15px;
+.down {
+  color: #ff4d4d;
 }
+
+.neutral {
+  color: #aaa;
+}
+
+/* ==============================
+   MARKET DETAILS
+   ============================== */
+
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.market-item {
+  background: #151515;
+  border-radius: 8px;
+  padding: 9px;
+}
+
+.market-label {
+  color: #888;
+  font-size: 11px;
+}
+
+.market-value {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ==============================
+   PERIOD BUTTONS
+   ============================== */
 
 .period-buttons {
-display: flex;
-gap: 8px;
-flex-wrap: wrap;
-margin-top: 10px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 3px;
 }
 
 .period-button {
-padding: 9px 13px;
-border: 1px solid #333;
-border-radius: 8px;
-background: #111;
-color: #aaa;
-cursor: pointer;
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border: 1px solid #333;
+  border-radius: 7px;
+  background: #151515;
+  color: #aaa;
+  font-size: 12px;
 }
 
 .period-button.active {
-background: #fff;
-color: #000;
-}
-.deep-research-box,
-.news-box {
-margin-top: 18px;
-padding-top: 15px;
-border-top: 1px solid #222;
+  background: #292929;
+  color: #fff;
+  border-color: #666;
 }
 
-.section-title {
-font-size: 14px;
-font-weight: 700;
-color: #aaa;
-margin-bottom: 10px;
+/* ==============================
+   HISTORY TABLE
+   ============================== */
+
+.history-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 10px;
 }
 
-.research-buttons,
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 280px;
+}
+
+.history-table th {
+  background: #181818;
+  color: #aaa;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 9px 7px;
+  text-align: left;
+}
+
+.history-table td {
+  border-top: 1px solid #242424;
+  padding: 9px 7px;
+  font-size: 12px;
+}
+
+.history-table th:last-child,
+.history-table td:last-child {
+  text-align: right;
+}
+
+.history-price-up {
+  color: #25d366;
+  font-weight: 700;
+}
+
+.history-price-down {
+  color: #ff4d4d;
+  font-weight: 700;
+}
+
+.history-price-neutral {
+  color: #ddd;
+  font-weight: 600;
+}
+
+/* ==============================
+   RESEARCH / NEWS
+   ============================== */
+
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+}
+
+.small-button {
+  display: block;
+  width: 100%;
+  padding: 9px 7px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #151515;
+  color: #ddd;
+  text-decoration: none;
+  text-align: center;
+  font-size: 12px;
+}
+
+.small-button:hover {
+  background: #222;
+}
+
+/* ==============================
+   NEWS
+   ============================== */
+
+.news-note {
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
 .news-buttons {
-display: flex;
-gap: 8px;
-flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
 }
 
-.research-button,
 .news-button {
-flex: 1;
-min-width: 120px;
-padding: 11px 10px;
-border: 1px solid #333;
-border-radius: 9px;
-background: #111;
-color: #fff;
-font-size: 13px;
-font-weight: 700;
-cursor: pointer;
-text-align: center;
+  padding: 10px 7px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #151515;
+  color: #fff;
+  font-size: 12px;
 }
 
-.research-button:hover,
-.news-button:hover {
-background: #1b1b1b;
-border-color: #555;
-}
-@media (max-width: 480px) {
+/* ==============================
+   NEWS SENTIMENT
+   ============================== */
 
-.app {
-padding: 16px 12px 30px;
+.news-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #252525;
 }
 
-.title {
-font-size: 21px;
+.news-item:last-child {
+  border-bottom: 0;
 }
 
-.search-box button {
-padding: 14px;
+.news-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
 }
+
+.news-dot-positive {
+  background: #25d366;
+}
+
+.news-dot-negative {
+  background: #ff4d4d;
+}
+
+.news-dot-neutral {
+  background: #999;
+}
+
+.news-headline {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.news-summary {
+  margin-top: 4px;
+  color: #bbb;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.news-source {
+  margin-top: 5px;
+  color: #777;
+  font-size: 11px;
+}
+
+/* ==============================
+   WATCHLIST / TABLE SHEET
+   ============================== */
+
+.watchlist-sector {
+  margin-top: 12px;
+}
+
+.sector-title {
+  padding: 8px 9px;
+  border-radius: 7px;
+  background: #191919;
+  color: #ddd;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.watch-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 4px;
+  border-bottom: 1px solid #242424;
+}
+
+.watch-symbol {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.watch-company {
+  margin-top: 2px;
+  color: #777;
+  font-size: 10px;
+}
+
+.watch-price {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.watch-exchange {
+  color: #888;
+  font-size: 10px;
+}
+
+.remove-stock {
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 15px;
+}
+
+/* ==============================
+   OCR
+   ============================== */
+
+.ocr-box {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed #444;
+  border-radius: 9px;
+  background: #0d0d0d;
+}
+
+.ocr-box.show {
+  display: block;
+}
+
+.ocr-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #333;
+  border-radius: 7px;
+  background: #151515;
+  color: #fff;
+  font-size: 12px;
+}
+
+.ocr-status {
+  margin-top: 8px;
+  color: #aaa;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* ==============================
+   TRIGGERS
+   ============================== */
+
+.trigger-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.trigger-box {
+  background: #151515;
+  border-radius: 8px;
+  padding: 9px;
+}
+
+.trigger-label {
+  color: #999;
+  font-size: 11px;
+}
+
+.trigger-input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid #333;
+  border-radius: 7px;
+  background: #0b0b0b;
+  color: #fff;
+  outline: none;
+}
+
+.save-trigger {
+  width: 100%;
+  margin-top: 9px;
+  padding: 9px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #202020;
+  color: #fff;
+}
+
+/* ==============================
+   SETTINGS
+   ============================== */
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid #252525;
+}
+
+.setting-row:last-child {
+  border-bottom: 0;
+}
+
+.setting-label {
+  font-size: 13px;
+}
+
+.setting-description {
+  margin-top: 3px;
+  color: #777;
+  font-size: 10px;
+}
+
+.switch {
+  position: relative;
+  width: 43px;
+  height: 23px;
+  flex: 0 0 auto;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: #333;
+  transition: 0.2s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: #555;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* ==============================
+   TOAST
+   ============================== */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: calc(100% - 30px);
+  max-width: 500px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  display: none;
+  z-index: 9999;
+}
+
+.toast.show {
+  display: block;
+}
+
+/* ==============================
+   MOBILE
+   ============================== */
+
+@media (max-width: 430px) {
+
+  .app {
+    padding: 9px;
+  }
+
+  .logo {
+    font-size: 17px;
+  }
+
+  .current-price {
+    font-size: 27px;
+  }
+
+  .search-row {
+    gap: 5px;
+  }
+
+  .action-button {
+    padding: 0 10px;
+  }
+
+  .clip-button {
+    width: 40px;
+  }
+
+  .market-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
 }
 
@@ -267,892 +793,2626 @@ padding: 14px;
 
 <div class="app">
 
-<div class="header">
+  <!-- HEADER -->
 
-<h1 class="title">
-NSE BSE TRACKER V4
-</h1>
+  <div class="header">
 
-<div class="menu">
-☰
-</div>
+    <div class="logo">
+      NSE BSE TRACKER V4
+    </div>
 
-</div>
+    <button
+      class="menu-button"
+      id="menuButton"
+      title="Menu">
+      ☰
+    </button>
 
-<div class="exchange-box">
+  </div>
 
-<button
-id="nseButton"
-class="exchange-button active"
->
-NSE
-</button>
 
-<button
-id="bseButton"
-class="exchange-button"
->
-BSE
-</button>
+  <!-- MENU -->
 
-</div>
+  <div
+    class="menu-panel"
+    id="menuPanel">
 
-<div class="search-box">
+    <button
+      class="menu-item"
+      id="watchlistMenuButton">
+      📊 My Stocks / Table Sheet
+    </button>
 
-<input
-type="text"
-id="searchInput"
-placeholder="Search NSE stock..."
-autocomplete="off"
->
+    <button
+      class="menu-item"
+      id="triggerMenuButton">
+      🔔 Price Trigger
+    </button>
 
-<button id="searchButton">
-Search
-</button>
+    <button
+      class="menu-item"
+      id="settingsMenuButton">
+      ⚙️ Settings
+    </button>
 
-</div>
+    <button
+      class="menu-item"
+      id="themeMenuButton">
+      🌓 Change Theme
+    </button>
 
-<div
-class="status"
-id="status"
->
-Search NSE stocks by symbol or company name.
-</div>
+    <button
+      class="menu-item"
+      id="logoutButton">
+      🚪 Logout
+    </button>
 
-<div
-class="results"
-id="results"
-></div>
+  </div>
 
-</div>
 
-<script>
+  <!-- EXCHANGE -->
 
-const API_BASE =
-"https://nse-bse-tracker-v4.vasimbhaipainter.workers.dev";
+  <div class="exchange-box">
 
-const searchInput =
-document.getElementById("searchInput");
+    <button
+      class="exchange-button active"
+      id="nseButton">
+      NSE
+    </button>
 
-const searchButton =
-document.getElementById("searchButton");
+    <button
+      class="exchange-button"
+      id="bseButton">
+      BSE
+    </button>
 
-const resultsBox =
-document.getElementById("results");
+  </div>
 
-const statusBox =
-document.getElementById("status");
 
-const nseButton =
-document.getElementById("nseButton");
+  <!-- SEARCH -->
 
-const bseButton =
-document.getElementById("bseButton");
+  <div class="search-row">
 
-let selectedExchange = "NSE";
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="Search stock / company..."
+      autocomplete="off">
 
-function setExchange(exchange) {
+    <button
+      class="action-button"
+      id="addButton">
+      + Add
+    </button>
 
-selectedExchange = exchange;
+    <button
+      class="action-button clip-button"
+      id="ocrButton"
+      title="AI/OCR Watchlist Scanner">
+      📎
+    </button>
 
-if (exchange === "NSE") {
+  </div>
 
-nseButton.classList.add("active");
-bseButton.classList.remove("active");
 
-searchInput.placeholder =
-"Search NSE stock...";
+  <!-- SEARCH RESULTS -->
 
-statusBox.textContent =
-"Search NSE stocks by symbol or company name.";
+  <div
+    class="search-results"
+    id="searchResults">
+  </div>
 
-} else {
 
-bseButton.classList.add("active");
-nseButton.classList.remove("active");
+  <!-- OCR PANEL -->
 
-searchInput.placeholder =
-"Search BSE stock...";
+  <div
+    class="ocr-box"
+    id="ocrBox">
 
-statusBox.textContent =
-"Search BSE stocks by symbol or company name.";
+    <div class="card-title">
+      📎 AI/OCR Watchlist Scanner
+    </div>
 
-}
+    <div class="details">
+      Zerodha, Groww या किसी दूसरे broker की watchlist का screenshot चुनें।
+    </div>
 
-resultsBox.innerHTML = "";
+    <input
+      type="file"
+      id="ocrFile"
+      class="ocr-input"
+      accept="image/*">
 
-}
+    <div
+      id="ocrStatus"
+      class="ocr-status">
+      Screenshot select करने के बाद stocks पहचानने की प्रक्रिया शुरू होगी।
+    </div>
 
-nseButton.addEventListener(
-"click",
-() => setExchange("NSE")
-);
+    <div
+      id="ocrResults"
+      style="margin-top:10px;">
+    </div>
 
-bseButton.addEventListener(
-"click",
-() => setExchange("BSE")
-);
+  </div>
 
-async function searchStocks() {
 
-const query =
-searchInput.value.trim();
+  <!-- SELECTED STOCK -->
 
-resultsBox.innerHTML = "";
+  <div
+    class="card hidden"
+    id="stockCard">
 
-if (!query) {
+    <div class="stock-title">
 
-statusBox.textContent =
-`Please enter a ${selectedExchange} stock name or symbol.`;
+      <div>
 
-return;
+        <div
+          class="stock-symbol"
+          id="stockSymbol">
+          -
+        </div>
 
-}
+        <div
+          class="stock-company"
+          id="stockCompany">
+          -
+        </div>
 
-statusBox.textContent =
-`Searching ${selectedExchange}...`;
+      </div>
 
-try {
+      <div
+        class="exchange-badge"
+        id="stockExchange">
+        NSE
+      </div>
 
-const response = await fetch(
-`${API_BASE}/search?exchange=${encodeURIComponent(selectedExchange)}&q=${encodeURIComponent(query)}`
-);
+    </div>
 
-if (!response.ok) {
 
-throw new Error(
-"Search API failed"
-);
+    <div class="price-box">
 
-}
+      <div
+        class="current-price"
+        id="currentPrice">
+        ₹--
+      </div>
 
-const data =
-await response.json();
+      <div
+        class="price-change"
+        id="priceChange">
+        --
+      </div>
 
-if (data.status !== "ok") {
+    </div>
 
-throw new Error(
-data.message ||
-"Search failed"
-);
 
-}
+    <div class="market-grid">
 
-if (
-!data.results ||
-data.results.length === 0
-) {
+      <div class="market-item">
 
-statusBox.textContent =
-`No ${selectedExchange} stock found for "${query}".`;
+        <div class="market-label">
+          Previous Close
+        </div>
 
-resultsBox.innerHTML = `
-<div class="empty">
-No matching ${selectedExchange} stock found.
-</div>
-`;
+        <div
+          class="market-value"
+          id="previousClose">
+          --
+        </div>
 
-return;
+      </div>
 
-}
 
-statusBox.textContent =
-`${data.count} ${selectedExchange} result(s) found.`;
+      <div class="market-item">
 
-data.results.forEach(
-stock => {
+        <div class="market-label">
+          52W High
+        </div>
 
-const card =
-document.createElement("div");
+        <div
+          class="market-value"
+          id="weekHigh">
+          --
+        </div>
 
-card.className =
-"result-card";
+      </div>
 
-const exchange =
-stock.exchange ||
-selectedExchange;
 
-card.innerHTML = `
+      <div class="market-item">
 
-<div class="symbol">
-${escapeHtml(stock.symbol || "")}
-</div>
+        <div class="market-label">
+          52W Low
+        </div>
 
-<div class="company">
-${escapeHtml(
-stock.company_name ||
-stock.longname ||
-stock.shortname ||
-""
-)}
-</div>
+        <div
+          class="market-value"
+          id="weekLow">
+          --
+        </div>
 
-<div class="details">
+      </div>
 
-${stock.isin
-? "ISIN: " +
-escapeHtml(stock.isin)
-: ""}
 
-${stock.security_id
-? " • Code: " +
-escapeHtml(stock.security_id)
-: ""}
+      <div class="market-item">
 
-</div>
+        <div class="market-label">
+          Sector
+        </div>
 
-<div class="exchange-badge">
-${escapeHtml(exchange)}
-</div>
+        <div
+          class="market-value"
+          id="stockSector">
+          --
+        </div>
 
-`;
+      </div>
 
-card.addEventListener(
-"click",
-() => selectStock(stock)
-);
+    </div>
 
-resultsBox.appendChild(card);
+  </div>
 
-});
 
-} catch (error) {
+  <!-- HISTORY -->
 
-console.error(error);
+  <div
+    class="card hidden"
+    id="historyCard">
 
-statusBox.textContent =
-`Unable to connect to ${selectedExchange} Search API.`;
+    <div class="card-title">
+      Historical Data
+    </div>
 
-resultsBox.innerHTML = `
-<div class="empty">
-Search service is temporarily unavailable.
-</div>
-`;
+    <div class="period-buttons">
 
-}
+      <button
+        class="period-button active"
+        data-period="7d">
+        7 Days
+      </button>
 
-}
+      <button
+        class="period-button"
+        data-period="1m">
+        1 Month
+      </button>
 
-async function selectStock(stock) {
+      <button
+        class="period-button"
+        data-period="3m">
+        3 Months
+      </button>
 
-const symbol =
-stock.symbol || "";
+      <button
+        class="period-button"
+        data-period="6m">
+        6 Months
+      </button>
 
-const exchange =
-stock.exchange ||
-selectedExchange;
+      <button
+        class="period-button"
+        data-period="1y">
+        1 Year
+      </button>
 
-searchInput.value =
-symbol;
+    </div>
 
-statusBox.textContent =
-`Loading ${exchange} ${symbol}...`;
+    <div
+      id="historyStatus"
+      class="details"
+      style="margin-top:10px;">
+      Select a period.
+    </div>
 
-resultsBox.innerHTML = `
-<div class="empty">
-Loading stock data...
-</div>
-`;
+    <div
+      class="history-wrap"
+      id="historyTableContainer">
+    </div>
 
-try {
+  </div>
 
-const response = await fetch(
-`${API_BASE}/stock?exchange=${encodeURIComponent(exchange)}&symbol=${encodeURIComponent(symbol)}`
-);
 
-if (!response.ok) {
+  <!-- DEEP RESEARCH -->
 
-throw new Error(
-"Stock API failed"
-);
+  <div
+    class="card hidden"
+    id="researchCard">
 
-}
+    <div class="card-title">
+      🔎 Deep Research
+    </div>
 
-const data =
-await response.json();
+    <div class="link-grid">
 
-if (data.status !== "ok") {
+      <a
+        class="small-button"
+        id="yahooLink"
+        href="#"
+        target="_blank">
+        Yahoo Finance
+      </a>
 
-throw new Error(
-data.message ||
-"Stock data unavailable"
-);
+      <a
+        class="small-button"
+        id="googleFinanceLink"
+        href="#"
+        target="_blank">
+        Google Finance
+      </a>
 
-}
+      <a
+        class="small-button"
+        id="screenerLink"
+        href="#"
+        target="_blank">
+        Screener
+      </a>
 
-renderStock(data);
+      <a
+        class="small-button"
+        id="exchangeLink"
+        href="#"
+        target="_blank">
+        NSE / BSE
+      </a>
 
-} catch (error) {
+    </div>
 
-console.error(error);
+  </div>
 
-statusBox.textContent =
-"Unable to load stock data.";
 
-resultsBox.innerHTML = `
-<div class="empty">
-Stock data is temporarily unavailable.
-</div>
-`;
+  <!-- NEWS -->
 
-}
+  <div
+    class="card hidden"
+    id="newsCard">
 
-}
+    <div class="card-title">
+      📰 Last 15 Days News
+    </div>
 
-function renderStock(data) {
+    <div class="news-note">
+      खबरें बहुत आसान हिंदी में समझाने के लिए AI Search का उपयोग करें।
+      पहले छोटा सार, फिर नीचे Headlines, Source, Date और Original Link दें।
+    </div>
 
-const stock =
-data.stock || {};
+    <div class="news-buttons">
 
-const market =
-data.market || {};
+      <button
+        class="news-button"
+        id="chatgptNewsButton">
+        🤖 ChatGPT
+      </button>
 
-const exchange =
-data.exchange || selectedExchange;
+      <button
+        class="news-button"
+        id="geminiNewsButton">
+        ✨ Gemini
+      </button>
 
-const symbol =
-data.symbol ||
-stock.symbol ||
-"";
+    </div>
 
-const company =
-stock.company_name ||
-"";
+    <div
+      id="newsResults"
+      style="margin-top:10px;">
+    </div>
 
-let priceText =
-market.price !== null &&
-market.price !== undefined
-? Number(market.price).toFixed(2)
-: "N/A";
+  </div>
 
-let changeText =
-"N/A";
 
-if (
-market.change !== null &&
-market.change !== undefined &&
-market.change_percent !== null &&
-market.change_percent !== undefined
-) {
+  <!-- WATCHLIST / TABLE SHEET -->
 
-const change =
-Number(market.change);
+  <div
+    class="card"
+    id="watchlistCard">
 
-const percent =
-Number(market.change_percent);
+    <div class="card-title">
+      📊 My Stocks / Table Sheet
+    </div>
 
-changeText =
-`${change >= 0 ? "+" : ""}${change.toFixed(2)}
-(${percent >= 0 ? "+" : ""}${percent.toFixed(2)}%)`;
+    <div
+      id="watchlistStatus"
+      class="details">
+      कोई stock अभी add नहीं किया गया है।
+    </div>
 
-}
+    <div
+      id="watchlistContainer">
+    </div>
 
-statusBox.textContent =
-`${exchange} ${symbol}`;
+  </div>
 
-resultsBox.innerHTML = `
 
-<div class="stock-details">
+  <!-- PRICE TRIGGER -->
 
-<div class="symbol">
-${escapeHtml(symbol)}
-</div>
+  <div
+    class="card hidden"
+    id="triggerCard">
 
-<div class="company">
-${escapeHtml(company)}
-</div>
+    <div class="card-title">
+      🔔 Price Trigger
+    </div>
 
-<div class="exchange-badge">
-${escapeHtml(exchange)}
-</div>
+    <div
+      id="triggerStockName"
+      class="details"
+      style="margin-bottom:10px;">
+      पहले कोई stock select करें।
+    </div>
 
-<div class="stock-price">
-₹${priceText}
-</div>
+    <div class="trigger-row">
 
-<div class="stock-change">
-${escapeHtml(changeText)}
-</div>
+      <div class="trigger-box">
 
-<div class="details">
+        <div class="trigger-label">
+          Buy Price
+        </div>
 
-Previous Close:
-${market.previous_close !== null &&
-market.previous_close !== undefined
-? "₹" +
-Number(
-market.previous_close
-).toFixed(2)
-: "N/A"}
+        <input
+          type="number"
+          id="buyTrigger"
+          class="trigger-input"
+          placeholder="जैसे 470">
 
-<br>
+      </div>
 
-Market:
-${escapeHtml(
-market.market_state ||
-"N/A"
-)}
 
-</div>
+      <div class="trigger-box">
 
+        <div class="trigger-label">
+          Sell Price
+        </div>
 
-<!-- STOCK HISTORY -->
+        <input
+          type="number"
+          id="sellTrigger"
+          class="trigger-input"
+          placeholder="जैसे 550">
 
-<div class="history-box">
+      </div>
 
-<div class="details">
-Historical Data
-</div>
+    </div>
 
-<div class="period-buttons">
+    <button
+      class="save-trigger"
+      id="saveTriggerButton">
+      Save Price Trigger
+    </button>
 
-<button
-class="period-button active"
-data-period="7d"
->
-7 Days
-</button>
+    <div
+      id="triggerStatus"
+      class="details"
+      style="margin-top:8px;">
+    </div>
 
-<button
-class="period-button"
-data-period="1m"
->
-1 Month
-</button>
+  </div>
 
-<button
-class="period-button"
-data-period="6m"
->
-6 Months
-</button>
 
-<button
-class="period-button"
-data-period="1y"
->
-1 Year
-</button>
+  <!-- SETTINGS -->
 
-</div>
+  <div
+    class="card hidden"
+    id="settingsCard">
 
-<div
-id="historyStatus"
-class="details"
-style="margin-top:10px;"
->
-Select a period.
-</div>
+    <div class="card-title">
+      ⚙️ Settings
+    </div>
 
-</div>
 
+    <div class="setting-row">
 
-<!-- DEEP RESEARCH -->
+      <div>
 
-<div class="deep-research-box">
+        <div class="setting-label">
+          Auto Refresh
+        </div>
 
-<div class="section-title">
-Deep Research
-</div>
+        <div class="setting-description">
+          हर 1 मिनट में stocks का latest price refresh करें।
+        </div>
 
-<div class="research-buttons">
+      </div>
 
-<button
-class="research-button"
-id="googleFinanceButton"
->
-Google Finance
-</button>
+      <label class="switch">
 
-<button
-class="research-button"
-id="yahooFinanceButton"
->
-Yahoo Finance
-</button>
+        <input
+          type="checkbox"
+          id="autoRefreshToggle">
 
-<button
-class="research-button"
-id="screenerButton"
->
-Screener
-</button>
+        <span class="slider"></span>
 
-<button
-class="research-button"
-id="nseButtonResearch"
->
-NSE
-</button>
+      </label>
 
-</div>
+    </div>
 
-</div>
 
+    <div class="setting-row">
 
-<!-- NEWS -->
+      <div>
 
-<div class="news-box">
+        <div class="setting-label">
+          Notifications
+        </div>
 
-<div class="section-title">
-News
-</div>
+        <div class="setting-description">
+          Price trigger notification की अनुमति।
+        </div>
 
-<div class="news-buttons">
+      </div>
 
-<button
-class="news-button"
-id="chatGPTNewsButton"
->
-🤖 ChatGPT Search
-</button>
+      <button
+        class="small-button"
+        id="notificationButton"
+        style="width:auto;">
+        Allow
+      </button>
 
-<button
-class="news-button"
-id="googleNewsButton"
->
-🔎 Google Search
-</button>
+    </div>
 
-</div>
+  </div>
 
-<div
-class="details"
-style="margin-top:10px;"
->
-Search the latest news from the last 15 days.
-</div>
 
-</div>
+  <!-- TOAST -->
 
-</div>
+  <div
+    class="toast"
+    id="toast">
+  </div>
 
-`;
+  </div>
+  <script>
+const API_BASE = "https://nse-bse-tracker-v4.vasimbhaipainter.workers.dev";
 
+const STORAGE = {
+  watchlist: "nse_bse_v4_watchlist",
+  selected: "nse_bse_v4_selected",
+  exchange: "nse_bse_v4_exchange",
+  triggers: "nse_bse_v4_triggers",
+  autoRefresh: "nse_bse_v4_auto_refresh",
+  theme: "nse_bse_v4_theme"
+};
 
-const buttons =
-document.querySelectorAll(
-".period-button"
-);
+const state = {
+  exchange: "NSE",
+  selected: null,
+  watchlist: [],
+  triggers: {},
+  autoRefresh: false,
+  refreshTimer: null,
+  pendingSearchResults: [],
+  searchTimer: null
+};
 
-buttons.forEach(
-button => {
-
-button.addEventListener(
-"click",
-() => {
-
-buttons.forEach(
-b => b.classList.remove(
-"active"
-)
-);
-
-button.classList.add(
-"active"
-);
-
-loadHistory(
-symbol,
-exchange,
-button.dataset.period
-);
-
-}
-);
-
-}
-);
-
-
-// --------------------------------
-// DEEP RESEARCH LINKS
-// --------------------------------
-
-const encodedCompany =
-encodeURIComponent(company);
-
-const encodedSymbol =
-encodeURIComponent(symbol);
-
-const encodedExchange =
-encodeURIComponent(exchange);
-
-
-// Google Finance
-
-document
-.getElementById("googleFinanceButton")
-.addEventListener(
-"click",
-() => {
-
-const url =
-`https://www.google.com/finance/quote/${encodedSymbol}:${encodedExchange}`;
-
-window.open(
-url,
-"_blank"
-);
-
-}
-);
-
-
-// Yahoo Finance
-
-document
-.getElementById("yahooFinanceButton")
-.addEventListener(
-"click",
-() => {
-
-const yahooExchange =
-exchange === "BSE"
-? "BO"
-: "NS";
-
-const url =
-`https://finance.yahoo.com/quote/${encodedSymbol}.${yahooExchange}/`;
-
-window.open(
-url,
-"_blank"
-);
-
-}
-);
-
-
-// Screener
-
-document
-.getElementById("screenerButton")
-.addEventListener(
-"click",
-() => {
-
-const url =
-`https://www.google.com/search?q=${encodeURIComponent(
-"Screener " +
-symbol +
-" " +
-company
-)}`;
-
-window.open(
-url,
-"_blank"
-);
-
-}
-);
-
-
-// NSE
-
-document
-.getElementById("nseButtonResearch")
-.addEventListener(
-"click",
-() => {
-
-const url =
-exchange === "NSE"
-? `https://www.google.com/search?q=${encodeURIComponent(
-"NSE " +
-symbol +
-" " +
-company
-)}`
-: `https://www.google.com/search?q=${encodeURIComponent(
-"BSE " +
-symbol +
-" " +
-company
-)}`;
-
-window.open(
-url,
-"_blank"
-);
-
-}
-);
-
-
-// --------------------------------
-// NEWS SEARCH
-// --------------------------------
-
-const newsQuery =
-`${symbol} ${company} news last 15 days`;
-
-
-// ChatGPT Search
-
-document
-.getElementById("chatGPTNewsButton")
-.addEventListener(
-"click",
-() => {
-
-const prompt =
-`${symbol} (${company}) की पिछले 15 दिनों की महत्वपूर्ण खबरों की headlines बताइए। हर खबर के साथ source, date और original article link दें। केवल verified/current web sources का उपयोग करें।`;
-
-const url =
-`https://chatgpt.com/?prompt=${encodeURIComponent(
-prompt
-)}`;
-
-window.open(
-url,
-"_blank"
-);
-
-}
-);
-
-
-// Google News Search
-
-document
-.getElementById("googleNewsButton")
-.addEventListener(
-"click",
-() => {
-
-const url =
-`https://www.google.com/search?tbm=nws&q=${encodeURIComponent(
-newsQuery
-)}`;
-
-window.open(
-url,
-"_blank"
-);
-
-}
-);
-
-
-loadHistory(
-symbol,
-exchange,
-"7d"
-);
-
-}
-
-async function loadHistory(
-symbol,
-exchange,
-period
-) {
-
-const historyStatus =
-document.getElementById(
-"historyStatus"
-);
-
-if (!historyStatus) {
-return;
-}
-
-historyStatus.textContent =
-`Loading ${period} history...`;
-
-try {
-
-const response =
-await fetch(
-`${API_BASE}/history?exchange=${encodeURIComponent(exchange)}&symbol=${encodeURIComponent(symbol)}&period=${encodeURIComponent(period)}`
-);
-
-if (!response.ok) {
-
-throw new Error(
-"History API failed"
-);
-
-}
-
-const data =
-await response.json();
-
-if (data.status !== "ok") {
-
-throw new Error(
-data.message ||
-"History unavailable"
-);
-
-}
-
-historyStatus.textContent =
-`${data.history?.length || 0} data points available.`;
-
-} catch (error) {
-
-console.error(error);
-
-historyStatus.textContent =
-"Historical data unavailable.";
-
-}
-
-}
+const $ = (id) => document.getElementById(id);
 
 function escapeHtml(value) {
-
-return String(value)
-
-.replace(
-/&/g,
-"&amp;"
-)
-
-.replace(
-/</g,
-"&lt;"
-)
-
-.replace(
-/>/g,
-"&gt;"
-)
-
-.replace(
-/"/g,
-"&quot;"
-)
-
-.replace(
-/'/g,
-"&#039;"
-);
-
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
-searchButton.addEventListener(
-"click",
-searchStocks
-);
-
-searchInput.addEventListener(
-"keydown",
-event => {
-
-if (event.key === "Enter") {
-
-searchStocks();
-
+function normalize(value) {
+  return String(value ?? "").trim().toUpperCase();
 }
 
+function formatPrice(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return "₹" + n.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
+
+function formatDate(value) {
+  if (!value) return "—";
+
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function priceClass(change) {
+  const n = Number(change);
+  if (n > 0) return "up";
+  if (n < 0) return "down";
+  return "neutral";
+}
+
+function setToast(message) {
+  const el = $("toast");
+  if (!el) return;
+
+  el.textContent = message;
+  el.classList.add("show");
+
+  clearTimeout(setToast.timer);
+  setToast.timer = setTimeout(() => {
+    el.classList.remove("show");
+  }, 2500);
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE.watchlist, JSON.stringify(state.watchlist));
+  localStorage.setItem(STORAGE.selected, JSON.stringify(state.selected));
+  localStorage.setItem(STORAGE.exchange, state.exchange);
+  localStorage.setItem(STORAGE.triggers, JSON.stringify(state.triggers));
+  localStorage.setItem(STORAGE.autoRefresh, state.autoRefresh ? "1" : "0");
+}
+
+function loadState() {
+  try {
+    state.watchlist =
+      JSON.parse(localStorage.getItem(STORAGE.watchlist) || "[]") || [];
+  } catch {
+    state.watchlist = [];
+  }
+
+  try {
+    state.selected =
+      JSON.parse(localStorage.getItem(STORAGE.selected) || "null");
+  } catch {
+    state.selected = null;
+  }
+
+  try {
+    state.triggers =
+      JSON.parse(localStorage.getItem(STORAGE.triggers) || "{}") || {};
+  } catch {
+    state.triggers = {};
+  }
+
+  state.exchange =
+    localStorage.getItem(STORAGE.exchange) === "BSE" ? "BSE" : "NSE";
+
+  state.autoRefresh =
+    localStorage.getItem(STORAGE.autoRefresh) === "1";
+}
+
+function updateExchangeButtons() {
+  document.querySelectorAll("[data-exchange]").forEach(btn => {
+    btn.classList.toggle(
+      "active",
+      btn.dataset.exchange === state.exchange
+    );
+  });
+}
+
+function setExchange(exchange) {
+  state.exchange = exchange === "BSE" ? "BSE" : "NSE";
+  localStorage.setItem(STORAGE.exchange, state.exchange);
+  updateExchangeButtons();
+
+  const input = $("searchInput");
+  if (input) {
+    input.value = "";
+    input.placeholder =
+      state.exchange === "NSE"
+        ? "Search NSE stock..."
+        : "Search BSE stock...";
+  }
+
+  const results = $("searchResults");
+  if (results) results.innerHTML = "";
+
+  state.pendingSearchResults = [];
+}
+
+async function searchStocks(query) {
+  const q = String(query || "").trim();
+
+  if (!q) {
+    if ($("searchResults")) $("searchResults").innerHTML = "";
+    state.pendingSearchResults = [];
+    return [];
+  }
+
+  try {
+    $("searchResults").innerHTML =
+      `<div class="search-loading">Searching ${escapeHtml(state.exchange)}...</div>`;
+
+    const url =
+      `${API_BASE}/search?exchange=${encodeURIComponent(state.exchange)}` +
+      `&q=${encodeURIComponent(q)}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Search failed");
+    }
+
+    const results = Array.isArray(data.results) ? data.results : [];
+    state.pendingSearchResults = results;
+
+    renderSearchResults(results);
+
+    return results;
+  } catch (error) {
+    console.error(error);
+
+    if ($("searchResults")) {
+      $("searchResults").innerHTML =
+        `<div class="search-empty">Search failed. Please try again.</div>`;
+    }
+
+    return [];
+  }
+}
+
+function renderSearchResults(results) {
+  const container = $("searchResults");
+  if (!container) return;
+
+  if (!results.length) {
+    container.innerHTML =
+      `<div class="search-empty">No stock found.</div>`;
+    return;
+  }
+
+  container.innerHTML = results.slice(0, 10).map((stock, index) => {
+    const symbol =
+      stock.symbol ||
+      stock.search_symbol ||
+      stock.security_id ||
+      "";
+
+    const company =
+      stock.company_name ||
+      stock.name ||
+      symbol;
+
+    return `
+      <div class="search-result-item"
+           data-search-index="${index}">
+        <div>
+          <strong>${escapeHtml(symbol)}</strong>
+          <div class="muted">${escapeHtml(company)}</div>
+        </div>
+        <button class="small-action"
+                data-add-index="${index}">
+          + Add
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll("[data-search-index]").forEach(item => {
+    item.addEventListener("click", (event) => {
+      if (event.target.closest("[data-add-index]")) return;
+
+      const index = Number(item.dataset.searchIndex);
+      const stock = results[index];
+
+      if (stock) {
+        addStock(stock);
+      }
+    });
+  });
+
+  container.querySelectorAll("[data-add-index]").forEach(button => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      const index = Number(button.dataset.addIndex);
+      const stock = results[index];
+
+      if (stock) addStock(stock);
+    });
+  });
+}
+
+function getStockKey(exchange, symbol) {
+  return `${normalize(exchange)}:${normalize(symbol)}`;
+}
+
+function isInWatchlist(exchange, symbol) {
+  const key = getStockKey(exchange, symbol);
+
+  return state.watchlist.some(
+    stock => getStockKey(stock.exchange, stock.symbol) === key
+  );
+}
+
+function addStock(stock) {
+  const exchange =
+    stock.exchange ||
+    state.exchange;
+
+  const symbol =
+    stock.symbol ||
+    stock.search_symbol ||
+    stock.security_id;
+
+  if (!symbol) {
+    setToast("Stock symbol not found");
+    return;
+  }
+
+  const key = getStockKey(exchange, symbol);
+
+  if (state.watchlist.some(
+    item => getStockKey(item.exchange, item.symbol) === key
+  )) {
+    setToast("Stock already added");
+    loadStock(exchange, symbol);
+    return;
+  }
+
+  const item = {
+    exchange,
+    symbol: normalize(symbol),
+    company_name:
+      stock.company_name ||
+      stock.name ||
+      normalize(symbol),
+    sector: stock.sector || null,
+    price: stock.price ?? null,
+    previous_close: stock.previous_close ?? null,
+    change: stock.change ?? null,
+    change_percent: stock.change_percent ?? null
+  };
+
+  state.watchlist.push(item);
+  saveState();
+
+  renderWatchlist();
+  loadStock(exchange, symbol);
+
+  setToast(`${symbol} added`);
+}
+
+function removeStock(exchange, symbol) {
+  const key = getStockKey(exchange, symbol);
+
+  state.watchlist = state.watchlist.filter(
+    stock => getStockKey(stock.exchange, stock.symbol) !== key
+  );
+
+  if (
+    state.selected &&
+    getStockKey(state.selected.exchange, state.selected.symbol) === key
+  ) {
+    state.selected = null;
+    localStorage.removeItem(STORAGE.selected);
+  }
+
+  delete state.triggers[key];
+
+  saveState();
+  renderWatchlist();
+
+  setToast(`${symbol} removed`);
+}
+
+async function loadStock(exchange, symbol) {
+  try {
+    const url =
+      `${API_BASE}/stock?exchange=${encodeURIComponent(exchange)}` +
+      `&symbol=${encodeURIComponent(symbol)}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Stock request failed");
+    }
+
+    state.selected = {
+      exchange,
+      symbol,
+      company_name:
+        data.company_name ||
+        data.company ||
+        data.name ||
+        symbol
+    };
+
+    localStorage.setItem(
+      STORAGE.selected,
+      JSON.stringify(state.selected)
+    );
+
+    renderStockData(data);
+    renderTriggerData();
+    updateResearchLinks(data);
+    updateNewsButtons();
+
+    await loadHistory(symbol, exchange, "7d");
+
+    const input = $("searchInput");
+    if (input) input.value = "";
+
+    if ($("searchResults")) {
+      $("searchResults").innerHTML = "";
+    }
+
+    renderWatchlist();
+
+  } catch (error) {
+    console.error(error);
+    setToast("Unable to load stock data");
+  }
+}
+
+function renderStockData(data) {
+  const symbol =
+    data.symbol ||
+    state.selected?.symbol ||
+    "—";
+
+  const company =
+    data.company_name ||
+    data.company ||
+    data.name ||
+    state.selected?.company_name ||
+    symbol;
+
+  const exchange =
+    data.exchange ||
+    state.selected?.exchange ||
+    state.exchange;
+
+  const price = Number(data.price);
+  const change = Number(data.change);
+
+  if ($("stockSymbol"))
+    $("stockSymbol").textContent = symbol;
+
+  if ($("stockCompany"))
+    $("stockCompany").textContent = company;
+
+  if ($("stockExchange"))
+    $("stockExchange").textContent = exchange;
+
+  if ($("currentPrice")) {
+    $("currentPrice").textContent = formatPrice(price);
+    $("currentPrice").className =
+      priceClass(change);
+  }
+
+  if ($("priceChange")) {
+    const percent = Number(data.change_percent);
+
+    let changeText = "—";
+
+    if (Number.isFinite(change)) {
+      changeText = `${change >= 0 ? "+" : ""}${change.toFixed(2)}`;
+
+      if (Number.isFinite(percent)) {
+        changeText +=
+          ` (${percent >= 0 ? "+" : ""}${percent.toFixed(2)}%)`;
+      }
+    }
+
+    $("priceChange").textContent = changeText;
+    $("priceChange").className =
+      priceClass(change);
+  }
+
+  if ($("previousClose"))
+    $("previousClose").textContent =
+      formatPrice(data.previous_close);
+
+  if ($("weekHigh"))
+    $("weekHigh").textContent =
+      formatPrice(data.week_52_high ?? data["52w_high"]);
+
+  if ($("weekLow"))
+    $("weekLow").textContent =
+      formatPrice(data.week_52_low ?? data["52w_low"]);
+
+  if ($("stockSector"))
+    $("stockSector").textContent =
+      data.sector || "Other / Unknown";
+
+  updateWatchlistItem(data);
+}
+
+function updateWatchlistItem(data) {
+  const symbol =
+    data.symbol ||
+    state.selected?.symbol;
+
+  const exchange =
+    data.exchange ||
+    state.selected?.exchange ||
+    state.exchange;
+
+  if (!symbol) return;
+
+  const key = getStockKey(exchange, symbol);
+
+  const item = state.watchlist.find(
+    stock => getStockKey(stock.exchange, stock.symbol) === key
+  );
+
+  if (!item) return;
+
+  item.price = data.price ?? item.price;
+  item.previous_close =
+    data.previous_close ?? item.previous_close;
+  item.change =
+    data.change ?? item.change;
+  item.change_percent =
+    data.change_percent ?? item.change_percent;
+
+  if (data.sector)
+    item.sector = data.sector;
+
+  if (data.company_name)
+    item.company_name = data.company_name;
+
+  saveState();
+}
+
+async function loadHistory(symbol, exchange, period) {
+  const status = $("historyStatus");
+  const container = $("historyTableContainer");
+
+  if (status)
+    status.textContent = "Loading history...";
+
+  if (container)
+    container.innerHTML = "";
+
+  try {
+    const url =
+      `${API_BASE}/history?exchange=${encodeURIComponent(exchange)}` +
+      `&symbol=${encodeURIComponent(symbol)}` +
+      `&period=${encodeURIComponent(period)}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "History request failed");
+    }
+
+    const history =
+      Array.isArray(data.history)
+        ? data.history
+        : Array.isArray(data.data)
+          ? data.data
+          : [];
+
+    renderHistory(history);
+
+    if (status)
+      status.textContent =
+        history.length
+          ? `${history.length} trading days`
+          : "No history found";
+
+  } catch (error) {
+    console.error(error);
+
+    if (status)
+      status.textContent = "Unable to load history";
+
+    if (container)
+      container.innerHTML =
+        `<div class="search-empty">History could not be loaded.</div>`;
+  }
+}
+
+function renderHistory(history) {
+  const container = $("historyTableContainer");
+
+  if (!container) return;
+
+  if (!history.length) {
+    container.innerHTML =
+      `<div class="search-empty">No historical data available.</div>`;
+    return;
+  }
+
+  let rows = "";
+
+  history.forEach((item, index) => {
+    const close =
+      Number(item.close ?? item.price);
+
+    const previous =
+      index > 0
+        ? Number(
+            history[index - 1].close ??
+            history[index - 1].price
+          )
+        : null;
+
+    let cls = "history-price-neutral";
+
+    if (previous !== null && Number.isFinite(close)) {
+      if (close > previous)
+        cls = "history-price-up";
+      else if (close < previous)
+        cls = "history-price-down";
+    }
+
+    rows += `
+      <tr>
+        <td>${escapeHtml(
+          formatDate(item.date || item.timestamp)
+        )}</td>
+        <td class="${cls}">
+          ${escapeHtml(formatPrice(close))}
+        </td>
+      </tr>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="history-table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Stock Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderWatchlist() {
+  const container = $("watchlistContainer");
+  const status = $("watchlistStatus");
+
+  if (!container) return;
+
+  if (!state.watchlist.length) {
+    container.innerHTML =
+      `<div class="search-empty">
+        No stocks added yet.
+      </div>`;
+
+    if (status)
+      status.textContent = "0 stocks";
+
+    return;
+  }
+
+  const groups = {};
+
+  state.watchlist.forEach(stock => {
+    const sector =
+      stock.sector ||
+      "Other / Unknown";
+
+    if (!groups[sector])
+      groups[sector] = [];
+
+    groups[sector].push(stock);
+  });
+
+  const sectors = Object.keys(groups).sort();
+
+  container.innerHTML = sectors.map(sector => `
+    <div class="sector-group">
+      <div class="sector-title">
+        ${escapeHtml(sector)}
+      </div>
+
+      ${groups[sector].map(stock => {
+        const cls = priceClass(stock.change);
+
+        return `
+          <div class="watch-row">
+            <div class="watch-main"
+                 data-watch-stock="${escapeHtml(
+                   getStockKey(stock.exchange, stock.symbol)
+                 )}">
+              <strong>${escapeHtml(stock.symbol)}</strong>
+              <span>${escapeHtml(
+                stock.company_name || ""
+              )}</span>
+            </div>
+
+            <div class="watch-exchange">
+              ${escapeHtml(stock.exchange)}
+            </div>
+
+            <div class="watch-price ${cls}">
+              ${escapeHtml(formatPrice(stock.price))}
+            </div>
+
+            <button class="remove-stock"
+                    data-remove-stock="${escapeHtml(
+                      getStockKey(stock.exchange, stock.symbol)
+                    )}">
+              ×
+            </button>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `).join("");
+
+  if (status)
+    status.textContent =
+      `${state.watchlist.length} stock${
+        state.watchlist.length === 1 ? "" : "s"
+      }`;
+
+  container.querySelectorAll("[data-watch-stock]")
+    .forEach(row => {
+      row.addEventListener("click", () => {
+        const key = row.dataset.watchStock;
+        const stock = state.watchlist.find(
+          item =>
+            getStockKey(item.exchange, item.symbol) === key
+        );
+
+        if (stock)
+          loadStock(stock.exchange, stock.symbol);
+      });
+    });
+
+  container.querySelectorAll("[data-remove-stock]")
+    .forEach(button => {
+      button.addEventListener("click", event => {
+        event.stopPropagation();
+
+        const key = button.dataset.removeStock;
+
+        const stock = state.watchlist.find(
+          item =>
+            getStockKey(item.exchange, item.symbol) === key
+        );
+
+        if (stock)
+          removeStock(stock.exchange, stock.symbol);
+      });
+    });
+}
+
+function updateResearchLinks(data = {}) {
+  const symbol =
+    data.symbol ||
+    state.selected?.symbol;
+
+  const exchange =
+    data.exchange ||
+    state.selected?.exchange ||
+    state.exchange;
+
+  if (!symbol) return;
+
+  const yahooSymbol =
+    `${symbol}.${exchange === "BSE" ? "BO" : "NS"}`;
+
+  if ($("yahooLink"))
+    $("yahooLink").href =
+      `https://finance.yahoo.com/quote/${encodeURIComponent(yahooSymbol)}/`;
+
+  if ($("googleFinanceLink"))
+    $("googleFinanceLink").href =
+      `https://www.google.com/finance/quote/${encodeURIComponent(symbol)}:${exchange}`;
+
+  if ($("screenerLink"))
+    $("screenerLink").href =
+      `https://www.screener.in/company/${encodeURIComponent(symbol)}/`;
+
+  if ($("exchangeLink")) {
+    if (exchange === "NSE") {
+      $("exchangeLink").href =
+        `https://www.nseindia.com/get-quotes/equity?symbol=${encodeURIComponent(symbol)}`;
+    } else {
+      $("exchangeLink").href =
+        `https://www.bseindia.com/stock-share-price/`;
+    }
+  }
+}
+
+function buildNewsPrompt() {
+  const symbol =
+    state.selected?.symbol || "";
+
+  const company =
+    state.selected?.company_name || symbol;
+
+  return `
+Stock: ${symbol}
+Company: ${company}
+Exchange: ${state.selected?.exchange || state.exchange}
+
+Find reliable and current news about this company/stock from ONLY the last 15 days.
+
+Explain every important news item first in very easy Hindi, in only 1-2 short sentences.
+
+Then provide a section called:
+"मुख्य Headlines और Links"
+
+For every news item provide:
+- Headline
+- Source
+- Date
+- Original article link
+
+Also classify the likely impact on this stock as:
+Positive, Negative, or Neutral.
+
+Use:
+🟢 Positive
+🔴 Negative
+⚪ Neutral
+
+The classification should be based on the likely impact of the news on the company/stock, not merely whether the article's language sounds positive or negative.
+
+Do not copy full articles.
+Do not invent news or links.
+If reliable news from the last 15 days is not available, clearly say so.
+`.trim();
+}
+
+function updateNewsButtons() {
+  const prompt = buildNewsPrompt();
+
+  if ($("chatgptNewsButton")) {
+    $("chatgptNewsButton").onclick = () => {
+      window.open(
+        `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`,
+        "_blank"
+      );
+    };
+  }
+
+  if ($("geminiNewsButton")) {
+    $("geminiNewsButton").onclick = () => {
+      window.open(
+        `https://gemini.google.com/app?q=${encodeURIComponent(prompt)}`,
+        "_blank"
+      );
+    };
+  }
+}
+
+function renderTriggerData() {
+  const selected = state.selected;
+
+  if (!selected) {
+    if ($("triggerStockName"))
+      $("triggerStockName").textContent =
+        "No stock selected";
+
+    if ($("buyTrigger"))
+      $("buyTrigger").value = "";
+
+    if ($("sellTrigger"))
+      $("sellTrigger").value = "";
+
+    return;
+  }
+
+  const key =
+    getStockKey(selected.exchange, selected.symbol);
+
+  const trigger =
+    state.triggers[key] || {};
+
+  if ($("triggerStockName"))
+    $("triggerStockName").textContent =
+      `${selected.symbol} (${selected.exchange})`;
+
+  if ($("buyTrigger"))
+    $("buyTrigger").value =
+      trigger.buy ?? "";
+
+  if ($("sellTrigger"))
+    $("sellTrigger").value =
+      trigger.sell ?? "";
+}
+
+function saveTrigger() {
+  if (!state.selected) {
+    setToast("Select a stock first");
+    return;
+  }
+
+  const buyRaw =
+    $("buyTrigger")?.value.trim() || "";
+
+  const sellRaw =
+    $("sellTrigger")?.value.trim() || "";
+
+  const buy =
+    buyRaw === "" ? null : Number(buyRaw);
+
+  const sell =
+    sellRaw === "" ? null : Number(sellRaw);
+
+  if (
+    (buy !== null && !Number.isFinite(buy)) ||
+    (sell !== null && !Number.isFinite(sell))
+  ) {
+    setToast("Enter a value trigger price");
+    return;
+  }
+
+  const key =
+    getStockKey(
+      state.selected.exchange,
+      state.selected.symbol
+    );
+
+  state.triggers[key] = {
+    buy,
+    sell,
+    buyTriggered: false,
+    sellTriggered: false
+  };
+
+  saveState();
+
+  setToast("Price trigger saved");
+}
+
+async function requestNotifications() {
+  if (!("Notification" in window)) {
+    setToast("Notifications are not supported");
+    return;
+  }
+
+  try {
+    const permission =
+      await Notification.requestPermission();
+
+    if (permission === "granted") {
+      setToast("Notifications enabled");
+
+      new Notification("NSE BSE TRACKER V4", {
+        body: "Price trigger notifications are enabled."
+      });
+    } else {
+      setToast("Notification permission not granted");
+    }
+  } catch (error) {
+    console.error(error);
+    setToast("Could not enable notifications");
+  }
+}
+
+function sendPriceNotification(title, body) {
+  if (
+    "Notification" in window &&
+    Notification.permission === "granted"
+  ) {
+    try {
+      new Notification(title, { body });
+      return;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  setToast(`${title}: ${body}`);
+}
+
+function checkTriggers(stock) {
+  if (!stock || !stock.price) return;
+
+  const key =
+    getStockKey(stock.exchange, stock.symbol);
+
+  const trigger =
+    state.triggers[key];
+
+  if (!trigger) return;
+
+  const price = Number(stock.price);
+
+  if (!Number.isFinite(price)) return;
+
+  if (
+    trigger.buy !== null &&
+    Number.isFinite(Number(trigger.buy)) &&
+    price <= Number(trigger.buy) &&
+    !trigger.buyTriggered
+  ) {
+    trigger.buyTriggered = true;
+
+    sendPriceNotification(
+      `${stock.symbol} Buy Trigger`,
+      `Price reached ${formatPrice(price)}`
+    );
+  }
+
+  if (
+    trigger.sell !== null &&
+    Number.isFinite(Number(trigger.sell)) &&
+    price >= Number(trigger.sell) &&
+    !trigger.sellTriggered
+  ) {
+    trigger.sellTriggered = true;
+
+    sendPriceNotification(
+      `${stock.symbol} Sell Trigger`,
+      `Price reached ${formatPrice(price)}`
+    );
+  }
+
+  saveState();
+}
+
+async function refreshWatchlistPrices() {
+  if (!state.watchlist.length) return;
+
+  await Promise.all(
+    state.watchlist.map(async stock => {
+      try {
+        const url =
+          `${API_BASE}/stock?exchange=${encodeURIComponent(stock.exchange)}` +
+          `&symbol=${encodeURIComponent(stock.symbol)}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) return;
+
+        stock.price =
+          data.price ?? stock.price;
+
+        stock.previous_close =
+          data.previous_close ??
+          stock.previous_close;
+
+        stock.change =
+          data.change ??
+          stock.change;
+
+        stock.change_percent =
+          data.change_percent ??
+          stock.change_percent;
+
+        if (data.company_name)
+          stock.company_name =
+            data.company_name;
+
+        if (data.sector)
+          stock.sector =
+            data.sector;
+
+        checkTriggers({
+          ...stock,
+          price: data.price
+        });
+
+        if (
+          state.selected &&
+          getStockKey(
+            state.selected.exchange,
+            state.selected.symbol
+          ) ===
+          getStockKey(
+            stock.exchange,
+            stock.symbol
+          )
+        ) {
+          renderStockData(data);
+        }
+
+      } catch (error) {
+        console.error(
+          "Refresh failed:",
+          stock.symbol,
+          error
+        );
+      }
+    })
+  );
+
+  saveState();
+  renderWatchlist();
+
+  if (state.selected) {
+    await loadStock(
+      state.selected.exchange,
+      state.selected.symbol
+    );
+  }
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+
+  state.autoRefresh = true;
+  saveState();
+
+  state.refreshTimer =
+    setInterval(
+      refreshWatchlistPrices,
+      60 * 1000
+    );
+
+  setToast("Auto refresh ON");
+}
+
+function stopAutoRefresh() {
+  if (state.refreshTimer) {
+    clearInterval(state.refreshTimer);
+    state.refreshTimer = null;
+  }
+
+  state.autoRefresh = false;
+  saveState();
+}
+
+function updateAutoRefreshUI() {
+  const toggle = $("autoRefreshToggle");
+
+  if (toggle)
+    toggle.checked = state.autoRefresh;
+}
+
+function toggleAutoRefresh() {
+  const toggle = $("autoRefreshToggle");
+
+  if (toggle?.checked) {
+    startAutoRefresh();
+  } else {
+    stopAutoRefresh();
+    setToast("Auto refresh OFF");
+  }
+}
+
+function setupMenu() {
+  const menuButton = $("menuButton");
+  const menuPanel = $("menuPanel");
+
+  if (menuButton && menuPanel) {
+    menuButton.addEventListener("click", () => {
+      menuPanel.classList.toggle("open");
+    });
+  }
+
+  document.querySelectorAll("[data-menu-target]")
+    .forEach(button => {
+      button.addEventListener("click", () => {
+        const target =
+          button.dataset.menuTarget;
+
+        const element = $(target);
+
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }
+
+        menuPanel?.classList.remove("open");
+      });
+    });
+}
+
+function setupSearch() {
+  const input = $("searchInput");
+  const addButton = $("addButton");
+
+  if (input) {
+    input.addEventListener("input", () => {
+      clearTimeout(state.searchTimer);
+
+      state.searchTimer = setTimeout(() => {
+        searchStocks(input.value);
+      }, 300);
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchStocks(input.value);
+      }
+    });
+  }
+
+  if (addButton) {
+    addButton.addEventListener("click", async () => {
+      const query =
+        input?.value.trim() || "";
+
+      if (!query) {
+        setToast("Enter a stock name or symbol");
+        return;
+      }
+
+      const results =
+        await searchStocks(query);
+
+      if (!results.length) {
+        setToast("No stock found");
+        return;
+      }
+
+      let selected = results.find(
+        stock =>
+          normalize(stock.symbol) ===
+          normalize(query)
+      );
+
+      if (!selected)
+        selected = results[0];
+
+      addStock(selected);
+    });
+  }
+}
+
+function setupExchangeButtons() {
+  document.querySelectorAll("[data-exchange]")
+    .forEach(button => {
+      button.addEventListener("click", () => {
+        setExchange(
+          button.dataset.exchange
+        );
+      });
+    });
+}
+
+function setupHistoryButtons() {
+  document.querySelectorAll("[data-period]")
+    .forEach(button => {
+      button.addEventListener("click", async () => {
+        if (!state.selected) {
+          setToast("Select a stock first");
+          return;
+        }
+
+        document.querySelectorAll("[data-period]")
+          .forEach(btn =>
+            btn.classList.remove("active")
+          );
+
+        button.classList.add("active");
+
+        await loadHistory(
+          state.selected.symbol,
+          state.selected.exchange,
+          button.dataset.period
+        );
+      });
+    });
+}
+
+function setupTriggersAndSettings() {
+  if ($("saveTriggerButton")) {
+    $("saveTriggerButton").addEventListener(
+      "click",
+      saveTrigger
+    );
+  }
+
+  if ($("notificationButton")) {
+    $("notificationButton").addEventListener(
+      "click",
+      requestNotifications
+    );
+  }
+
+  if ($("autoRefreshToggle")) {
+    $("autoRefreshToggle").addEventListener(
+      "change",
+      toggleAutoRefresh
+    );
+  }
+}
+
+function setupTheme() {
+  const saved =
+    localStorage.getItem(STORAGE.theme);
+
+  if (saved === "light")
+    document.body.classList.add("light-theme");
+
+  const buttons =
+    document.querySelectorAll(
+      '[data-menu-action="theme"]'
+    );
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      document.body.classList.toggle(
+        "light-theme"
+      );
+
+      localStorage.setItem(
+        STORAGE.theme,
+        document.body.classList.contains(
+          "light-theme"
+        )
+          ? "light"
+          : "dark"
+      );
+
+      setToast(
+        document.body.classList.contains(
+          "light-theme"
+        )
+          ? "Light theme"
+          : "Dark theme"
+      );
+    });
+  });
+}
+
+function setupLogout() {
+  document.querySelectorAll(
+    '[data-menu-action="logout"]'
+  ).forEach(button => {
+    button.addEventListener("click", () => {
+
+      state.selected = null;
+
+      localStorage.removeItem(
+        STORAGE.selected
+      );
+
+      if ($("stockSymbol"))
+        $("stockSymbol").textContent = "—";
+
+      if ($("stockCompany"))
+        $("stockCompany").textContent =
+          "No stock selected";
+
+      if ($("currentPrice"))
+        $("currentPrice").textContent = "—";
+
+      setToast(
+        "Logged out of current session"
+      );
+    });
+  });
+}
+
+function restoreSelectedStock() {
+  if (!state.selected) return;
+
+  loadStock(
+    state.selected.exchange,
+    state.selected.symbol
+  );
+}
+
+function initializeApp() {
+  loadState();
+
+  updateExchangeButtons();
+  updateAutoRefreshUI();
+
+  renderWatchlist();
+  renderTriggerData();
+
+  setupMenu();
+  setupSearch();
+  setupExchangeButtons();
+  setupHistoryButtons();
+  setupTriggersAndSettings();
+  setupTheme();
+  setupLogout();
+
+  updateNewsButtons();
+
+  if ($("searchInput")) {
+    $("searchInput").placeholder =
+      state.exchange === "NSE"
+        ? "Search NSE stock..."
+        : "Search BSE stock...";
+  }
+
+  if (state.autoRefresh) {
+    startAutoRefresh();
+  }
+
+  restoreSelectedStock();
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeApp
 );
+</script>
+<style>
+/* ================================
+   LIGHT THEME
+================================ */
+
+body.light-theme {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+body.light-theme .app-header,
+body.light-theme .menu-panel,
+body.light-theme .card,
+body.light-theme .stock-card,
+body.light-theme .history-card,
+body.light-theme .research-card,
+body.light-theme .news-card,
+body.light-theme .watchlist-card,
+body.light-theme .trigger-card,
+body.light-theme .settings-card {
+  background: #ffffff;
+  color: #111827;
+}
+
+body.light-theme input,
+body.light-theme select {
+  background: #f9fafb;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+body.light-theme .muted,
+body.light-theme .search-empty {
+  color: #6b7280;
+}
+
+body.light-theme .search-result-item,
+body.light-theme .watch-row,
+body.light-theme .ocr-result-item {
+  border-color: #e5e7eb;
+}
+
+body.light-theme .menu-panel button {
+  color: #111827;
+}
+
+body.light-theme .history-table th {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* ================================
+   OCR
+================================ */
+
+.ocr-progress {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.ocr-result-list {
+  margin-top: 12px;
+}
+
+.ocr-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #292929;
+}
+
+.ocr-result-item input {
+  width: 18px;
+  height: 18px;
+}
+
+.ocr-stock-info {
+  flex: 1;
+}
+
+.ocr-stock-info strong {
+  display: block;
+}
+
+.ocr-stock-info span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 3px;
+}
+
+.ocr-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.ocr-actions button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+}
+
+/* ================================
+   MOBILE TABLE
+================================ */
+
+@media (max-width: 600px) {
+
+  .watch-row {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto
+      auto
+      auto;
+    gap: 6px;
+  }
+
+  .watch-main span {
+    display: block;
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .watch-price {
+    font-size: 13px;
+  }
+
+  .watch-exchange {
+    font-size: 11px;
+  }
+
+  .remove-stock {
+    padding: 4px 7px;
+  }
+
+  .history-table {
+    min-width: 280px;
+  }
+}
+</style>
+
+<script>
+/* =========================================
+   OCR / SCREENSHOT WATCHLIST SCANNER
+========================================= */
+
+let tesseractLoading = null;
+
+function loadTesseract() {
+  if (window.Tesseract) {
+    return Promise.resolve(window.Tesseract);
+  }
+
+  if (tesseractLoading) {
+    return tesseractLoading;
+  }
+
+  tesseractLoading = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+
+    script.src =
+      "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+
+    script.onload = () => {
+      if (window.Tesseract) {
+        resolve(window.Tesseract);
+      } else {
+        reject(
+          new Error("Tesseract failed to load")
+        );
+      }
+    };
+
+    script.onerror = () => {
+      reject(
+        new Error("Unable to load OCR engine")
+      );
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return tesseractLoading;
+}
+
+function cleanOCRLine(line) {
+  return String(line || "")
+    .replace(/[|[\]{}<>]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractOCRQueries(text) {
+  const lines =
+    String(text || "")
+      .split(/\r?\n/)
+      .map(cleanOCRLine)
+      .filter(line => line.length >= 2);
+
+  const queries = [];
+
+  /* First preference:
+     complete OCR lines */
+  lines.forEach(line => {
+    if (
+      line.length >= 2 &&
+      line.length <= 60 &&
+      !queries.includes(line)
+    ) {
+      queries.push(line);
+    }
+  });
+
+  /* Second preference:
+     possible stock symbols */
+  lines.forEach(line => {
+    const words = line
+      .split(/\s+/)
+      .map(word =>
+        word
+          .replace(/[^A-Za-z0-9.-]/g, "")
+          .trim()
+      )
+      .filter(Boolean);
+
+    words.forEach(word => {
+      const upper = word.toUpperCase();
+
+      const looksLikeSymbol =
+        /^[A-Z]{2,20}$/.test(upper) ||
+        /^[A-Z0-9]{3,15}$/.test(upper);
+
+      if (
+        looksLikeSymbol &&
+        !queries.includes(upper)
+      ) {
+        queries.push(upper);
+      }
+    });
+  });
+
+  return queries.slice(0, 20);
+}
+
+function showOCRStatus(message) {
+  const status = $("ocrStatus");
+
+  if (status)
+    status.textContent = message;
+}
+
+async function searchOCRCandidate(query) {
+  try {
+    const url =
+      `${API_BASE}/search?exchange=${encodeURIComponent(state.exchange)}` +
+      `&q=${encodeURIComponent(query)}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok)
+      return [];
+
+    const data = await response.json();
+
+    return Array.isArray(data.results)
+      ? data.results
+      : [];
+
+  } catch (error) {
+    console.error(
+      "OCR search failed:",
+      query,
+      error
+    );
+
+    return [];
+  }
+}
+
+async function findStocksFromOCR(text) {
+  const queries =
+    extractOCRQueries(text);
+
+  if (!queries.length) {
+    renderOCRResults([]);
+
+    showOCRStatus(
+      "No possible stock names or symbols detected."
+    );
+
+    return;
+  }
+
+  const found = [];
+  const seen = new Set();
+
+  showOCRStatus(
+    `Checking ${queries.length} possible names/symbols...`
+  );
+
+  /*
+   * Search OCR lines one by one.
+   * A small delay keeps the mobile browser
+   * from firing too many requests together.
+   */
+  for (let i = 0; i < queries.length; i++) {
+
+    const query = queries[i];
+
+    showOCRStatus(
+      `Checking ${i + 1} of ${queries.length}: ${query}`
+    );
+
+    const results =
+      await searchOCRCandidate(query);
+
+    for (const stock of results.slice(0, 3)) {
+
+      const symbol =
+        stock.symbol ||
+        stock.search_symbol ||
+        stock.security_id;
+
+      if (!symbol)
+        continue;
+
+      const key =
+        getStockKey(
+          stock.exchange || state.exchange,
+          symbol
+        );
+
+      if (seen.has(key))
+        continue;
+
+      seen.add(key);
+
+      found.push({
+        ...stock,
+        exchange:
+          stock.exchange ||
+          state.exchange
+      });
+    }
+  }
+
+  renderOCRResults(found);
+
+  if (found.length) {
+    showOCRStatus(
+      `${found.length} possible stock(s) found. Please confirm before adding.`
+    );
+  } else {
+    showOCRStatus(
+      "No matching stocks found."
+    );
+  }
+}
+
+function renderOCRResults(stocks) {
+  const container =
+    $("ocrResults");
+
+  if (!container)
+    return;
+
+  if (!stocks.length) {
+    container.innerHTML = "";
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="ocr-actions">
+      <button
+        type="button"
+        id="ocrSelectAllButton">
+        Select All
+      </button>
+
+      <button
+        type="button"
+        id="ocrAddSelectedButton">
+        Add Selected
+      </button>
+
+      <button
+        type="button"
+        id="ocrAddAllButton">
+        Add All
+      </button>
+    </div>
+
+    <div class="ocr-result-list">
+      ${stocks.map((stock, index) => {
+
+        const symbol =
+          stock.symbol ||
+          stock.search_symbol ||
+          stock.security_id ||
+          "";
+
+        const company =
+          stock.company_name ||
+          stock.name ||
+          symbol;
+
+        const exchange =
+          stock.exchange ||
+          state.exchange;
+
+        const key =
+          getStockKey(exchange, symbol);
+
+        const alreadyAdded =
+          isInWatchlist(exchange, symbol);
+
+        return `
+          <label class="ocr-result-item">
+            <input
+              type="checkbox"
+              class="ocr-stock-checkbox"
+              data-ocr-index="${index}"
+              ${alreadyAdded ? "disabled" : ""}
+            >
+
+            <div class="ocr-stock-info">
+              <strong>
+                ${escapeHtml(symbol)}
+              </strong>
+
+              <span>
+                ${escapeHtml(company)}
+                · ${escapeHtml(exchange)}
+                ${alreadyAdded ? " · Already added" : ""}
+              </span>
+            </div>
+          </label>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  const selectAll =
+    $("ocrSelectAllButton");
+
+  if (selectAll) {
+    selectAll.addEventListener(
+      "click",
+      () => {
+        const boxes =
+          container.querySelectorAll(
+            ".ocr-stock-checkbox:not(:disabled)"
+          );
+
+        const shouldSelect =
+          Array.from(boxes)
+            .some(box => !box.checked);
+
+        boxes.forEach(box => {
+          box.checked = shouldSelect;
+        });
+
+        selectAll.textContent =
+          shouldSelect
+            ? "Unselect All"
+            : "Select All";
+      }
+    );
+  }
+
+  const addSelected =
+    $("ocrAddSelectedButton");
+
+  if (addSelected) {
+    addSelected.addEventListener(
+      "click",
+      () => {
+        const boxes =
+          container.querySelectorAll(
+            ".ocr-stock-checkbox:checked"
+          );
+
+        let count = 0;
+
+        boxes.forEach(box => {
+          const index =
+            Number(box.dataset.ocrIndex);
+
+          const stock = stocks[index];
+
+          if (stock) {
+            addStock(stock);
+            count++;
+          }
+        });
+
+        if (count) {
+          setToast(
+            `${count} stock(s) added`
+          );
+
+          renderOCRResults(stocks);
+        } else {
+          setToast(
+            "Please select at least one stock"
+          );
+        }
+      }
+    );
+  }
+
+  const addAll =
+    $("ocrAddAllButton");
+
+  if (addAll) {
+    addAll.addEventListener(
+      "click",
+      () => {
+
+        let count = 0;
+
+        stocks.forEach(stock => {
+
+          const symbol =
+            stock.symbol ||
+            stock.search_symbol ||
+            stock.security_id;
+
+          const exchange =
+            stock.exchange ||
+            state.exchange;
+
+          if (
+            symbol &&
+            !isInWatchlist(
+              exchange,
+              symbol
+            )
+          ) {
+            addStock(stock);
+            count++;
+          }
+        });
+
+        if (count) {
+          setToast(
+            `${count} stock(s) added`
+          );
+        } else {
+          setToast(
+            "All detected stocks are already added"
+          );
+        }
+
+        renderOCRResults(stocks);
+      }
+    );
+  }
+}
+
+async function handleOCRFile(file) {
+  if (!file)
+    return;
+
+  showOCRStatus(
+    "Loading OCR engine..."
+  );
+
+  try {
+    const Tesseract =
+      await loadTesseract();
+
+    showOCRStatus(
+      "Reading screenshot... 0%"
+    );
+
+    const result =
+      await Tesseract.recognize(
+        file,
+        "eng",
+        {
+          logger: message => {
+
+            if (
+              message.status ===
+              "recognizing text" &&
+              Number.isFinite(
+                message.progress
+              )
+            ) {
+              showOCRStatus(
+                `Reading screenshot... ${
+                  Math.round(
+                    message.progress * 100
+                  )
+                }%`
+              );
+            }
+          }
+        }
+      );
+
+    const text =
+      result?.data?.text || "";
+
+    if (!text.trim()) {
+      showOCRStatus(
+        "No readable text found in screenshot."
+      );
+
+      return;
+    }
+
+    showOCRStatus(
+      "Screenshot read successfully. Matching stocks..."
+    );
+
+    await findStocksFromOCR(text);
+
+  } catch (error) {
+    console.error(
+      "OCR error:",
+      error
+    );
+
+    showOCRStatus(
+      "OCR could not process this image. Please try a clearer screenshot."
+    );
+  }
+}
+
+function setupOCR() {
+  const fileInput =
+    $("ocrFile");
+
+  if (!fileInput)
+    return;
+
+  fileInput.addEventListener(
+    "change",
+    async event => {
+
+      const file =
+        event.target.files?.[0];
+
+      if (!file)
+        return;
+
+      if (
+        !file.type ||
+        !file.type.startsWith("image/")
+      ) {
+        showOCRStatus(
+          "Please select an image screenshot."
+        );
+
+        return;
+      }
+
+      await handleOCRFile(file);
+
+      /*
+       * Allows selecting the same screenshot
+       * again later.
+       */
+      fileInput.value = "";
+    }
+  );
+}
+
+/* =========================================
+   ADD OCR SETUP TO EXISTING INITIALIZATION
+========================================= */
+
+const originalInitializeApp =
+  initializeApp;
+
+initializeApp = function() {
+  originalInitializeApp();
+
+  setupOCR();
+};
 
 </script>
-
-</body>
-</html>
