@@ -3416,3 +3416,111 @@ initializeApp = function() {
 };
 
 </script>
+<script>
+/* =========================================
+   OCR BUTTON + FILE INPUT SETUP
+========================================= */
+
+function setupOCRButton() {
+  const button = $("ocrButton");
+  const fileInput = $("ocrFile");
+
+  if (!button || !fileInput)
+    return;
+
+  button.addEventListener("click", () => {
+    fileInput.click();
+  });
+}
+
+/* =========================================
+   OCR INITIALIZATION
+========================================= */
+
+const previousInitializeApp =
+  initializeApp;
+
+initializeApp = function() {
+  previousInitializeApp();
+
+  setupOCR();
+  setupOCRButton();
+};
+</script>
+<style>
+/* =========================================
+   OCR CLIP BUTTON
+========================================= */
+
+.ocr-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ocr-clip-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ocr-clip-button:hover {
+  background: #2d2d2d;
+}
+
+.ocr-file-input {
+  display: none;
+}
+
+.ocr-status {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.ocr-results {
+  margin-top: 10px;
+}
+</style>
+
+<!-- =========================================
+     OCR WATCHLIST SCANNER
+========================================= -->
+
+<div class="ocr-upload-row">
+
+  <button
+    type="button"
+    id="ocrButton"
+    class="ocr-clip-button"
+    title="Upload watchlist screenshot">
+    📎
+  </button>
+
+  <input
+    type="file"
+    id="ocrFile"
+    class="ocr-file-input"
+    accept="image/*">
+
+</div>
+
+<div
+  id="ocrStatus"
+  class="ocr-status">
+  Upload a broker watchlist screenshot to scan stocks.
+</div>
+
+<div
+  id="ocrResults"
+  class="ocr-results">
+</div>
