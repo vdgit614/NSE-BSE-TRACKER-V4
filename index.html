@@ -668,6 +668,20 @@ body {
         <canvas id="priceChart"></canvas>
     </div>
 
+    <div class="history-table-wrap">
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Close</th>
+                <th>Change</th>
+                <th>Change %</th>
+            </tr>
+        </thead>
+        <tbody id="historyTableBody">
+        </tbody>
+    </table>
+    </div>
 </section>
 
 <!-- QUICK LINKS -->
@@ -1258,59 +1272,153 @@ RENDER HISTORY
 
 function renderHistory(data) {
 
-let history = [];
+    let history = [];
 
-if (Array.isArray(data)) {
-    history = data;
-} else if (Array.isArray(data.history)) {
-    history = data.history;
-} else if (Array.isArray(data.data)) {
-    history = data.data;
-} else if (Array.isArray(data.results)) {
-    history = data.results;
-}
-
-if (history.length === 0) {
-    return;
-}
-
-const labels = [];
-const prices = [];
-
-history.forEach(function (item) {
-
-    const date =
-        item.date ||
-        item.datetime ||
-        item.timestamp ||
-        item.time;
-
-    const price =
-        item.close ??
-        item.price ??
-        item.close_price ??
-        item.last_price;
-
-    if (
-        date !== undefined &&
-        price !== undefined &&
-        price !== null
-    ) {
-
-        labels.push(formatChartDate(date));
-
-        prices.push(Number(price));
+    if (Array.isArray(data)) {
+        history = data;
+    } else if (Array.isArray(data.history)) {
+        history = data.history;
+    } else if (Array.isArray(data.data)) {
+        history = data.data;
+    } else if (Array.isArray(data.results)) {
+        history = data.results;
     }
-});
 
-if (prices.length === 0) {
-    return;
+    if (history.length === 0) {
+        return;
+    }
+
+    // CHART: oldest → newest
+    const chartHistory = [...history].sort(function (a, b) {
+        return Number(a.timestamp || 0) - Number(b.timestamp || 0);
+    });
+
+    const labels = [];
+    const prices = [];
+
+    chartHistory.forEach(function (item) {
+
+        const date =
+            item.date ||
+            item.datetime ||
+            item.timestamp ||
+            item.time;
+
+        const price =
+            item.close ??
+            item.price ??
+            item.close_price ??
+            item.last_price;
+
+        if (
+            date !== undefined &&
+            price !== undefined &&
+            price !== null
+        ) {
+            labels.push(formatChartDate(date));
+            prices.push(Number(price));
+        }
+    });
+
+    if (prices.length > 0) {
+        drawChart(labels, prices);
+    }
+
+    // TABLE: newest → oldest
+    const tableHistory = [...history].sort(function (a, b) {
+        return Number(b.timestamp || 0) - Number(a.timestamp || 0);
+    });
+
+    const tableBody = document.getElementById("historyTableBody");
+
+    if (!tableBody) {
+        return;
+    }
+
+    let html = "";
+
+    tableHistory.forEach(function (item, index) {
+
+        const date =
+            item.date ||
+            item.datetime ||
+            item.timestamp ||
+            item.time;
+
+        const price = Number(
+            item.close ??
+            item.price ??
+            item.close_price ??
+            item.last_price
+        );
+
+        if (
+            date === undefined ||
+            isNaN(price)
+        ) {
+            return;
+        }
+
+        // Next item = previous trading day
+        const previousItem = tableHistory[index + 1];
+
+        let change = null;
+        let changePercent = null;
+
+        if (previousItem) {
+
+            const previousPrice = Number(
+                previousItem.close ??
+                previousItem.price ??
+                previousItem.close_price ??
+                previousItem.last_price
+            );
+
+            if (!isNaN(previousPrice) && previousPrice !== 0) {
+
+                change = price - previousPrice;
+
+                changePercent =
+                    (change / previousPrice) * 100;
+            }
+        }
+
+        let changeText = "-";
+        let percentText = "-";
+        let changeClass = "history-neutral";
+
+        if (change !== null) {
+
+            const changeSign =
+                change > 0 ? "+" : "";
+
+            changeText =
+                changeSign + formatNumber(change);
+
+            percentText =
+                changeSign +
+                changePercent.toFixed(2) +
+                "%";
+
+            if (change > 0) {
+                changeClass = "history-up";
+            } else if (change < 0) {
+                changeClass = "history-down";
+            }
+        }
+
+        html += `
+            <tr>
+                <td>${formatChartDate(date)}</td>
+                <td>${formatNumber(price)}</td>
+                <td class="${changeClass}">${changeText}</td>
+                <td class="${changeClass}">${percentText}</td>
+            </tr>
+        `;
+    });
+
+    tableBody.innerHTML = html;
 }
-
-drawChart(labels, prices);
-
-}
-
 /* ---------------------------------------------------------
 CHART DATE FORMAT
 --------------------------------------------------------- */
