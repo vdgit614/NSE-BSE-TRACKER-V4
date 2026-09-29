@@ -1083,25 +1083,14 @@ async function loadStock(symbol, exchange) {
 
 function renderStock(data, symbol, exchange) {
 
-    const stock =
-        data.stock ||
-        data.data ||
-        data;
+    const stock = data.stock || {};
+    const market = data.market || {};
 
-    const price =
-        stock.price ??
-        stock.current_price ??
-        stock.last_price;
+    const price = market.price;
 
-    const previousClose =
-        stock.previous_close ??
-        stock.previousClose;
+    const previousClose = market.previous_close;
 
-    const change =
-        stock.change ??
-        (price !== undefined && previousClose !== undefined
-            ? Number(price) - Number(previousClose)
-            : null);
+    const change = market.change;
 
     $("stockPanel").style.display = "block";
 
@@ -1109,62 +1098,54 @@ function renderStock(data, symbol, exchange) {
         stock.symbol || symbol;
 
     $("stockCompany").textContent =
-        stock.company ||
-     stock.company_name ||
-selectedCompany ||
-"";
+        stock.company_name || "";
 
-$("exchangeBadge").textContent = exchange;
+    $("exchangeBadge").textContent =
+        exchange;
 
-$("currentPrice").textContent =
-    formatNumber(price);
+    $("currentPrice").textContent =
+        formatNumber(price);
 
-$("previousClose").textContent =
-    formatNumber(previousClose);
+    $("previousClose").textContent =
+        formatNumber(previousClose);
 
-$("weekHigh").textContent =
-    formatNumber(
-        stock.week_high ??
-        stock["52w_high"] ??
-        stock.high_52_week
+    $("weekHigh").textContent =
+        formatNumber(
+            market.fifty_two_week_high
+        );
+
+    $("weekLow").textContent =
+        formatNumber(
+            market.fifty_two_week_low
+        );
+
+    $("tradingStatus").textContent =
+        stock.trading_status || "--";
+
+    const changeElement =
+        $("priceChange");
+
+    changeElement.className =
+        "price-change " + changeClass(change);
+
+    if (change !== null && change !== undefined) {
+
+        const sign =
+            Number(change) > 0 ? "+" : "";
+
+        changeElement.textContent =
+            sign + formatNumber(change);
+
+    } else {
+
+        changeElement.textContent = "--";
+    }
+
+    updateQuickLinks(
+        stock.symbol || symbol,
+        exchange
     );
-
-$("weekLow").textContent =
-    formatNumber(
-        stock.week_low ??
-        stock["52w_low"] ??
-        stock.low_52_week
-    );
-
-$("tradingStatus").textContent =
-    stock.trading_status ||
-    stock.tradingStatus ||
-    "--";
-
-const changeElement = $("priceChange");
-
-changeElement.className =
-    "price-change " + changeClass(change);
-
-if (change !== null && change !== undefined) {
-
-    const sign = Number(change) > 0 ? "+" : "";
-
-    changeElement.textContent =
-        sign + formatNumber(change);
-
-} else {
-
-    changeElement.textContent = "--";
 }
-
-updateQuickLinks(
-    stock.symbol || symbol,
-    exchange
-);
-
-}
-
 /* ---------------------------------------------------------
 QUICK LINKS
 --------------------------------------------------------- */
