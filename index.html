@@ -1400,7 +1400,7 @@ function renderHistory(data) {
         html += `
             <tr>
                 <td>${formatChartDate(date)}</td>
-                <td>${formatNumber(price)}</td>
+                <td class="${changeClass}">${formatNumber(price)}</td>
                 <td class="${changeClass}">${changeText}</td>
                 <td class="${changeClass}">${percentText}</td>
             </tr>
