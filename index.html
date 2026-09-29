@@ -1772,55 +1772,56 @@ RENDER INDEX
 --------------------------------------------------------- */
 
 function renderIndex(
-data,
-priceElementId,
-changeElementId
+    data,
+    priceElementId,
+    changeElementId
 ) {
 
-const index =
-    data.stock ||
-    data.data ||
-    data;
+    const stock = data.stock || {};
+    const market = data.market || {};
 
-const price =
-    index.price ??
-    index.current_price ??
-    index.last_price;
+    const price =
+        market.price;
 
-const change =
-    index.change ??
-    index.change_points ??
-    0;
+    const change =
+        market.change;
 
-$(priceElementId).textContent =
-    formatNumber(price);
+    const priceElement =
+        $(priceElementId);
 
-const changeElement =
-    $(changeElementId);
+    priceElement.className =
+        "index-price " +
+        changeClass(change);
 
-changeElement.className =
-    "index-change " +
-    changeClass(change);
+    priceElement.textContent =
+        formatNumber(price);
 
-if (
-    change !== null &&
-    change !== undefined
-) {
+    const changeElement =
+        $(changeElementId);
 
-    const sign =
-        Number(change) > 0
-            ? "+"
-            : "";
+    changeElement.className =
+        "index-change " +
+        changeClass(change);
 
-    changeElement.textContent =
-        sign +
-        formatNumber(change);
+    if (
+        change !== null &&
+        change !== undefined
+    ) {
 
-} else {
+        const sign =
+            Number(change) > 0
+                ? "+"
+                : "";
 
-    changeElement.textContent =
-        "--";
-}
+        changeElement.textContent =
+            sign +
+            formatNumber(change);
+
+    } else {
+
+        changeElement.textContent =
+            "--";
+    }
 
 }
 
