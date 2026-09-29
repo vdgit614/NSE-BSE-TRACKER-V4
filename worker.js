@@ -1915,75 +1915,8 @@ if (path === "/news") {
               ""
           };
         }
-
         
-            await env.DB.prepare(`
-              SELECT
-                id,
-                exchange,
-                symbol,
-                company_name,
-                security_id,
-                isin,
-                sector,
-                trading_status
-              FROM instruments
-              WHERE exchange = 'NSE'
-                AND search_symbol = ?
-              LIMIT 1
-            `)
-              .bind(symbol)
-              .first();
-
-          if (!stock) {
-
-            return jsonResponse(
-              {
-                status:
-                  "error",
-
-                message:
-                  "NSE stock not found",
-
-                symbol
-              },
-              404
-            );
-          }
-
-        }
-
-          // BSE
-
-        else {
-
-          stock = {
-
-            exchange:
-              "BSE",
-
-            symbol,
-
-            company_name:
-              symbol,
-
-            security_id:
-              /^\d+$/.test(symbol)
-                ? symbol
-                : "",
-
-            isin:
-              "",
-
-            sector:
-              "",
-
-            trading_status:
-              ""
-          };
-        }
-
-        let market = null;
+      let market = null;
 
         try {
 
