@@ -1103,8 +1103,11 @@ function renderStock(data, symbol, exchange) {
     $("exchangeBadge").textContent =
         exchange;
 
-    $("currentPrice").textContent =
-        formatNumber(price);
+    $("currentPrice").className =
+    "current-price " + changeClass(change);
+
+$("currentPrice").textContent =
+    formatNumber(price);
 
     $("previousClose").textContent =
         formatNumber(previousClose);
