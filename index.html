@@ -1112,15 +1112,21 @@ $("currentPrice").textContent =
     $("previousClose").textContent =
         formatNumber(previousClose);
 
-    $("weekHigh").textContent =
-        formatNumber(
-            market.fifty_two_week_high
-        );
+    $("weekHigh").className =
+    "info-value up";
 
-    $("weekLow").textContent =
-        formatNumber(
-            market.fifty_two_week_low
-        );
+$("weekHigh").textContent =
+    formatNumber(
+        market.fifty_two_week_high
+    );
+
+$("weekLow").className =
+    "info-value down";
+
+$("weekLow").textContent =
+    formatNumber(
+        market.fifty_two_week_low
+    );
 
     $("tradingStatus").textContent =
         stock.trading_status || "--";
