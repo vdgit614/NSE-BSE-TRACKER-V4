@@ -89,6 +89,16 @@ function yahooSymbol(symbol, exchange = "NSE") {
 
   const exc = normalizeExchange(exchange);
 
+  // INDEX SYMBOLS
+  if (cleanSymbol.toUpperCase() === "NIFTY") {
+    return "^NSEI";
+  }
+
+  if (cleanSymbol.toUpperCase() === "SENSEX") {
+    return "^BSESN";
+  }
+
+  // STOCK SYMBOLS
   return `${cleanSymbol}.${exc === "BSE" ? "BO" : "NS"}`;
 }
 
