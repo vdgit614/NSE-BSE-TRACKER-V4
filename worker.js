@@ -1642,6 +1642,18 @@ if (path === "/news") {
   // PARSE AI JSON
   // --------------------------------------------------
 
+  if (
+  url.searchParams.get("debug") === "1"
+) {
+  return jsonResponse({
+    status: "debug",
+    provider,
+    symbol,
+    exchange,
+    company_name: companyName,
+    ai_text: aiResult.text || ""
+  });
+  }
   let news =
   extractNewsJson(
     aiResult.text || ""
