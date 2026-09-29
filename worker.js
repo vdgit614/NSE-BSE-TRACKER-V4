@@ -1804,15 +1804,119 @@ if (path === "/news") {
           );
         }
 
-        let stock = null;
+                let stock = null;
 
-        // NSE
+        // --------------------------------------------------
+        // INDEX SYMBOLS
+        // --------------------------------------------------
 
-        if (
+        const isIndex =
+          symbol === "NIFTY" ||
+          symbol === "SENSEX";
+
+        if (isIndex) {
+
+          stock = {
+
+            exchange,
+
+            symbol,
+
+            company_name:
+              symbol === "NIFTY"
+                ? "NIFTY 50"
+                : "SENSEX",
+
+            security_id: "",
+
+            isin: "",
+
+            sector: "",
+
+            trading_status: "ACTIVE"
+
+          };
+
+        }
+
+        // --------------------------------------------------
+        // NSE STOCK
+        // --------------------------------------------------
+
+        else if (
           exchange === "NSE"
         ) {
 
           stock =
+            await env.DB.prepare(`
+              SELECT
+                id,
+                exchange,
+                symbol,
+                company_name,
+                security_id,
+                isin,
+                sector,
+                trading_status
+              FROM instruments
+              WHERE exchange = 'NSE'
+                AND search_symbol = ?
+              LIMIT 1
+            `)
+              .bind(symbol)
+              .first();
+
+          if (!stock) {
+
+            return jsonResponse(
+              {
+                status:
+                  "error",
+
+                message:
+                  "NSE stock not found",
+
+                symbol
+              },
+              404
+            );
+          }
+
+        }
+
+        // --------------------------------------------------
+        // BSE STOCK
+        // --------------------------------------------------
+
+        else {
+
+          stock = {
+
+            exchange:
+              "BSE",
+
+            symbol,
+
+            company_name:
+              symbol,
+
+            security_id:
+              /^\d+$/.test(symbol)
+                ? symbol
+                : "",
+
+            isin:
+              "",
+
+            sector:
+              "",
+
+            trading_status:
+              ""
+          };
+        }
+
+        
             await env.DB.prepare(`
               SELECT
                 id,
