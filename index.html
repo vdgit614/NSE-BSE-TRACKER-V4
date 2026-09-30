@@ -187,7 +187,137 @@ body {
 .neutral {
     color: #aab4bf;
 }
+/* ---------------------------------------------------------
+   WATCHLIST
+--------------------------------------------------------- */
 
+.watchlist-section {
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 14px;
+}
+
+.watchlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.watchlist-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.watchlist-menu-button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #34404d;
+    border-radius: 8px;
+    background: #0b0f14;
+    color: #d7dee6;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.watchlist-menu {
+    margin-top: 8px;
+    background: #0b0f14;
+    border: 1px solid #202a35;
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.watchlist-menu button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #202a35;
+    background: transparent;
+    color: #d7dee6;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.watchlist-menu button:last-child {
+    border-bottom: none;
+}
+
+.watchlist-selection-bar {
+    margin-top: 8px;
+    padding: 7px 9px;
+    background: #0b0f14;
+    border-radius: 7px;
+    color: #aeb8c3;
+    font-size: 12px;
+}
+
+.watchlist {
+    margin-top: 8px;
+}
+
+.watchlist-empty {
+    padding: 12px 5px;
+    color: #7f8b98;
+    font-size: 12px;
+}
+
+.watchlist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 4px;
+    border-bottom: 1px solid #202a35;
+}
+
+.watchlist-item:last-child {
+    border-bottom: none;
+}
+
+.watchlist-checkbox {
+    display: none;
+}
+
+.watchlist-stock {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.watchlist-symbol {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.watchlist-company {
+    margin-top: 3px;
+    color: #7f8b98;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watchlist-exchange {
+    font-size: 10px;
+    color: #aeb8c3;
+    border: 1px solid #34404d;
+    border-radius: 5px;
+    padding: 3px 5px;
+}
+
+.watchlist-delete {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #4a2b2b;
+    border-radius: 7px;
+    background: #1a1010;
+    color: #ff5f5f;
+    cursor: pointer;
+    font-size: 14px;
+    }
 /* STOCK PANEL */
 
 .stock-panel {
@@ -560,7 +690,71 @@ style="display:none"
     <div id="searchResults" class="search-results"></div>
 
 </section>
+<!-- WATCHLIST -->
+<section class="watchlist-section">
 
+    <div class="watchlist-header">
+
+        <div class="watchlist-title">
+            My Watchlist
+        </div>
+
+        <button
+            id="watchlistMenuButton"
+            class="watchlist-menu-button"
+            type="button"
+            title="Watchlist menu"
+        >
+            ☰
+        </button>
+
+    </div>
+
+    <div
+        id="watchlistMenu"
+        class="watchlist-menu"
+        style="display:none;"
+    >
+
+        <button
+            id="selectStocksButton"
+            type="button"
+        >
+            Select Stocks
+        </button>
+
+        <button
+            id="deleteSelectedButton"
+            type="button"
+        >
+            Delete Selected
+        </button>
+
+        <button
+            id="cancelSelectionButton"
+            type="button"
+        >
+            Cancel Selection
+        </button>
+
+    </div>
+
+    <div
+        id="watchlistSelectionBar"
+        class="watchlist-selection-bar"
+        style="display:none;"
+    >
+        <span id="selectedStocksCount">
+            0 selected
+        </span>
+    </div>
+
+    <div
+        id="watchlist"
+        class="watchlist"
+    ></div>
+
+</section>
 <!-- NIFTY / SENSEX -->
 <section class="index-section">
 
@@ -1926,7 +2120,209 @@ screenshotButton.addEventListener(
         screenshotInput.click();
     }
 );
-    
+
+
+/* ---------------------------------------------------------
+SCREENSHOT OCR
+--------------------------------------------------------- */
+
+screenshotInput.addEventListener(
+    "change",
+    async function (event) {
+
+        const file =
+            event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        try {
+
+            screenshotButton.disabled = true;
+            screenshotButton.textContent = "⏳";
+
+            console.log(
+                "Screenshot OCR started"
+            );
+
+            const result =
+                await Tesseract.recognize(
+                    file,
+                    "eng",
+                    {
+                        logger: function (info) {
+
+                            console.log(
+                                "OCR:",
+                                info
+                            );
+
+                        }
+                    }
+                );
+
+            const text =
+                result.data.text || "";
+
+            console.log(
+                "OCR TEXT:",
+                text
+            );
+
+            if (!text.trim()) {
+
+                alert(
+                    "Screenshot se koi stock text nahi mila."
+                );
+
+                return;
+            }
+
+            /*
+             * OCR text ko line-by-line process karenge
+             */
+
+            const lines =
+                text
+                    .split(/\r?\n/)
+                    .map(
+                        line => line.trim()
+                    )
+                    .filter(
+                        line => line.length > 0
+                    );
+
+            console.log(
+                "OCR LINES:",
+                lines
+            );
+
+            let addedCount = 0;
+
+            for (
+                const line of lines
+            ) {
+
+                /*
+                 * Sirf useful text search ke liye bhejenge.
+                 */
+
+                if (
+                    line.length < 2 ||
+                    line.length > 80
+                ) {
+                    continue;
+                }
+
+                try {
+
+                    const searchUrl =
+                        API_BASE +
+                        "/search?q=" +
+                        encodeURIComponent(line) +
+                        "&exchange=" +
+                        encodeURIComponent(
+                            currentExchange
+                        );
+
+                    const response =
+                        await fetch(
+                            searchUrl
+                        );
+
+                    if (!response.ok) {
+                        continue;
+                    }
+
+                    const data =
+                        await response.json();
+
+                    console.log(
+                        "OCR SEARCH:",
+                        line,
+                        data
+                    );
+
+                    /*
+                     * Search result milne par
+                     * pehla verified stock use karenge.
+                     */
+
+                    if (
+                        data.status === "ok" &&
+                        Array.isArray(
+                            data.results
+                        ) &&
+                        data.results.length > 0
+                    ) {
+
+                        const stock =
+                            data.results[0];
+
+                        /*
+                         * Existing watchlist function
+                         * available ho to use karenge.
+                         */
+
+                        if (
+                            typeof addStockToWatchlist ===
+                            "function"
+                        ) {
+
+                            addStockToWatchlist(
+                                stock.symbol,
+                                stock.exchange
+                            );
+
+                            addedCount++;
+                        }
+                    }
+
+                } catch (searchError) {
+
+                    console.error(
+                        "OCR search error:",
+                        line,
+                        searchError
+                    );
+                }
+            }
+
+            alert(
+                addedCount +
+                " stock(s) screenshot se add hue."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Screenshot OCR error:",
+                error
+            );
+
+            alert(
+                "Screenshot read nahi ho saka."
+            );
+
+        } finally {
+
+            screenshotButton.disabled = false;
+            screenshotButton.textContent = "📎";
+
+            /*
+             * Same screenshot dobara select
+             * karne ki permission
+             */
+
+            screenshotInput.value = "";
+
+        }
+
+    }
+);
+
+
 /* ---------------------------------------------------------
 END OF JAVASCRIPT
 --------------------------------------------------------- */
