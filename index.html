@@ -1078,7 +1078,502 @@ function changeClass(value) {
     return "neutral";
 }
 
+/* =========================================================
+   WATCHLIST
+   ========================================================= */
 
+const WATCHLIST_STORAGE_KEY =
+    "nseBseTrackerV4Watchlist";
+
+let watchlist = [];
+
+let watchlistSelectionMode = false;
+
+let selectedWatchlistStocks = [];
+
+
+/* ---------------------------------------------------------
+   LOAD WATCHLIST
+--------------------------------------------------------- */
+
+function loadWatchlist() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                WATCHLIST_STORAGE_KEY
+            );
+
+        if (saved) {
+
+            const data = JSON.parse(saved);
+
+            if (Array.isArray(data)) {
+
+                watchlist = data;
+
+            } else {
+
+                watchlist = [];
+
+            }
+
+        } else {
+
+            watchlist = [];
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Watchlist load error:",
+            error
+        );
+
+        watchlist = [];
+
+    }
+
+    renderWatchlist();
+}
+
+
+/* ---------------------------------------------------------
+   SAVE WATCHLIST
+--------------------------------------------------------- */
+
+function saveWatchlist() {
+
+    localStorage.setItem(
+        WATCHLIST_STORAGE_KEY,
+        JSON.stringify(watchlist)
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   ADD STOCK
+--------------------------------------------------------- */
+
+function addStockToWatchlist(
+    symbol,
+    exchange,
+    company
+) {
+
+    if (!symbol || !exchange) {
+        return;
+    }
+
+    symbol =
+        String(symbol)
+            .trim()
+            .toUpperCase();
+
+    exchange =
+        String(exchange)
+            .trim()
+            .toUpperCase();
+
+    const exists =
+        watchlist.some(function (stock) {
+
+            return (
+                stock.symbol === symbol &&
+                stock.exchange === exchange
+            );
+
+        });
+
+    if (exists) {
+
+        renderWatchlist();
+
+        return;
+    }
+
+
+    watchlist.push({
+
+        symbol: symbol,
+
+        exchange: exchange,
+
+        company: company || ""
+
+    });
+
+
+    saveWatchlist();
+
+    renderWatchlist();
+
+}
+
+
+/* ---------------------------------------------------------
+   DELETE ONE STOCK
+--------------------------------------------------------- */
+
+function deleteStockFromWatchlist(
+    symbol,
+    exchange
+) {
+
+    watchlist =
+        watchlist.filter(function (stock) {
+
+            return !(
+                stock.symbol === symbol &&
+                stock.exchange === exchange
+            );
+
+        });
+
+
+    saveWatchlist();
+
+    renderWatchlist();
+
+}
+
+
+/* ---------------------------------------------------------
+   RENDER WATCHLIST
+--------------------------------------------------------- */
+
+function renderWatchlist() {
+
+    const box = $("watchlist");
+
+    if (!box) {
+        return;
+    }
+
+
+    if (watchlist.length === 0) {
+
+        box.innerHTML =
+            '<div class="watchlist-empty">' +
+            'No stocks added yet.' +
+            '</div>';
+
+        return;
+    }
+
+
+    box.innerHTML = "";
+
+
+    watchlist.forEach(function (stock, index) {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "watchlist-item";
+
+
+        /* ---------------------------------------------
+           Checkbox
+        --------------------------------------------- */
+
+        const checkbox =
+            document.createElement("input");
+
+        checkbox.type = "checkbox";
+
+        checkbox.className =
+            "watchlist-checkbox";
+
+        checkbox.checked =
+            selectedWatchlistStocks.some(
+                function (selected) {
+
+                    return (
+                        selected.symbol ===
+                            stock.symbol &&
+                        selected.exchange ===
+                            stock.exchange
+                    );
+
+                }
+            );
+
+
+        checkbox.addEventListener(
+            "change",
+            function () {
+
+                if (checkbox.checked) {
+
+                    selectedWatchlistStocks.push({
+                        symbol: stock.symbol,
+                        exchange: stock.exchange
+                    });
+
+                } else {
+
+                    selectedWatchlistStocks =
+                        selectedWatchlistStocks.filter(
+                            function (selected) {
+
+                                return !(
+                                    selected.symbol ===
+                                        stock.symbol &&
+                                    selected.exchange ===
+                                        stock.exchange
+                                );
+
+                            }
+                        );
+
+                }
+
+                updateSelectedStocksCount();
+
+            }
+        );
+
+
+        if (watchlistSelectionMode) {
+
+            checkbox.style.display =
+                "block";
+
+        } else {
+
+            checkbox.style.display =
+                "none";
+
+        }
+
+
+        /* ---------------------------------------------
+           Stock information
+        --------------------------------------------- */
+
+        const stockDiv =
+            document.createElement("div");
+
+        stockDiv.className =
+            "watchlist-stock";
+
+
+        const symbolDiv =
+            document.createElement("div");
+
+        symbolDiv.className =
+            "watchlist-symbol";
+
+        symbolDiv.textContent =
+            stock.symbol;
+
+
+        const companyDiv =
+            document.createElement("div");
+
+        companyDiv.className =
+            "watchlist-company";
+
+        companyDiv.textContent =
+            stock.company || "";
+
+
+        stockDiv.appendChild(symbolDiv);
+
+        stockDiv.appendChild(companyDiv);
+
+
+        /* ---------------------------------------------
+           Open Stock Details
+        --------------------------------------------- */
+
+        stockDiv.addEventListener(
+            "click",
+            function () {
+
+                if (watchlistSelectionMode) {
+
+                    checkbox.checked =
+                        !checkbox.checked;
+
+                    checkbox.dispatchEvent(
+                        new Event("change")
+                    );
+
+                    return;
+                }
+
+
+                selectedSymbol =
+                    stock.symbol;
+
+                selectedCompany =
+                    stock.company || "";
+
+                selectedExchange =
+                    stock.exchange;
+
+
+                $("searchInput").value =
+                    stock.symbol;
+
+
+                $("nseBtn")
+                    .classList
+                    .remove("active");
+
+                $("bseBtn")
+                    .classList
+                    .remove("active");
+
+
+                if (stock.exchange === "NSE") {
+
+                    $("nseBtn")
+                        .classList
+                        .add("active");
+
+                } else {
+
+                    $("bseBtn")
+                        .classList
+                        .add("active");
+
+                }
+
+
+                loadStock(
+                    stock.symbol,
+                    stock.exchange
+                );
+
+            }
+        );
+
+
+        /* ---------------------------------------------
+           Exchange
+        --------------------------------------------- */
+
+        const exchangeDiv =
+            document.createElement("div");
+
+        exchangeDiv.className =
+            "watchlist-exchange";
+
+        exchangeDiv.textContent =
+            stock.exchange;
+
+
+        /* ---------------------------------------------
+           Delete
+        --------------------------------------------- */
+
+        const deleteButton =
+            document.createElement("button");
+
+        deleteButton.className =
+            "watchlist-delete";
+
+        deleteButton.type =
+            "button";
+
+        deleteButton.textContent =
+            "✕";
+
+        deleteButton.title =
+            "Delete stock";
+
+
+        deleteButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.stopPropagation();
+
+                deleteStockFromWatchlist(
+                    stock.symbol,
+                    stock.exchange
+                );
+
+            }
+        );
+
+
+        item.appendChild(checkbox);
+
+        item.appendChild(stockDiv);
+
+        item.appendChild(exchangeDiv);
+
+        item.appendChild(deleteButton);
+
+        box.appendChild(item);
+
+    });
+
+
+    updateSelectedStocksCount();
+
+}
+
+
+/* ---------------------------------------------------------
+   SELECTED STOCK COUNT
+--------------------------------------------------------- */
+
+function updateSelectedStocksCount() {
+
+    const count =
+        selectedWatchlistStocks.length;
+
+    $("selectedStocksCount").textContent =
+        count + " selected";
+
+}
+
+
+/* ---------------------------------------------------------
+   WATCHLIST MENU BUTTON
+--------------------------------------------------------- */
+
+$("watchlistMenuButton")
+    .addEventListener(
+        "click",
+        function () {
+
+            const menu =
+                $("watchlistMenu");
+
+            if (
+                menu.style.display ===
+                "none"
+            ) {
+
+                menu.style.display =
+                    "block";
+
+            } else {
+
+                menu.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+
+/* ---------------------------------------------------------
+   INITIAL LOAD
+--------------------------------------------------------- */
+
+loadWatchlist();
 /* ---------------------------------------------------------
    SEARCH BUTTON
 --------------------------------------------------------- */
@@ -1210,14 +1705,27 @@ function renderSearchResults(data) {
 
         div.addEventListener("click", function () {
 
-            selectedSymbol = symbol;
-            selectedCompany = company;
+    selectedSymbol = symbol;
+    selectedCompany = company;
 
-            $("searchInput").value = symbol;
-            box.style.display = "none";
+    $("searchInput").value = symbol;
+    box.style.display = "none";
 
-            loadStock(symbol, selectedExchange);
-        });
+    /* Add selected stock to Watchlist */
+
+    addStockToWatchlist(
+        symbol,
+        selectedExchange,
+        company
+    );
+
+    /* Existing Stock Details */
+
+    loadStock(
+        symbol,
+        selectedExchange
+    );
+});
 
         box.appendChild(div);
     });
