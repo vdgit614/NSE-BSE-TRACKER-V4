@@ -505,20 +505,36 @@ body {
 
     <div class="search-row">
         <input
-            type="text"
-            id="searchInput"
-            class="search-input"
-            placeholder="Search stock or company..."
-            autocomplete="off"
-        >
+type="text"
+id="searchInput"
+class="search-input"
+placeholder="Search stock or company..."
+autocomplete="off"
+>
 
-        <button
-            id="searchButton"
-            class="search-button"
-            type="button"
-        >
-            Search
-        </button>
+<button
+id="searchButton"
+class="search-button"
+type="button"
+>
+Search
+</button>
+
+<button
+id="screenshotButton"
+class="search-button"
+type="button"
+title="Add stocks from screenshot"
+>
+📎
+</button>
+
+<input
+type="file"
+id="screenshotInput"
+accept="image/*"
+style="display:none"
+>
     </div>
 
     <div class="exchange-row">
