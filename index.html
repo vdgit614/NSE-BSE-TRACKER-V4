@@ -1914,9 +1914,21 @@ function () {
 
 );
 
+const screenshotButton =
+    document.getElementById("screenshotButton");
+
+const screenshotInput =
+    document.getElementById("screenshotInput");
+
+screenshotButton.addEventListener(
+    "click",
+    function () {
+        screenshotInput.click();
+    }
+);
+    
 /* ---------------------------------------------------------
 END OF JAVASCRIPT
 --------------------------------------------------------- */
-
 </script></body>
 </html>
