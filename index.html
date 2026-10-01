@@ -725,6 +725,112 @@ body {
         grid-template-columns: repeat(4, 1fr);
     }
 }
+    /* =========================================================
+   LIGHT THEME
+========================================================= */
+
+body.light-theme {
+    background: #f4f6f8;
+    color: #20252b;
+}
+
+body.light-theme .container {
+    background: #f4f6f8;
+}
+
+body.light-theme .header {
+    color: #20252b;
+}
+
+body.light-theme .header p {
+    color: #66717d;
+}
+
+/* Main Menu */
+
+body.light-theme .main-menu-button {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #d5dbe1;
+}
+
+body.light-theme .main-menu-panel {
+    background: #ffffff;
+    border-color: #d5dbe1;
+}
+
+body.light-theme .main-menu-panel button {
+    background: #ffffff;
+    color: #20252b;
+    border-bottom-color: #e3e7eb;
+}
+
+/* Sections */
+
+body.light-theme .search-section,
+body.light-theme .watchlist-section,
+body.light-theme .stock-section,
+body.light-theme .history-section,
+body.light-theme .index-section {
+    background: #ffffff;
+    border-color: #dfe4e8;
+}
+
+/* Inputs */
+
+body.light-theme input,
+body.light-theme select {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #cfd6dd;
+}
+
+/* Watchlist */
+
+body.light-theme .watchlist-item {
+    background: #ffffff;
+    border-color: #dfe4e8;
+}
+
+body.light-theme .watchlist-stock {
+    color: #20252b;
+}
+
+body.light-theme .watchlist-selection-bar {
+    background: #eef1f4;
+    color: #5f6973;
+}
+
+body.light-theme .watchlist-selection-actions button {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #cfd6dd;
+}
+
+/* Buttons */
+
+body.light-theme button {
+    border-color: #cfd6dd;
+}
+
+/* Search Results */
+
+body.light-theme .search-result {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #dfe4e8;
+}
+
+/* Cards / Common text */
+
+body.light-theme .company-name,
+body.light-theme .stock-name {
+    color: #20252b;
+}
+
+body.light-theme .exchange {
+    color: #66717d;
+}
 </style></head>
     
         <body>
@@ -1785,9 +1891,16 @@ $("tableViewButton").addEventListener(
 );
 
 
-/* ---------------------------------------------------------
+ /* =========================================================
    MAIN MENU — THEME
---------------------------------------------------------- */
+========================================================= */
+
+const savedTheme =
+    localStorage.getItem("nseBseTrackerV4Theme");
+
+if (savedTheme === "light") {
+    document.body.classList.add("light-theme");
+}
 
 $("themeButton").addEventListener(
     "click",
@@ -1796,7 +1909,21 @@ $("themeButton").addEventListener(
         $("mainMenuPanel").style.display =
             "none";
 
-        /* Theme system will be added later */
+        document.body.classList.toggle(
+            "light-theme"
+        );
+
+        const currentTheme =
+            document.body.classList.contains(
+                "light-theme"
+            )
+                ? "light"
+                : "dark";
+
+        localStorage.setItem(
+            "nseBseTrackerV4Theme",
+            currentTheme
+        );
 
     }
 );
