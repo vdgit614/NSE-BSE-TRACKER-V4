@@ -15,7 +15,58 @@ body {
     color: #e8edf3;
     min-height: 100vh;
 }
+/* =========================================================
+   MAIN MENU
+========================================================= */
 
+.main-menu {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 12px 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.main-menu-button {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #34404d;
+    border-radius: 9px;
+    background: #111720;
+    color: #e8edf3;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+.main-menu-panel {
+    position: absolute;
+    top: 54px;
+    right: 12px;
+    width: 180px;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.main-menu-panel button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-bottom: 1px solid #202a35;
+    background: transparent;
+    color: #d7dee6;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.main-menu-panel button:last-child {
+    border-bottom: none;
+}
 .container {
     width: 100%;
     max-width: 1100px;
@@ -254,6 +305,31 @@ body {
     font-size: 12px;
 }
 
+    .watchlist-selection-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.watchlist-selection-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #34404d;
+    border-radius: 7px;
+    background: #111720;
+    color: #d7dee6;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+#confirmDeleteStocksButton {
+    border-color: #4a2b2b;
+    color: #ff5f5f;
+}
+
+#cancelDeleteStocksButton {
+    color: #aeb8c3;
+}
 .watchlist {
     margin-top: 8px;
 }
@@ -763,13 +839,33 @@ style="display:none"
         
 
     <div
-        id="watchlistSelectionBar"
-        class="watchlist-selection-bar"
-        style="display:none;"
-    >
-        <span id="selectedStocksCount">
-            0 selected
-        </span>
+    id="watchlistSelectionBar"
+    class="watchlist-selection-bar"
+    style="display:none;"
+>
+
+    <span id="selectedStocksCount">
+        0 selected
+    </span>
+
+    <div class="watchlist-selection-actions">
+
+        <button
+            id="confirmDeleteStocksButton"
+            type="button"
+        >
+            🗑️ Delete
+        </button>
+
+        <button
+            id="cancelDeleteStocksButton"
+            type="button"
+        >
+            ✕ Cancel
+        </button>
+
+    </div>
+
     </div>
 
     <div
@@ -1497,35 +1593,6 @@ function renderWatchlist() {
            Delete
         --------------------------------------------- */
 
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.className =
-            "watchlist-delete";
-
-        deleteButton.type =
-            "button";
-
-        deleteButton.textContent =
-            "✕";
-
-        deleteButton.title =
-            "Delete stock";
-
-
-        deleteButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.stopPropagation();
-
-                deleteStockFromWatchlist(
-                    stock.symbol,
-                    stock.exchange
-                );
-
-            }
-        );
 
 
         item.appendChild(checkbox);
@@ -1534,7 +1601,7 @@ function renderWatchlist() {
 
         item.appendChild(exchangeDiv);
 
-        item.appendChild(deleteButton);
+        
 
         box.appendChild(item);
 
@@ -1565,31 +1632,197 @@ function updateSelectedStocksCount() {
    WATCHLIST MENU BUTTON
 --------------------------------------------------------- */
 
-$("watchlistMenuButton")
-    .addEventListener(
-        "click",
-        function () {
+/* =========================================================
+   MAIN MENU
+========================================================= */
 
-            const menu =
-                $("watchlistMenu");
 
-            if (
-                menu.style.display ===
-                "none"
-            ) {
+/* ---------------------------------------------------------
+   MAIN MENU OPEN / CLOSE
+--------------------------------------------------------- */
 
-                menu.style.display =
-                    "block";
+$("mainMenuButton").addEventListener(
+    "click",
+    function () {
 
-            } else {
+        const menu =
+            $("mainMenuPanel");
 
-                menu.style.display =
-                    "none";
+        if (menu.style.display === "none") {
 
-            }
+            menu.style.display = "block";
+
+        } else {
+
+            menu.style.display = "none";
 
         }
-    );
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   DELETE STOCKS MODE
+--------------------------------------------------------- */
+
+$("deleteStocksButton").addEventListener(
+    "click",
+    function () {
+
+        watchlistSelectionMode = true;
+
+        selectedWatchlistStocks = [];
+
+        $("mainMenuPanel").style.display = "none";
+
+        $("watchlistSelectionBar").style.display =
+            "block";
+
+        renderWatchlist();
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   DELETE SELECTED STOCKS
+--------------------------------------------------------- */
+
+function deleteSelectedWatchlistStocks() {
+
+    if (selectedWatchlistStocks.length === 0) {
+
+        return;
+    }
+
+    watchlist =
+        watchlist.filter(function (stock) {
+
+            return !selectedWatchlistStocks.some(
+                function (selected) {
+
+                    return (
+                        selected.symbol === stock.symbol &&
+                        selected.exchange === stock.exchange
+                    );
+
+                }
+            );
+
+        });
+
+
+    selectedWatchlistStocks = [];
+
+    watchlistSelectionMode = false;
+
+    saveWatchlist();
+
+    $("watchlistSelectionBar").style.display =
+        "none";
+
+    renderWatchlist();
+
+}
+
+
+/* ---------------------------------------------------------
+   CANCEL DELETE MODE
+--------------------------------------------------------- */
+
+function cancelDeleteStocks() {
+
+    selectedWatchlistStocks = [];
+
+    watchlistSelectionMode = false;
+
+    $("watchlistSelectionBar").style.display =
+        "none";
+
+    renderWatchlist();
+
+}
+
+
+/* ---------------------------------------------------------
+   MAIN MENU — TABLE VIEW
+--------------------------------------------------------- */
+
+$("tableViewButton").addEventListener(
+    "click",
+    function () {
+
+        $("mainMenuPanel").style.display =
+            "none";
+
+        /* Table View will be added later */
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   MAIN MENU — THEME
+--------------------------------------------------------- */
+
+$("themeButton").addEventListener(
+    "click",
+    function () {
+
+        $("mainMenuPanel").style.display =
+            "none";
+
+        /* Theme system will be added later */
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   MAIN MENU — LOGOUT
+--------------------------------------------------------- */
+
+$("logoutButton").addEventListener(
+    "click",
+    function () {
+
+        $("mainMenuPanel").style.display =
+            "none";
+
+        /* Existing logout system will be connected later */
+
+    }
+);
+    /* ---------------------------------------------------------
+   DELETE BUTTON
+--------------------------------------------------------- */
+
+$("confirmDeleteStocksButton").addEventListener(
+    "click",
+    function () {
+
+        deleteSelectedWatchlistStocks();
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   CANCEL BUTTON
+--------------------------------------------------------- */
+
+$("cancelDeleteStocksButton").addEventListener(
+    "click",
+    function () {
+
+        cancelDeleteStocks();
+
+        $("mainMenuPanel").style.display =
+            "none";
+
+    }
+);
 
 
 /* ---------------------------------------------------------
