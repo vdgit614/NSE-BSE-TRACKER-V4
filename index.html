@@ -625,7 +625,68 @@ body {
         grid-template-columns: repeat(4, 1fr);
     }
 }
-</style></head><body><div class="container"><header class="header">
+</style></head>
+    
+        <body>
+
+<!-- =========================================================
+     MAIN MENU
+========================================================= -->
+
+<div class="main-menu">
+
+    <button
+        id="mainMenuButton"
+        class="main-menu-button"
+        type="button"
+        title="Main Menu"
+    >
+        ☰
+    </button>
+
+    <div
+        id="mainMenuPanel"
+        class="main-menu-panel"
+        style="display:none;"
+    >
+
+        <button
+            id="tableViewButton"
+            type="button"
+        >
+            📋 Table View
+        </button>
+
+        <button
+            id="deleteStocksButton"
+            type="button"
+        >
+            🗑️ Delete Stocks
+        </button>
+
+        <button
+            id="themeButton"
+            type="button"
+        >
+            🎨 Theme
+        </button>
+
+        <button
+            id="logoutButton"
+            type="button"
+        >
+            🚪 Logout
+        </button>
+
+    </div>
+
+</div>
+
+<div class="container">
+
+<header class="header">
+    <h1>NSE BSE TRACKER V4</h1>
+    <div class="container"><header class="header">
     <h1>NSE BSE TRACKER V4</h1>
     <p>Indian Stock Market Tracker</p>
 </header>
@@ -699,45 +760,7 @@ style="display:none"
             My Watchlist
         </div>
 
-        <button
-            id="watchlistMenuButton"
-            class="watchlist-menu-button"
-            type="button"
-            title="Watchlist menu"
-        >
-            ☰
-        </button>
-
-    </div>
-
-    <div
-        id="watchlistMenu"
-        class="watchlist-menu"
-        style="display:none;"
-    >
-
-        <button
-            id="selectStocksButton"
-            type="button"
-        >
-            Select Stocks
-        </button>
-
-        <button
-            id="deleteSelectedButton"
-            type="button"
-        >
-            Delete Selected
-        </button>
-
-        <button
-            id="cancelSelectionButton"
-            type="button"
-        >
-            Cancel Selection
-        </button>
-
-    </div>
+        
 
     <div
         id="watchlistSelectionBar"
