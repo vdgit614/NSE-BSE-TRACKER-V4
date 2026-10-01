@@ -871,6 +871,266 @@ body.light-theme .stock-name {
 body.light-theme .exchange {
     color: #66717d;
 }
+    /* =========================================================
+   LIGHT GRADIENT THEME
+========================================================= */
+
+body.gradient-theme {
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8b8bd 0%,
+            #f3d3df 32%,
+            #e5d9ee 58%,
+            #cbdcf5 100%
+        );
+
+    color: #18233d;
+
+    background-attachment: fixed;
+}
+
+
+/* Main container */
+
+body.gradient-theme .container {
+
+    background: transparent;
+
+}
+
+
+/* Header */
+
+body.gradient-theme .header {
+
+    color: #18233d;
+
+}
+
+body.gradient-theme .header p {
+
+    color: #5d6680;
+
+}
+
+
+/* Main Menu */
+
+body.gradient-theme .main-menu-button {
+
+    background: rgba(255,255,255,0.62);
+
+    color: #18233d;
+
+    border-color: rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 3px 12px rgba(50,70,120,0.10);
+
+}
+
+body.gradient-theme .main-menu-panel {
+
+    background: rgba(255,255,255,0.92);
+
+    border-color: rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 8px 25px rgba(50,70,120,0.16);
+
+}
+
+body.gradient-theme .main-menu-panel button {
+
+    background: transparent;
+
+    color: #18233d;
+
+    border-bottom-color:
+        rgba(80,90,130,0.12);
+
+}
+
+
+/* Main Sections */
+
+body.gradient-theme .search-section,
+body.gradient-theme .watchlist-section,
+body.gradient-theme .stock-section,
+body.gradient-theme .history-section,
+body.gradient-theme .index-section {
+
+    background:
+        rgba(255,255,255,0.68);
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 4px 18px
+        rgba(60,80,130,0.08);
+
+}
+
+
+/* Inputs */
+
+body.gradient-theme input,
+body.gradient-theme select {
+
+    background:
+        rgba(255,255,255,0.82);
+
+    color: #18233d;
+
+    border-color:
+        rgba(100,110,150,0.20);
+
+}
+
+
+/* Watchlist */
+
+body.gradient-theme .watchlist-item {
+
+    background:
+        rgba(255,255,255,0.62);
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+}
+
+body.gradient-theme .watchlist-stock {
+
+    color: #18233d;
+
+}
+
+body.gradient-theme .watchlist-selection-bar {
+
+    background:
+        rgba(255,255,255,0.55);
+
+    color: #5d6680;
+
+}
+
+body.gradient-theme
+.watchlist-selection-actions button {
+
+    background:
+        rgba(255,255,255,0.75);
+
+    color: #18233d;
+
+    border-color:
+        rgba(100,110,150,0.20);
+
+}
+
+
+/* Search Results */
+
+body.gradient-theme .search-result {
+
+    background:
+        rgba(255,255,255,0.78);
+
+    color: #18233d;
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+}
+
+
+/* Stock / Company text */
+
+body.gradient-theme .company-name,
+body.gradient-theme .stock-name {
+
+    color: #18233d;
+
+}
+
+body.gradient-theme .exchange {
+
+    color: #5d6680;
+
+}
+
+
+/* Quick Links */
+
+body.gradient-theme .quick-links {
+
+    background:
+        rgba(255,255,255,0.62);
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+}
+
+
+/* History / Chart area */
+
+body.gradient-theme .chart-container {
+
+    background:
+        rgba(255,255,255,0.35);
+
+}
+
+
+/* Buttons */
+
+body.gradient-theme button {
+
+    border-color:
+        rgba(100,110,150,0.20);
+
+}
+
+
+/* =========================================================
+   GRADIENT — QUICK LINKS
+========================================================= */
+
+body.gradient-theme #yahooLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(70,40,120,0.12);
+
+}
+
+body.gradient-theme #googleLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(40,80,150,0.12);
+
+}
+
+body.gradient-theme #screenerLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(30,100,60,0.12);
+
+}
+
+body.gradient-theme #nseLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(160,80,20,0.12);
+
+}
 </style></head>
     
         <body>
@@ -1930,17 +2190,29 @@ $("tableViewButton").addEventListener(
     }
 );
 
-
- /* =========================================================
+/* =========================================================
    MAIN MENU — THEME
 ========================================================= */
 
 const savedTheme =
     localStorage.getItem("nseBseTrackerV4Theme");
 
+/* Old "light" setting is still supported */
 if (savedTheme === "light") {
-    document.body.classList.add("light-theme");
+
+    document.body.classList.add(
+        "light-theme"
+    );
+
+} else if (savedTheme === "gradient") {
+
+    document.body.classList.add(
+        "gradient-theme"
+    );
+
 }
+
+/* Theme button */
 
 $("themeButton").addEventListener(
     "click",
@@ -1949,21 +2221,61 @@ $("themeButton").addEventListener(
         $("mainMenuPanel").style.display =
             "none";
 
-        document.body.classList.toggle(
-            "light-theme"
-        );
+        const body =
+            document.body;
 
-        const currentTheme =
-            document.body.classList.contains(
+        if (
+            body.classList.contains(
                 "light-theme"
             )
-                ? "light"
-                : "dark";
+        ) {
 
-        localStorage.setItem(
-            "nseBseTrackerV4Theme",
-            currentTheme
-        );
+            /* LIGHT → GRADIENT */
+
+            body.classList.remove(
+                "light-theme"
+            );
+
+            body.classList.add(
+                "gradient-theme"
+            );
+
+            localStorage.setItem(
+                "nseBseTrackerV4Theme",
+                "gradient"
+            );
+
+        } else if (
+            body.classList.contains(
+                "gradient-theme"
+            )
+        ) {
+
+            /* GRADIENT → DARK */
+
+            body.classList.remove(
+                "gradient-theme"
+            );
+
+            localStorage.setItem(
+                "nseBseTrackerV4Theme",
+                "dark"
+            );
+
+        } else {
+
+            /* DARK → LIGHT */
+
+            body.classList.add(
+                "light-theme"
+            );
+
+            localStorage.setItem(
+                "nseBseTrackerV4Theme",
+                "light"
+            );
+
+        }
 
     }
 );
