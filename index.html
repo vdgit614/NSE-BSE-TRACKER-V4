@@ -250,6 +250,21 @@ body {
     margin-bottom: 14px;
 }
 
+    .watchlist-section,
+.watchlist,
+.watchlist-item {
+    width: 100%;
+    max-width: 100%;
+}
+
+.watchlist-item {
+    min-width: 0;
+}
+
+.watchlist-stock {
+    min-width: 0;
+    overflow: hidden;
+}
 .watchlist-header {
     display: flex;
     justify-content: space-between;
@@ -690,7 +705,16 @@ body {
         height: 240px;
     }
 }
+.watchlist-section {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
 
+.watchlist-item {
+    width: 100%;
+    max-width: 100%;
+    }
 @media (min-width: 700px) {
 
     .stock-info-grid {
