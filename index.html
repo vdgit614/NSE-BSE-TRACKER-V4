@@ -2912,6 +2912,9 @@ screenshotButton.addEventListener(
 /* ---------------------------------------------------------
 SCREENSHOT OCR
 --------------------------------------------------------- */
+/* ---------------------------------------------------------
+   SCREENSHOT OCR
+--------------------------------------------------------- */
 
 screenshotInput.addEventListener(
     "change",
@@ -3010,7 +3013,7 @@ screenshotInput.addEventListener(
                         encodeURIComponent(line) +
                         "&exchange=" +
                         encodeURIComponent(
-                            currentExchange
+                            selectedExchange
                         );
 
                     const response =
@@ -3059,7 +3062,11 @@ screenshotInput.addEventListener(
 
                             addStockToWatchlist(
                                 stock.symbol,
-                                stock.exchange
+                                stock.exchange,
+                                stock.company ||
+                                stock.company_name ||
+                                stock.name ||
+                                ""
                             );
 
                             addedCount++;
