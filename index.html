@@ -2279,7 +2279,106 @@ $("themeButton").addEventListener(
 
     }
 );
+ /* ---------------------------------------------------------
+   THEME OPTIONS + BACK TO MAIN MENU
+--------------------------------------------------------- */
 
+$("mainMenuPanel").addEventListener(
+    "click",
+    function (event) {
+
+        const id =
+            event.target.id;
+
+
+        /* -------------------------------------------------
+           BACK TO MAIN MENU
+        ------------------------------------------------- */
+
+        if (id === "backToMainMenu") {
+
+            $("mainMenuPanel").innerHTML = `
+
+                <button
+                    id="tableViewButton"
+                    type="button"
+                >
+                    📋 Table View
+                </button>
+
+                <button
+                    id="deleteStocksButton"
+                    type="button"
+                >
+                    🗑️ Delete Stocks
+                </button>
+
+                <button
+                    id="themeButton"
+                    type="button"
+                >
+                    🎨 Theme
+                </button>
+
+                <button
+                    id="logoutButton"
+                    type="button"
+                >
+                    🚪 Logout
+                </button>
+
+            `;
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           DARK THEME
+        ------------------------------------------------- */
+
+        if (id === "darkThemeOption") {
+
+            applyTheme("dark");
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           LIGHT GRADIENT
+        ------------------------------------------------- */
+
+        if (id === "gradientThemeOption") {
+
+            applyTheme("gradient");
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           LIGHT THEME
+        ------------------------------------------------- */
+
+        if (id === "lightThemeOption") {
+
+            applyTheme("light");
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            return;
+        }
+
+    }
+);
 /* ---------------------------------------------------------
    MAIN MENU — LOGOUT
 --------------------------------------------------------- */
