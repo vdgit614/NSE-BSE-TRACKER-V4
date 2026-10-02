@@ -2234,7 +2234,51 @@ const savedTheme =
 
 applyTheme(savedTheme);
 
+/* ---------------------------------------------------------
+   THEME BUTTON
+--------------------------------------------------------- */
 
+$("themeButton").addEventListener(
+    "click",
+    function () {
+
+        const panel =
+            $("mainMenuPanel");
+
+        panel.innerHTML = `
+
+            <button
+                id="backToMainMenu"
+                type="button"
+            >
+                ← Main Menu
+            </button>
+
+            <button
+                id="darkThemeOption"
+                type="button"
+            >
+                🌑 Dark
+            </button>
+
+            <button
+                id="gradientThemeOption"
+                type="button"
+            >
+                🌈 Light Gradient
+            </button>
+
+            <button
+                id="lightThemeOption"
+                type="button"
+            >
+                ☀️ Light
+            </button>
+
+        `;
+
+    }
+);
 
 /* ---------------------------------------------------------
    MAIN MENU — LOGOUT
