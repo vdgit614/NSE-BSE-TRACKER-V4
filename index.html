@@ -2189,30 +2189,94 @@ $("tableViewButton").addEventListener(
 
     }
 );
-
-/* =========================================================
-   MAIN MENU — THEME
+    /* =========================================================
+   MAIN MENU — THEME SELECTION
 ========================================================= */
 
+/* Load saved theme
+   If no theme is saved, Gradient is the default */
+
 const savedTheme =
-    localStorage.getItem("nseBseTrackerV4Theme");
+    localStorage.getItem(
+        "nseBseTrackerV4Theme"
+    ) || "gradient";
 
-/* Old "light" setting is still supported */
-if (savedTheme === "light") {
 
-    document.body.classList.add(
-        "light-theme"
-    );
+/* Apply selected theme */
 
-} else if (savedTheme === "gradient") {
+function applyTheme(theme) {
 
-    document.body.classList.add(
+    document.body.classList.remove(
+        "light-theme",
         "gradient-theme"
     );
 
+    if (theme === "light") {
+
+        document.body.classList.add(
+            "light-theme"
+        );
+
+    } else if (theme === "gradient") {
+
+        document.body.classList.add(
+            "gradient-theme"
+        );
+
+    }
+
+    localStorage.setItem(
+        "nseBseTrackerV4Theme",
+        theme
+    );
 }
 
-/* Theme button */
+
+/* Apply saved/default theme when app starts */
+
+applyTheme(savedTheme);
+
+
+/* Theme selection panel */
+
+const themePanel =
+    document.createElement("div");
+
+themePanel.id = "themePanel";
+
+themePanel.style.display = "none";
+
+themePanel.innerHTML = `
+
+    <button
+        id="darkThemeOption"
+        type="button"
+    >
+        🌑 Dark
+    </button>
+
+    <button
+        id="gradientThemeOption"
+        type="button"
+    >
+        🌈 Light Gradient
+    </button>
+
+    <button
+        id="lightThemeOption"
+        type="button"
+    >
+        ☀️ Light
+    </button>
+
+`;
+
+document.body.appendChild(
+    themePanel
+);
+
+
+/* Open Theme selection */
 
 $("themeButton").addEventListener(
     "click",
@@ -2221,64 +2285,62 @@ $("themeButton").addEventListener(
         $("mainMenuPanel").style.display =
             "none";
 
-        const body =
-            document.body;
-
-        if (
-            body.classList.contains(
-                "light-theme"
-            )
-        ) {
-
-            /* LIGHT → GRADIENT */
-
-            body.classList.remove(
-                "light-theme"
-            );
-
-            body.classList.add(
-                "gradient-theme"
-            );
-
-            localStorage.setItem(
-                "nseBseTrackerV4Theme",
-                "gradient"
-            );
-
-        } else if (
-            body.classList.contains(
-                "gradient-theme"
-            )
-        ) {
-
-            /* GRADIENT → DARK */
-
-            body.classList.remove(
-                "gradient-theme"
-            );
-
-            localStorage.setItem(
-                "nseBseTrackerV4Theme",
-                "dark"
-            );
-
-        } else {
-
-            /* DARK → LIGHT */
-
-            body.classList.add(
-                "light-theme"
-            );
-
-            localStorage.setItem(
-                "nseBseTrackerV4Theme",
-                "light"
-            );
-
-        }
+        themePanel.style.display =
+            "block";
 
     }
 );
+
+
+/* Dark */
+
+document
+    .getElementById("darkThemeOption")
+    .addEventListener(
+        "click",
+        function () {
+
+            applyTheme("dark");
+
+            themePanel.style.display =
+                "none";
+
+        }
+    );
+
+
+/* Light Gradient */
+
+document
+    .getElementById("gradientThemeOption")
+    .addEventListener(
+        "click",
+        function () {
+
+            applyTheme("gradient");
+
+            themePanel.style.display =
+                "none";
+
+        }
+    );
+
+
+/* Light */
+
+document
+    .getElementById("lightThemeOption")
+    .addEventListener(
+        "click",
+        function () {
+
+            applyTheme("light");
+
+            themePanel.style.display =
+                "none";
+
+        }
+    );
 
 
 /* ---------------------------------------------------------
