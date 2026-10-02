@@ -2055,232 +2055,39 @@ function updateSelectedStocksCount() {
         count + " selected";
 
 }
-
-
-/* ---------------------------------------------------------
-   WATCHLIST MENU BUTTON
---------------------------------------------------------- */
-
-/* =========================================================
-   MAIN MENU
+    /* =========================================================
+   MAIN MENU — COMPLETE
 ========================================================= */
 
+
 /* ---------------------------------------------------------
-MAIN MENU OPEN / CLOSE
+   MAIN MENU OPEN / CLOSE
 --------------------------------------------------------- */
 
 $("mainMenuButton").addEventListener(
-"click",
-function () {
-
-const menu =  
-        $("mainMenuPanel");  
-
-    if (menu.style.display === "none") {  
-
-        menu.style.display = "block";  
-
-    } else {  
-
-        menu.style.display = "none";  
-
-    }  
-
-}
-
-);
-
-/* ---------------------------------------------------------
-DELETE STOCKS MODE
---------------------------------------------------------- */
-
-$("deleteStocksButton").addEventListener(
-"click",
-function () {
-
-watchlistSelectionMode = true;  
-
-    selectedWatchlistStocks = [];  
-
-    $("mainMenuPanel").style.display = "none";  
-
-    $("watchlistSelectionBar").style.display =  
-        "block";  
-
-    renderWatchlist();  
-
-}
-
-);
-/* ---------------------------------------------------------
-   DELETE SELECTED STOCKS
---------------------------------------------------------- */
-
-function deleteSelectedWatchlistStocks() {
-
-    if (selectedWatchlistStocks.length === 0) {
-
-        return;
-    }
-
-    watchlist =
-        watchlist.filter(function (stock) {
-
-            return !selectedWatchlistStocks.some(
-                function (selected) {
-
-                    return (
-                        selected.symbol === stock.symbol &&
-                        selected.exchange === stock.exchange
-                    );
-
-                }
-            );
-
-        });
-
-
-    selectedWatchlistStocks = [];
-
-    watchlistSelectionMode = false;
-
-    saveWatchlist();
-
-    $("watchlistSelectionBar").style.display =
-        "none";
-
-    renderWatchlist();
-
-}
-
-
-/* ---------------------------------------------------------
-   CANCEL DELETE MODE
---------------------------------------------------------- */
-
-function cancelDeleteStocks() {
-
-    selectedWatchlistStocks = [];
-
-    watchlistSelectionMode = false;
-
-    $("watchlistSelectionBar").style.display =
-        "none";
-
-    renderWatchlist();
-
-}
-
-
-/* ---------------------------------------------------------
-   MAIN MENU — TABLE VIEW
---------------------------------------------------------- */
-
-$("tableViewButton").addEventListener(
     "click",
     function () {
 
-        $("mainMenuPanel").style.display =
-            "none";
-
-        /* Table View will be added later */
-
-    }
-);
-    /* =========================================================
-   MAIN MENU — THEME SELECTION
-========================================================= */
-
-/* ---------------------------------------------------------
-   APPLY THEME
---------------------------------------------------------- */
-
-function applyTheme(theme) {
-
-    document.body.classList.remove(
-        "light-theme",
-        "gradient-theme"
-    );
-
-    if (theme === "light") {
-
-        document.body.classList.add(
-            "light-theme"
-        );
-
-    } else if (theme === "gradient") {
-
-        document.body.classList.add(
-            "gradient-theme"
-        );
-
-    }
-
-    localStorage.setItem(
-        "nseBseTrackerV4Theme",
-        theme
-    );
-}
-
-/* ---------------------------------------------------------
-   LOAD SAVED THEME
-   Default = Light Gradient
---------------------------------------------------------- */
-
-const savedTheme =
-    localStorage.getItem(
-        "nseBseTrackerV4Theme"
-    ) || "gradient";
-
-applyTheme(savedTheme);
-
-/* ---------------------------------------------------------
-   THEME BUTTON
---------------------------------------------------------- */
-
-$("themeButton").addEventListener(
-    "click",
-    function () {
-
-        const panel =
+        const menu =
             $("mainMenuPanel");
 
-        panel.innerHTML = `
+        if (menu.style.display === "none") {
 
-            <button
-                id="backToMainMenu"
-                type="button"
-            >
-                ← Main Menu
-            </button>
+            menu.style.display = "block";
 
-            <button
-                id="darkThemeOption"
-                type="button"
-            >
-                🌑 Dark
-            </button>
+        } else {
 
-            <button
-                id="gradientThemeOption"
-                type="button"
-            >
-                🌈 Light Gradient
-            </button>
+            menu.style.display = "none";
 
-            <button
-                id="lightThemeOption"
-                type="button"
-            >
-                ☀️ Light
-            </button>
-
-        `;
+        }
 
     }
 );
- /* ---------------------------------------------------------
-   THEME OPTIONS + BACK TO MAIN MENU
+
+
+/* ---------------------------------------------------------
+   MAIN MENU PANEL
+   ONE LISTENER FOR ALL MENU BUTTONS
 --------------------------------------------------------- */
 
 $("mainMenuPanel").addEventListener(
@@ -2289,6 +2096,85 @@ $("mainMenuPanel").addEventListener(
 
         const id =
             event.target.id;
+
+
+        /* -------------------------------------------------
+           DELETE STOCKS
+        ------------------------------------------------- */
+
+        if (id === "deleteStocksButton") {
+
+            watchlistSelectionMode = true;
+
+            selectedWatchlistStocks = [];
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            $("watchlistSelectionBar").style.display =
+                "block";
+
+            renderWatchlist();
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           TABLE VIEW
+        ------------------------------------------------- */
+
+        if (id === "tableViewButton") {
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            /* Table View will be added later */
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           THEME
+        ------------------------------------------------- */
+
+        if (id === "themeButton") {
+
+            $("mainMenuPanel").innerHTML = `
+
+                <button
+                    id="backToMainMenu"
+                    type="button"
+                >
+                    ← Main Menu
+                </button>
+
+                <button
+                    id="darkThemeOption"
+                    type="button"
+                >
+                    🌑 Dark
+                </button>
+
+                <button
+                    id="gradientThemeOption"
+                    type="button"
+                >
+                    🌈 Light Gradient
+                </button>
+
+                <button
+                    id="lightThemeOption"
+                    type="button"
+                >
+                    ☀️ Light
+                </button>
+
+            `;
+
+            return;
+        }
 
 
         /* -------------------------------------------------
@@ -2377,23 +2263,159 @@ $("mainMenuPanel").addEventListener(
             return;
         }
 
+
+        /* -------------------------------------------------
+           LOGOUT
+        ------------------------------------------------- */
+
+        if (id === "logoutButton") {
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            /* Existing logout system will be connected later */
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           CONFIRM DELETE
+        ------------------------------------------------- */
+
+        if (id === "confirmDeleteStocksButton") {
+
+            deleteSelectedWatchlistStocks();
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           CANCEL DELETE
+        ------------------------------------------------- */
+
+        if (id === "cancelDeleteStocksButton") {
+
+            cancelDeleteStocks();
+
+            return;
+        }
+
     }
 );
+
+
+
 /* ---------------------------------------------------------
-   MAIN MENU — LOGOUT
+   DELETE SELECTED STOCKS
 --------------------------------------------------------- */
 
-$("logoutButton").addEventListener(
-    "click",
-    function () {
+function deleteSelectedWatchlistStocks() {
 
-        $("mainMenuPanel").style.display =
-            "none";
+    if (selectedWatchlistStocks.length === 0) {
 
-        /* Existing logout system will be connected later */
+        return;
+    }
+
+    watchlist =
+        watchlist.filter(function (stock) {
+
+            return !selectedWatchlistStocks.some(
+                function (selected) {
+
+                    return (
+                        selected.symbol === stock.symbol &&
+                        selected.exchange === stock.exchange
+                    );
+
+                }
+            );
+
+        });
+
+
+    selectedWatchlistStocks = [];
+
+    watchlistSelectionMode = false;
+
+    saveWatchlist();
+
+    $("watchlistSelectionBar").style.display =
+        "none";
+
+    renderWatchlist();
+
+}
+
+
+    /* ---------------------------------------------------------
+CANCEL DELETE MODE
+--------------------------------------------------------- */
+
+function cancelDeleteStocks() {
+
+selectedWatchlistStocks = [];  
+
+watchlistSelectionMode = false;  
+
+$("watchlistSelectionBar").style.display =  
+    "none";  
+
+renderWatchlist();
+
+}
+
+
+
+
+/* ---------------------------------------------------------
+   APPLY THEME
+--------------------------------------------------------- */
+
+function applyTheme(theme) {
+
+    document.body.classList.remove(
+        "light-theme",
+        "gradient-theme"
+    );
+
+    if (theme === "light") {
+
+        document.body.classList.add(
+            "light-theme"
+        );
+
+    } else if (theme === "gradient") {
+
+        document.body.classList.add(
+            "gradient-theme"
+        );
 
     }
-);
+
+    localStorage.setItem(
+        "nseBseTrackerV4Theme",
+        theme
+    );
+}
+
+/* ---------------------------------------------------------
+   LOAD SAVED THEME
+   Default = Light Gradient
+--------------------------------------------------------- */
+
+const savedTheme =
+    localStorage.getItem(
+        "nseBseTrackerV4Theme"
+    ) || "gradient";
+
+applyTheme(savedTheme);
+
+
+
+
+
     /* ---------------------------------------------------------
    DELETE BUTTON
 --------------------------------------------------------- */
