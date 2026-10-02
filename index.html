@@ -2061,59 +2061,57 @@ function updateSelectedStocksCount() {
    WATCHLIST MENU BUTTON
 --------------------------------------------------------- */
 
-/* =========================================================
-   MAIN MENU
+
+MAIN MENU
 ========================================================= */
 
-
 /* ---------------------------------------------------------
-   MAIN MENU OPEN / CLOSE
+MAIN MENU OPEN / CLOSE
 --------------------------------------------------------- */
 
 $("mainMenuButton").addEventListener(
-    "click",
-    function () {
+"click",
+function () {
 
-        const menu =
-            $("mainMenuPanel");
+const menu =  
+        $("mainMenuPanel");  
 
-        if (menu.style.display === "none") {
+    if (menu.style.display === "none") {  
 
-            menu.style.display = "block";
+        menu.style.display = "block";  
 
-        } else {
+    } else {  
 
-            menu.style.display = "none";
+        menu.style.display = "none";  
 
-        }
+    }  
 
-    }
+}
+
 );
 
-
 /* ---------------------------------------------------------
-   DELETE STOCKS MODE
+DELETE STOCKS MODE
 --------------------------------------------------------- */
 
 $("deleteStocksButton").addEventListener(
-    "click",
-    function () {
+"click",
+function () {
 
-        watchlistSelectionMode = true;
+watchlistSelectionMode = true;  
 
-        selectedWatchlistStocks = [];
+    selectedWatchlistStocks = [];  
 
-        $("mainMenuPanel").style.display = "none";
+    $("mainMenuPanel").style.display = "none";  
 
-        $("watchlistSelectionBar").style.display =
-            "block";
+    $("watchlistSelectionBar").style.display =  
+        "block";  
 
-        renderWatchlist();
+    renderWatchlist();  
 
-    }
+}
+
 );
-
-
 /* ---------------------------------------------------------
    DELETE SELECTED STOCKS
 --------------------------------------------------------- */
@@ -2193,16 +2191,9 @@ $("tableViewButton").addEventListener(
    MAIN MENU — THEME SELECTION
 ========================================================= */
 
-/* Load saved theme
-   If no theme is saved, Gradient is the default */
-
-const savedTheme =
-    localStorage.getItem(
-        "nseBseTrackerV4Theme"
-    ) || "gradient";
-
-
-/* Apply selected theme */
+/* ---------------------------------------------------------
+   APPLY THEME
+--------------------------------------------------------- */
 
 function applyTheme(theme) {
 
@@ -2231,116 +2222,18 @@ function applyTheme(theme) {
     );
 }
 
+/* ---------------------------------------------------------
+   LOAD SAVED THEME
+   Default = Light Gradient
+--------------------------------------------------------- */
 
-/* Apply saved/default theme when app starts */
+const savedTheme =
+    localStorage.getItem(
+        "nseBseTrackerV4Theme"
+    ) || "gradient";
 
 applyTheme(savedTheme);
 
-
-/* Theme selection panel */
-
-const themePanel =
-    document.createElement("div");
-
-themePanel.id = "themePanel";
-
-themePanel.style.display = "none";
-
-themePanel.innerHTML = `
-
-    <button
-        id="darkThemeOption"
-        type="button"
-    >
-        🌑 Dark
-    </button>
-
-    <button
-        id="gradientThemeOption"
-        type="button"
-    >
-        🌈 Light Gradient
-    </button>
-
-    <button
-        id="lightThemeOption"
-        type="button"
-    >
-        ☀️ Light
-    </button>
-
-`;
-
-document.body.appendChild(
-    themePanel
-);
-
-
-/* Open Theme selection */
-
-$("themeButton").addEventListener(
-    "click",
-    function () {
-
-        $("mainMenuPanel").style.display =
-            "none";
-
-        themePanel.style.display =
-            "block";
-
-    }
-);
-
-
-/* Dark */
-
-document
-    .getElementById("darkThemeOption")
-    .addEventListener(
-        "click",
-        function () {
-
-            applyTheme("dark");
-
-            themePanel.style.display =
-                "none";
-
-        }
-    );
-
-
-/* Light Gradient */
-
-document
-    .getElementById("gradientThemeOption")
-    .addEventListener(
-        "click",
-        function () {
-
-            applyTheme("gradient");
-
-            themePanel.style.display =
-                "none";
-
-        }
-    );
-
-
-/* Light */
-
-document
-    .getElementById("lightThemeOption")
-    .addEventListener(
-        "click",
-        function () {
-
-            applyTheme("light");
-
-            themePanel.style.display =
-                "none";
-
-        }
-    );
 
 
 /* ---------------------------------------------------------
