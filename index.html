@@ -20,11 +20,13 @@ body {
 ========================================================= */
 
 .main-menu {
-    position: relative;
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 10px 12px 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    margin: 0;
+    padding: 6px 16px 0 0;
+    z-index: 100;
     display: flex;
     justify-content: flex-end;
 }
@@ -77,20 +79,21 @@ body {
 /* HEADER */
 
 .header {
-    text-align: center;
-    padding: 14px 8px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px 8px;
 }
 
 .header h1 {
-    font-size: 24px;
+    font-size: 19px;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+    margin: 0;
 }
 
 .header p {
-    color: #8d98a5;
-    font-size: 12px;
-    margin-top: 5px;
+    display: none;
 }
 
 /* SEARCH */
@@ -901,19 +904,7 @@ body.gradient-theme .container {
 }
 
 
-/* Header */
 
-body.gradient-theme .header {
-
-    color: #18233d;
-
-}
-
-body.gradient-theme .header p {
-
-    color: #5d6680;
-
-}
 
 
 /* Main Menu */
