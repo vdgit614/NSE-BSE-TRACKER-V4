@@ -283,6 +283,31 @@ body {
     font-weight: 700;
 }
 
+/* WATCHLIST ON / OFF */
+
+.watchlist-toggle {
+    min-width: 46px;
+    height: 26px;
+    padding: 0 8px;
+    border: 1px solid #34404d;
+    border-radius: 13px;
+    background: #35c978;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.watchlist-toggle.on {
+    background: #35c978;
+    color: #ffffff;
+}
+
+.watchlist-toggle.off {
+    background: #ff5f5f;
+    color: #ffffff;
+}
+
 .watchlist-menu-button {
     width: 34px;
     height: 34px;
@@ -2093,6 +2118,110 @@ function updateSelectedStocksCount() {
         count + " selected";
 
 }
+    /* ---------------------------------------------------------
+   WATCHLIST ON / OFF
+--------------------------------------------------------- */
+
+const WATCHLIST_TOGGLE_KEY =
+    "nseBseTrackerV4WatchlistToggle";
+
+
+function applyWatchlistToggle() {
+
+    const toggle =
+        $("watchlistToggle");
+
+    const box =
+        $("watchlist");
+
+    if (!toggle || !box) {
+        return;
+    }
+
+    const savedState =
+        localStorage.getItem(
+            WATCHLIST_TOGGLE_KEY
+        );
+
+    const isOn =
+        savedState !== "off";
+
+    if (isOn) {
+
+        toggle.textContent = "ON";
+
+        toggle.classList
+            .remove("off");
+
+        toggle.classList
+            .add("on");
+
+        toggle.setAttribute(
+            "aria-pressed",
+            "true"
+        );
+
+        box.style.display = "";
+
+    } else {
+
+        toggle.textContent = "OFF";
+
+        toggle.classList
+            .remove("on");
+
+        toggle.classList
+            .add("off");
+
+        toggle.setAttribute(
+            "aria-pressed",
+            "false"
+        );
+
+        box.style.display = "none";
+
+    }
+
+}
+
+
+$("watchlistToggle").addEventListener(
+    "click",
+    function () {
+
+        const currentState =
+            localStorage.getItem(
+                WATCHLIST_TOGGLE_KEY
+            );
+
+        const turnOn =
+            currentState === "off";
+
+        if (turnOn) {
+
+            localStorage.setItem(
+                WATCHLIST_TOGGLE_KEY,
+                "on"
+            );
+
+        } else {
+
+            localStorage.setItem(
+                WATCHLIST_TOGGLE_KEY,
+                "off"
+            );
+
+        }
+
+        applyWatchlistToggle();
+
+    }
+);
+
+
+/* Default = ON */
+
+applyWatchlistToggle();
     /* =========================================================
    MAIN MENU — COMPLETE
 ========================================================= */
