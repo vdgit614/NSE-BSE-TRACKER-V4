@@ -4005,7 +4005,143 @@ screenshotInput.addEventListener(
     }
 );
 
+/* ---------------------------------------------------------
+   TRIGGER PRICE — SET & SAVE
+--------------------------------------------------------- */
 
+document
+    .getElementById("setTriggerPriceButton")
+    .addEventListener("click", function () {
+
+        const input =
+            document.getElementById(
+                "triggerPriceInput"
+            );
+
+        const display =
+            document.getElementById(
+                "triggerPriceDisplay"
+            );
+
+        const value =
+            input.value.trim();
+
+        if (value === "") {
+
+            alert(
+                "Please enter a trigger price."
+            );
+
+            return;
+        }
+
+        const triggerPrice =
+            Number(value);
+
+        if (
+            !Number.isFinite(triggerPrice) ||
+            triggerPrice <= 0
+        ) {
+
+            alert(
+                "Please enter a valid price."
+            );
+
+            return;
+        }
+
+        /*
+         * Current selected stock ke liye
+         * trigger price save karenge.
+         */
+
+        if (
+            !selectedSymbol ||
+            !selectedExchange
+        ) {
+
+            alert(
+                "Please select a stock first."
+            );
+
+            return;
+        }
+
+        const triggerKey =
+            "nseBseTrackerV4Trigger_" +
+            selectedExchange +
+            "_" +
+            selectedSymbol;
+
+        localStorage.setItem(
+            triggerKey,
+            String(triggerPrice)
+        );
+
+        display.textContent =
+            "Set: ₹" +
+            triggerPrice;
+
+        input.value =
+            triggerPrice;
+
+    });
+
+
+/* ---------------------------------------------------------
+   LOAD SAVED TRIGGER PRICE
+--------------------------------------------------------- */
+
+function loadSavedTriggerPrice() {
+
+    const input =
+        document.getElementById(
+            "triggerPriceInput"
+        );
+
+    const display =
+        document.getElementById(
+            "triggerPriceDisplay"
+        );
+
+    if (
+        !input ||
+        !display ||
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        return;
+    }
+
+    const triggerKey =
+        "nseBseTrackerV4Trigger_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const savedTrigger =
+        localStorage.getItem(
+            triggerKey
+        );
+
+    if (savedTrigger !== null) {
+
+        input.value =
+            savedTrigger;
+
+        display.textContent =
+            "Set: ₹" +
+            savedTrigger;
+
+    } else {
+
+        input.value = "";
+
+        display.textContent = "";
+
+    }
+
+}
 /* ---------------------------------------------------------
 END OF JAVASCRIPT
 --------------------------------------------------------- */
