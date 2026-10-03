@@ -2950,7 +2950,7 @@ async function loadStock(symbol, exchange) {
         $("quickLinks").style.display = "block";
         $("newsSection").style.display = "block";
 
-        loadHistory("7d");
+        loadHistory("1m");
         loadNews(symbol, exchange);
 
     } catch (error) {
