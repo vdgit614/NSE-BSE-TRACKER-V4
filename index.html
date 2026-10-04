@@ -441,55 +441,31 @@ body {
     cursor: pointer;
     font-size: 14px;
     }
-    /* PRICE HISTORY TOGGLE — FIXED POSITION */
-
-.history-toggle-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 30px;
-    min-height: 30px;
-    box-sizing: border-box;
-    margin-top: 5px;
-    margin-bottom: 4px;
-    padding: 2px 3px;
-}
-
-.history-toggle {
-    flex: 0 0 46px;
-    width: 46px;
+    .history-toggle {
+    flex-shrink: 0;
     min-width: 46px;
-    max-width: 46px;
+    width: 46px;
     height: 26px;
-    min-height: 26px;
-    max-height: 26px;
-    margin: 0 !important;
-    padding: 0 !important;
+    line-height: 26px;
+    padding: 0;
+    margin: 0;
     box-sizing: border-box;
-    position: relative;
-    top: 0 !important;
-    bottom: auto !important;
-    transform: none !important;
+    text-align: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    line-height: 1;
 }
 
 .history-toggle.on,
 .history-toggle.off {
-    width: 46px;
-    min-width: 46px;
-    max-width: 46px;
-    height: 26px;
-    min-height: 26px;
-    max-height: 26px;
-    margin: 0 !important;
-    padding: 0 !important;
-    top: 0 !important;
-    bottom: auto !important;
-    transform: none !important;
+    position: relative;
+    top: 0;
+    bottom: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: none;
 }
+    
 /* STOCK PANEL — COMPACT */
 
 .stock-panel {
