@@ -1637,15 +1637,26 @@ style="display:none"
         Date-wise Data
     </span>
 
+    <!-- DATE-WISE DATA TOGGLE -->
+
+<div class="history-toggle-row">
+
+    <div class="history-toggle-label">
+        Date-wise Data
+    </div>
+
     <button
-    type="button"
-    id="historyToggleButton"
-    class="history-toggle-button"
-    onclick="toggleHistoryTable()"
->
-    OFF
+        id="historyToggleButton"
+        class="watchlist-toggle"
+        type="button"
+        aria-pressed="false"
+        onclick="toggleHistoryTable()"
+    >
+        OFF
     </button>
+
 </div>
+
 
 <div
     id="historyTableContainer"
