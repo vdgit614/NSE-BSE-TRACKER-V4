@@ -4133,38 +4133,7 @@ document
 
         const triggerPrice =
             Number(value);
-        /* ---------------------------------------------------------
-   LOCK STARTING PRICE
---------------------------------------------------------- */
 
-if (
-    !Number.isFinite(currentMarketPrice) ||
-    currentMarketPrice <= 0
-) {
-
-    alert(
-        "Current market price is not available."
-    );
-
-    return;
-}
-
-const startingPrice =
-    currentMarketPrice;
-/* ---------------------------------------------------------
-   SAVE STARTING PRICE
---------------------------------------------------------- */
-
-const startingPriceKey =
-    "nseBseTrackerV4TriggerStart_" +
-    selectedExchange +
-    "_" +
-    selectedSymbol;
-
-localStorage.setItem(
-    startingPriceKey,
-    String(startingPrice)
-);
         if (
             !Number.isFinite(triggerPrice) ||
             triggerPrice <= 0
@@ -4194,6 +4163,65 @@ localStorage.setItem(
             return;
         }
 
+        /* ---------------------------------------------------------
+           LOCK STARTING PRICE
+        --------------------------------------------------------- */
+
+        if (
+            !Number.isFinite(currentMarketPrice) ||
+            currentMarketPrice <= 0
+        ) {
+
+            alert(
+                "Current market price is not available."
+            );
+
+            return;
+        }
+
+        const startingPrice =
+            currentMarketPrice;
+
+        /* ---------------------------------------------------------
+           SAVE STARTING PRICE
+        --------------------------------------------------------- */
+
+        const startingPriceKey =
+            "nseBseTrackerV4TriggerStart_" +
+            selectedExchange +
+            "_" +
+            selectedSymbol;
+
+        localStorage.setItem(
+            startingPriceKey,
+            String(startingPrice)
+        );
+
+        /* ---------------------------------------------------------
+           CALCULATE READY / SEMIFINAL PRICE
+        --------------------------------------------------------- */
+
+        const priceDifference =
+            Math.abs(
+                triggerPrice -
+                startingPrice
+            );
+
+        let readyPrice;
+
+        if (triggerPrice > startingPrice) {
+
+            readyPrice =
+                startingPrice +
+                (priceDifference * 0.85);
+
+        } else {
+
+            readyPrice =
+                startingPrice -
+                (priceDifference * 0.85);
+        }
+
         const triggerKey =
             "nseBseTrackerV4Trigger_" +
             selectedExchange +
@@ -4213,7 +4241,6 @@ localStorage.setItem(
             triggerPrice;
 
     });
-
 
 /* ---------------------------------------------------------
    LOAD SAVED TRIGGER PRICE
