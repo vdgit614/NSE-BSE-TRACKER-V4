@@ -441,6 +441,20 @@ body {
     cursor: pointer;
     font-size: 14px;
     }
+    .history-toggle {
+    flex-shrink: 0;
+    min-width: 46px;
+    width: 46px;
+    height: 26px;
+    line-height: 26px;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    }
 /* STOCK PANEL — COMPACT */
 
 .stock-panel {
@@ -1663,7 +1677,7 @@ style="display:none"
 
     <button
         id="historyToggleButton"
-        class="watchlist-toggle"
+        class="watchlist-toggle history-toggle"
         type="button"
         aria-pressed="false"
         onclick="toggleHistoryTable()"
