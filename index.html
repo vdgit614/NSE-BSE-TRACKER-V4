@@ -3005,7 +3005,11 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 }
 
+/* ---------------------------------------------------------
+   TRIGGER MONITORING — CURRENT MARKET PRICE
+--------------------------------------------------------- */
 
+let currentMarketPrice = null;
 /* ---------------------------------------------------------
    LOAD STOCK
 --------------------------------------------------------- */
@@ -3064,6 +3068,7 @@ function renderStock(data, symbol, exchange) {
     const market = data.market || {};
 
     const price = market.price;
+    currentMarketPrice = Number(price);
 
     const previousClose = market.previous_close;
 
@@ -4128,6 +4133,24 @@ document
 
         const triggerPrice =
             Number(value);
+        /* ---------------------------------------------------------
+   LOCK STARTING PRICE
+--------------------------------------------------------- */
+
+if (
+    !Number.isFinite(currentMarketPrice) ||
+    currentMarketPrice <= 0
+) {
+
+    alert(
+        "Current market price is not available."
+    );
+
+    return;
+}
+
+const startingPrice =
+    currentMarketPrice;
 
         if (
             !Number.isFinite(triggerPrice) ||
