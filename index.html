@@ -883,6 +883,22 @@ body {
         grid-template-columns: repeat(4, 1fr);
     }
 }
+    /* PRICE HISTORY — DATE-WISE TOGGLE
+========================================================= */
+
+.history-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 4px;
+    padding: 2px 3px;
+}
+
+.history-toggle-label {
+    font-size: 10px;
+    color: #8e99a6;
+}
     /* =========================================================
    LIGHT THEME
 ========================================================= */
@@ -4197,6 +4213,89 @@ function loadSavedTriggerPrice() {
     }
 
 }
+     /* ---------------------------------------------------------
+    PRICE HISTORY — DATE-WISE DATA TOGGLE
+ --------------------------------------------------------- */
+
+let historyTableVisible = false;
+
+function toggleHistoryTable() {
+
+    const container =
+        document.getElementById(
+            "historyTableContainer"
+        );
+
+    const button =
+        document.getElementById(
+            "historyToggleButton"
+        );
+
+    if (!container || !button) {
+        return;
+    }
+
+    historyTableVisible =
+        !historyTableVisible;
+
+    if (historyTableVisible) {
+
+        container.style.display = "block";
+
+        button.textContent = "ON";
+        button.classList.add("on");
+        button.setAttribute(
+            "aria-pressed",
+            "true"
+        );
+
+    } else {
+
+        container.style.display = "none";
+
+        button.textContent = "OFF";
+        button.classList.remove("on");
+        button.setAttribute(
+            "aria-pressed",
+            "false"
+        );
+    }
+}
+
+
+/* DEFAULT = OFF */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const container =
+            document.getElementById(
+                "historyTableContainer"
+            );
+
+        const button =
+            document.getElementById(
+                "historyToggleButton"
+            );
+
+        if (container) {
+            container.style.display = "none";
+        }
+
+        if (button) {
+
+            button.textContent = "OFF";
+
+            button.classList.remove("on");
+
+            button.setAttribute(
+                "aria-pressed",
+                "false"
+            );
+        }
+    }
+);
 /* ---------------------------------------------------------
 END OF JAVASCRIPT
 --------------------------------------------------------- */
