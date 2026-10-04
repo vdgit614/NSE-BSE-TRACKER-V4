@@ -4232,6 +4232,20 @@ document
             triggerKey,
             String(triggerPrice)
         );
+        /* ---------------------------------------------------------
+   SAVE READY / SEMIFINAL PRICE
+--------------------------------------------------------- */
+
+const readyPriceKey =
+    "nseBseTrackerV4TriggerReady_" +
+    selectedExchange +
+    "_" +
+    selectedSymbol;
+
+localStorage.setItem(
+    readyPriceKey,
+    String(readyPrice)
+);
 
         display.textContent =
             "Set: ₹" +
