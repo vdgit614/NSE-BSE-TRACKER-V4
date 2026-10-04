@@ -4151,7 +4151,20 @@ if (
 
 const startingPrice =
     currentMarketPrice;
+/* ---------------------------------------------------------
+   SAVE STARTING PRICE
+--------------------------------------------------------- */
 
+const startingPriceKey =
+    "nseBseTrackerV4TriggerStart_" +
+    selectedExchange +
+    "_" +
+    selectedSymbol;
+
+localStorage.setItem(
+    startingPriceKey,
+    String(startingPrice)
+);
         if (
             !Number.isFinite(triggerPrice) ||
             triggerPrice <= 0
@@ -4232,11 +4245,10 @@ function loadSavedTriggerPrice() {
         selectedExchange +
         "_" +
         selectedSymbol;
-
     const savedTrigger =
-        localStorage.getItem(
-            triggerKey
-        );
+    localStorage.getItem(
+        triggerKey
+    );
 
     if (savedTrigger !== null) {
 
