@@ -1629,8 +1629,31 @@ style="display:none"
         <canvas id="priceChart"></canvas>
     </div>
 
-    <div class="history-table-wrap">
+    <!-- HISTORY TABLE TOGGLE -->
+
+<div class="history-toggle-row">
+
+    <span class="history-toggle-label">
+        Date-wise Data
+    </span>
+
+    <button
+    type="button"
+    id="historyToggleButton"
+    class="history-toggle-button"
+    onclick="toggleHistoryTable()"
+>
+    OFF
+    </button>
+</div>
+
+<div
+    id="historyTableContainer"
+    class="history-table-wrap"
+>
+
     <table class="history-table">
+
         <thead>
             <tr>
                 <th>Date</th>
@@ -1639,10 +1662,13 @@ style="display:none"
                 <th>Change %</th>
             </tr>
         </thead>
+
         <tbody id="historyTableBody">
         </tbody>
+
     </table>
-    </div>
+
+</div>
 </section>
 
 <!-- QUICK LINKS -->
