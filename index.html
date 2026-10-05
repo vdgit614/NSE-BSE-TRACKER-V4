@@ -4691,33 +4691,7 @@ async function monitorCurrentStockPrice() {
     }
 
     }
-    /* ---------------------------------------------------------
-   START TRIGGER MONITORING
---------------------------------------------------------- */
-
-function startTriggerMonitoring() {
-
-    if (
-        triggerMonitoringTimer !== null
-    ) {
-
-        clearInterval(
-            triggerMonitoringTimer
-        );
-
-    }
-
-    triggerMonitoringTimer =
-        setInterval(
-            function () {
-
-                monitorCurrentStockPrice();
-
-            },
-            300000
-        );
-
-}
+    
 
 
      /* ---------------------------------------------------------
