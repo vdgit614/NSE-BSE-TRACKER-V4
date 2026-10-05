@@ -4585,6 +4585,64 @@ function checkTriggerCondition(currentPrice) {
     return null;
 
     }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — 5 MINUTE TIMER
+--------------------------------------------------------- */
+
+let triggerMonitoringTimer = null;
+
+
+/* ---------------------------------------------------------
+   START TRIGGER MONITORING
+--------------------------------------------------------- */
+
+function startTriggerMonitoring() {
+
+    /*
+     * पहले existing timer को रोकें
+     */
+
+    if (triggerMonitoringTimer !== null) {
+
+        clearInterval(
+            triggerMonitoringTimer
+        );
+
+    }
+
+    /*
+     * हर 5 मिनट में monitoring
+     */
+
+    triggerMonitoringTimer =
+        setInterval(
+            function () {
+
+                /*
+                 * अभी सिर्फ test के लिए
+                 * monitoring status check करेंगे.
+                 */
+
+                if (
+                    !isIndianMarketOpen()
+                ) {
+
+                    console.log(
+                        "TRIGGER MONITORING: MARKET CLOSED"
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "TRIGGER MONITORING: CHECK"
+                );
+
+            },
+            300000
+        );
+
+        }
      /* ---------------------------------------------------------
     PRICE HISTORY — DATE-WISE DATA TOGGLE
  --------------------------------------------------------- */
