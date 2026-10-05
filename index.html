@@ -4595,19 +4595,111 @@ function checkTriggerCondition(currentPrice) {
 --------------------------------------------------------- */
 
 let triggerMonitoringTimer = null;
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — FETCH CURRENT PRICE
+--------------------------------------------------------- */
 
+async function monitorCurrentStockPrice() {
 
-/* ---------------------------------------------------------
+    if (
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        console.log(
+            "TRIGGER MONITORING: NO STOCK SELECTED"
+        );
+
+        return;
+    }
+
+    if (
+        !isIndianMarketOpen()
+    ) {
+        console.log(
+            "TRIGGER MONITORING: MARKET CLOSED"
+        );
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/stock?symbol=" +
+                encodeURIComponent(
+                    selectedSymbol
+                ) +
+                "&exchange=" +
+                encodeURIComponent(
+                    selectedExchange
+                )
+            );
+
+        const data =
+            await response.json();
+
+        const market =
+            data.market || {};
+
+        const currentPrice =
+            Number(
+                market.price
+            );
+
+        if (
+            !Number.isFinite(currentPrice) ||
+            currentPrice <= 0
+        ) {
+
+            console.log(
+                "TRIGGER MONITORING: INVALID PRICE"
+            );
+
+            return;
+        }
+
+        currentMarketPrice =
+            currentPrice;
+
+        console.log(
+            "TRIGGER MONITORING PRICE:",
+            currentPrice
+        );
+
+        const triggerResult =
+            checkTriggerCondition(
+                currentPrice
+            );
+
+        if (triggerResult) {
+
+            console.log(
+                "TRIGGER STATUS:",
+                triggerResult
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "TRIGGER MONITORING ERROR:",
+            error
+        );
+
+    }
+
+    }
+    /* ---------------------------------------------------------
    START TRIGGER MONITORING
 --------------------------------------------------------- */
 
 function startTriggerMonitoring() {
 
-    /*
-     * पहले existing timer को रोकें
-     */
-
-    if (triggerMonitoringTimer !== null) {
+    if (
+        triggerMonitoringTimer !== null
+    ) {
 
         clearInterval(
             triggerMonitoringTimer
@@ -4615,39 +4707,19 @@ function startTriggerMonitoring() {
 
     }
 
-    /*
-     * हर 5 मिनट में monitoring
-     */
-
     triggerMonitoringTimer =
         setInterval(
             function () {
 
-                /*
-                 * अभी सिर्फ test के लिए
-                 * monitoring status check करेंगे.
-                 */
-
-                if (
-                    !isIndianMarketOpen()
-                ) {
-
-                    console.log(
-                        "TRIGGER MONITORING: MARKET CLOSED"
-                    );
-
-                    return;
-                }
-
-                console.log(
-                    "TRIGGER MONITORING: CHECK"
-                );
+                monitorCurrentStockPrice();
 
             },
             300000
         );
 
-        }
+}
+
+
      /* ---------------------------------------------------------
     PRICE HISTORY — DATE-WISE DATA TOGGLE
  --------------------------------------------------------- */
