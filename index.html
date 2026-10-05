@@ -4350,6 +4350,72 @@ function loadSavedReadyPrice() {
     }
 
 }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — MARKET HOURS
+--------------------------------------------------------- */
+
+function isIndianMarketOpen() {
+
+    const now =
+        new Date();
+
+    /*
+     * India Standard Time (IST)
+     */
+
+    const indiaTime =
+        new Date(
+            now.toLocaleString(
+                "en-US",
+                {
+                    timeZone:
+                        "Asia/Kolkata"
+                }
+            )
+        );
+
+    const day =
+        indiaTime.getDay();
+
+    const hours =
+        indiaTime.getHours();
+
+    const minutes =
+        indiaTime.getMinutes();
+
+    /*
+     * Saturday = 6
+     * Sunday = 0
+     */
+
+    if (
+        day === 0 ||
+        day === 6
+    ) {
+        return false;
+    }
+
+    /*
+     * Convert current time
+     * into minutes from midnight
+     */
+
+    const currentMinutes =
+        (hours * 60) +
+        minutes;
+
+    const marketOpen =
+        (9 * 60) + 15;
+
+    const marketClose =
+        (15 * 60) + 30;
+
+    return (
+        currentMinutes >= marketOpen &&
+        currentMinutes <= marketClose
+    );
+
+    }
      /* ---------------------------------------------------------
     PRICE HISTORY — DATE-WISE DATA TOGGLE
  --------------------------------------------------------- */
