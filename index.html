@@ -4416,6 +4416,74 @@ function isIndianMarketOpen() {
     );
 
     }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — LOAD SAVED DATA
+--------------------------------------------------------- */
+
+function loadTriggerMonitoringData() {
+
+    if (
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        return null;
+    }
+
+    const triggerKey =
+        "nseBseTrackerV4Trigger_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const startingPriceKey =
+        "nseBseTrackerV4TriggerStart_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const readyPriceKey =
+        "nseBseTrackerV4TriggerReady_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const savedTrigger =
+        localStorage.getItem(
+            triggerKey
+        );
+
+    const savedStartingPrice =
+        localStorage.getItem(
+            startingPriceKey
+        );
+
+    const savedReadyPrice =
+        localStorage.getItem(
+            readyPriceKey
+        );
+
+    if (
+        savedTrigger === null ||
+        savedStartingPrice === null ||
+        savedReadyPrice === null
+    ) {
+        return null;
+    }
+
+    return {
+
+        triggerPrice:
+            Number(savedTrigger),
+
+        startingPrice:
+            Number(savedStartingPrice),
+
+        readyPrice:
+            Number(savedReadyPrice)
+
+    };
+
+    }
      /* ---------------------------------------------------------
     PRICE HISTORY — DATE-WISE DATA TOGGLE
  --------------------------------------------------------- */
