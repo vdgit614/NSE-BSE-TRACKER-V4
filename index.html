@@ -1686,7 +1686,7 @@ style="display:none"
         class="watchlist-toggle history-toggle"
         type="button"
         aria-pressed="false"
-        onclick="toggleHistoryTable()"
+        onclick="alert('BUTTON CLICKED')"
     >
         OFF
     </button>
@@ -4745,7 +4745,6 @@ function toggleHistoryTable() {
 
     historyTableVisible =
         !historyTableVisible;
-    alert("TOGGLE CLICKED");
     console.log(
     "HISTORY TOGGLE:",
     historyTableVisible
