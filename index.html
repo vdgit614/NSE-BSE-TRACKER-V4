@@ -4336,6 +4336,7 @@ function loadSavedTriggerPrice() {
     /* ---------------------------------------------------------
    LOAD SAVED READY / SEMIFINAL PRICE
 --------------------------------------------------------- */
+    alert("STEP 6 REACHED");
 
 function loadSavedReadyPrice() {
 
@@ -4727,7 +4728,7 @@ function startTriggerMonitoring() {
 
 let historyTableVisible = false;
 
-window.toggleHistoryTable = function () {
+function toggleHistoryTable() {
 
     const container =
         document.getElementById(
@@ -4772,7 +4773,7 @@ window.toggleHistoryTable = function () {
             "false"
         );
     }
-};
+}
 
 
 /* DEFAULT = OFF */
