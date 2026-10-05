@@ -4484,6 +4484,90 @@ function loadTriggerMonitoringData() {
     };
 
     }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — CHECK READY / FINAL
+--------------------------------------------------------- */
+
+function checkTriggerCondition(currentPrice) {
+
+    const data =
+        loadTriggerMonitoringData();
+
+    if (!data) {
+        return null;
+    }
+
+    if (
+        !Number.isFinite(currentPrice) ||
+        currentPrice <= 0
+    ) {
+        return null;
+    }
+
+    const startingPrice =
+        data.startingPrice;
+
+    const readyPrice =
+        data.readyPrice;
+
+    const triggerPrice =
+        data.triggerPrice;
+
+    /*
+     * UPWARD TRIGGER
+     */
+
+    if (triggerPrice > startingPrice) {
+
+        if (
+            currentPrice >=
+            triggerPrice
+        ) {
+
+            return "FINAL";
+
+        }
+
+        if (
+            currentPrice >=
+            readyPrice
+        ) {
+
+            return "READY";
+
+        }
+
+    }
+
+    /*
+     * DOWNWARD TRIGGER
+     */
+
+    if (triggerPrice < startingPrice) {
+
+        if (
+            currentPrice <=
+            triggerPrice
+        ) {
+
+            return "FINAL";
+
+        }
+
+        if (
+            currentPrice <=
+            readyPrice
+        ) {
+
+            return "READY";
+
+        }
+
+    }
+
+    return null;
+
+    }
      /* ---------------------------------------------------------
     PRICE HISTORY — DATE-WISE DATA TOGGLE
  --------------------------------------------------------- */
