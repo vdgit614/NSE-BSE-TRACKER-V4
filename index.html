@@ -1686,7 +1686,7 @@ style="display:none"
         class="watchlist-toggle history-toggle"
         type="button"
         aria-pressed="false"
-        onclick="alert('BUTTON CLICKED')"
+        onclick="toggleHistoryTable()"
     >
         OFF
     </button>
@@ -4727,7 +4727,7 @@ function startTriggerMonitoring() {
 
 let historyTableVisible = false;
 
-function toggleHistoryTable() {
+window.toggleHistoryTable = function () {
 
     const container =
         document.getElementById(
@@ -4772,7 +4772,7 @@ function toggleHistoryTable() {
             "false"
         );
     }
-}
+};
 
 
 /* DEFAULT = OFF */
