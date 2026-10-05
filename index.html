@@ -3070,6 +3070,23 @@ function renderStock(data, symbol, exchange) {
 
     const price = market.price;
     currentMarketPrice = Number(price);
+    /* ---------------------------------------------------------
+   TRIGGER CONDITION CHECK
+--------------------------------------------------------- */
+
+const triggerResult =
+    checkTriggerCondition(
+        currentMarketPrice
+    );
+
+if (triggerResult) {
+
+    console.log(
+        "TRIGGER STATUS:",
+        triggerResult
+    );
+
+}
 
     const previousClose = market.previous_close;
 
