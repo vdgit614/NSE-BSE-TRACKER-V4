@@ -2276,6 +2276,7 @@ function renderWatchlist() {
                     stock.exchange
                 );
                 loadSavedTriggerPrice();
+                loadSavedReadyPrice();
 
             }
         );
@@ -4305,6 +4306,46 @@ function loadSavedTriggerPrice() {
         input.value = "";
 
         display.textContent = "";
+
+    }
+
+}
+    /* ---------------------------------------------------------
+   LOAD SAVED READY / SEMIFINAL PRICE
+--------------------------------------------------------- */
+
+function loadSavedReadyPrice() {
+
+    if (
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        return;
+    }
+
+    const readyPriceKey =
+        "nseBseTrackerV4TriggerReady_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const savedReadyPrice =
+        localStorage.getItem(
+            readyPriceKey
+        );
+
+    if (savedReadyPrice !== null) {
+
+        console.log(
+            "Saved Ready Price:",
+            savedReadyPrice
+        );
+
+    } else {
+
+        console.log(
+            "No Saved Ready Price"
+        );
 
     }
 
