@@ -4810,7 +4810,13 @@ document.addEventListener(
             button.setAttribute(
                 "aria-pressed",
                 "false"
-            );
+            ); /* 
+             * 🛑 यही वह मिसिंग लाइन है! 
+             * बटन पर क्लिक होते ही toggleHistoryTable फंक्शन चलना चाहिए।
+             */
+            button.addEventListener("click", function () {
+                toggleHistoryTable();
+            });
         }
     }
 );
