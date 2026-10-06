@@ -3012,7 +3012,6 @@ function escapeHtml(value) {
 --------------------------------------------------------- */
 
 let currentMarketPrice = null;
-    alert("TRIGGER STEP 1 REACHED");
 /* ---------------------------------------------------------
    LOAD STOCK
 --------------------------------------------------------- */
@@ -3059,7 +3058,6 @@ async function loadStock(symbol, exchange) {
         );
     }
 }
-    alert("LOAD STOCK PASSED");
 
 
 /* ---------------------------------------------------------
@@ -3067,7 +3065,6 @@ async function loadStock(symbol, exchange) {
 --------------------------------------------------------- */
 
 function renderStock(data, symbol, exchange) {
-    alert("RENDER STOCK REACHED");
 
     const stock = data.stock || {};
     alert("STOCK DATA PASSED");
@@ -4337,11 +4334,9 @@ function loadSavedTriggerPrice() {
     }
 
 }
-    alert("BEFORE STEP 6");
     /* ---------------------------------------------------------
    LOAD SAVED READY / SEMIFINAL PRICE
 --------------------------------------------------------- */
-    alert("STEP 6 REACHED");
 
 function loadSavedReadyPrice() {
 
@@ -4762,6 +4757,7 @@ function toggleHistoryTable() {
 
         button.textContent = "ON";
         button.classList.add("on");
+        button.classList.remove("off");
         button.setAttribute(
             "aria-pressed",
             "true"
@@ -4773,6 +4769,7 @@ function toggleHistoryTable() {
 
         button.textContent = "OFF";
         button.classList.remove("on");
+        button.classList.add("off");
         button.setAttribute(
             "aria-pressed",
             "false"
@@ -4806,6 +4803,7 @@ document.addEventListener(
             button.textContent = "OFF";
 
             button.classList.remove("on");
+            button.classList.add("off");
 
             button.setAttribute(
                 "aria-pressed",
