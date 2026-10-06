@@ -4626,9 +4626,9 @@ async function monitorCurrentStockPrice() {
 
     try {
 
-        const response =
+                const response =
             await fetch(
-                "/stock?symbol=" +
+                API_BASE + "/stock?symbol=" +
                 encodeURIComponent(
                     selectedSymbol
                 ) +
@@ -4637,6 +4637,7 @@ async function monitorCurrentStockPrice() {
                     selectedExchange
                 )
             );
+        
 
         const data =
             await response.json();
