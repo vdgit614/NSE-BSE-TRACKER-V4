@@ -1685,7 +1685,8 @@ style="display:none"
         id="historyToggleButton"
         class="watchlist-toggle history-toggle off"
         type="button" 
-        aria-pressed="false" 
+        aria-pressed="false"
+        onclick="toggleHistoryTable()"
         
         >
         OFF
@@ -4810,13 +4811,7 @@ document.addEventListener(
             button.setAttribute(
                 "aria-pressed",
                 "false"
-            ); /* 
-             * 🛑 यही वह मिसिंग लाइन है! 
-             * बटन पर क्लिक होते ही toggleHistoryTable फंक्शन चलना चाहिए।
-             */
-            button.addEventListener("click", function () {
-                toggleHistoryTable();
-            });
+            );
         }
     }
 );
