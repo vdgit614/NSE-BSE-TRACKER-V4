@@ -1,0 +1,4825 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSE BSE TRACKER V4</title><style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0b0f14;
+    color: #e8edf3;
+    min-height: 100vh;
+}
+/* =========================================================
+   MAIN MENU
+========================================================= */
+
+.main-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    margin: 0;
+    padding: 6px 16px 0 0;
+    z-index: 100;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.main-menu-button {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #34404d;
+    border-radius: 9px;
+    background: #111720;
+    color: #e8edf3;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+.main-menu-panel {
+    position: absolute;
+    top: 54px;
+    right: 12px;
+    width: 180px;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.main-menu-panel button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-bottom: 1px solid #202a35;
+    background: transparent;
+    color: #d7dee6;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.main-menu-panel button:last-child {
+    border-bottom: none;
+}
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* HEADER */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px 8px;
+}
+
+.header h1 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin: 0;
+}
+
+.header p {
+    display: none;
+}
+
+/* SEARCH */
+
+.search-section {
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.search-row {
+    display: flex;
+    gap: 8px;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    background: #0b0f14;
+    color: #fff;
+    border: 1px solid #2a3542;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #526273;
+}
+
+.search-button {
+    background: #1d2732;
+    color: #fff;
+    border: 1px solid #354250;
+    border-radius: 10px;
+    padding: 0 17px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-button:active {
+    transform: scale(0.98);
+}
+
+/* EXCHANGE BUTTONS */
+
+.exchange-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 7px;
+    justify-content: center;
+}
+
+.exchange-btn {
+    flex: 0 0 60%;
+    max-width: 40%;
+    background: #0b0f14;
+    color: #9ba7b4;
+    border: 1px solid #2a3542;
+    border-radius: 7px;
+    padding: 6px 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.exchange-btn.active {
+    background: #202b37;
+    color: #ffffff;
+    border-color: #536273;
+}
+
+/* SEARCH RESULTS */
+
+.search-results {
+    margin-top: 10px;
+    display: none;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 11px;
+    border-bottom: 1px solid #202a35;
+    cursor: pointer;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: #18212b;
+}
+
+.result-symbol {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.result-company {
+    font-size: 12px;
+    color: #8995a2;
+    margin-top: 3px;
+}
+
+/* INDEX CARDS */
+
+.index-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
+.index-card {
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.index-name {
+    font-size: 11px;
+    color: #9aa5b1;
+    margin-bottom: 5px;
+}
+
+.index-price {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.index-change {
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+.up {
+    color: #35c978;
+}
+
+.down {
+    color: #ff5f5f;
+}
+
+.neutral {
+    color: #aab4bf;
+}
+/* ---------------------------------------------------------
+   WATCHLIST
+--------------------------------------------------------- */
+
+.watchlist-section {
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 14px;
+}
+
+    .watchlist-section,
+.watchlist,
+.watchlist-item {
+    width: 100%;
+    max-width: 100%;
+}
+
+.watchlist-item {
+    min-width: 0;
+}
+
+.watchlist-stock {
+    min-width: 0;
+    overflow: hidden;
+}
+.watchlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.watchlist-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* WATCHLIST ON / OFF */
+
+.watchlist-toggle {
+    min-width: 46px;
+    height: 26px;
+    padding: 0 8px;
+    border: 1px solid #34404d;
+    border-radius: 13px;
+    background: #35c978;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.watchlist-toggle.on {
+    background: #35c978;
+    color: #ffffff;
+}
+
+.watchlist-toggle.off {
+    background: #ff5f5f;
+    color: #ffffff;
+}
+
+.watchlist-menu-button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #34404d;
+    border-radius: 8px;
+    background: #0b0f14;
+    color: #d7dee6;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.watchlist-menu {
+    margin-top: 8px;
+    background: #0b0f14;
+    border: 1px solid #202a35;
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.watchlist-menu button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #202a35;
+    background: transparent;
+    color: #d7dee6;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.watchlist-menu button:last-child {
+    border-bottom: none;
+}
+
+.watchlist-selection-bar {
+    margin-top: 8px;
+    padding: 7px 9px;
+    background: #0b0f14;
+    border-radius: 7px;
+    color: #aeb8c3;
+    font-size: 12px;
+}
+
+    .watchlist-selection-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.watchlist-selection-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #34404d;
+    border-radius: 7px;
+    background: #111720;
+    color: #d7dee6;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+#confirmDeleteStocksButton {
+    border-color: #4a2b2b;
+    color: #ff5f5f;
+}
+
+#cancelDeleteStocksButton {
+    color: #aeb8c3;
+}
+.watchlist {
+    margin-top: 8px;
+}
+
+.watchlist-empty {
+    padding: 12px 5px;
+    color: #7f8b98;
+    font-size: 12px;
+}
+
+.watchlist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 4px;
+    border-bottom: 1px solid #202a35;
+}
+
+.watchlist-item:last-child {
+    border-bottom: none;
+}
+
+.watchlist-checkbox {
+    display: none;
+}
+
+.watchlist-stock {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.watchlist-symbol {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.watchlist-company {
+    margin-top: 3px;
+    color: #7f8b98;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watchlist-exchange {
+    font-size: 10px;
+    color: #aeb8c3;
+    border: 1px solid #34404d;
+    border-radius: 5px;
+    padding: 3px 5px;
+}
+
+.watchlist-delete {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #4a2b2b;
+    border-radius: 7px;
+    background: #1a1010;
+    color: #ff5f5f;
+    cursor: pointer;
+    font-size: 14px;
+    }
+    .history-toggle {
+    flex-shrink: 0;
+    min-width: 46px;
+    width: 46px;
+    height: 26px;
+    line-height: 26px;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.history-toggle.on,
+.history-toggle.off {
+    position: relative;
+    top: 0;
+    bottom: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: none;
+}
+    
+/* STOCK PANEL — COMPACT */
+
+.stock-panel {
+    display: none;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 10px;
+    padding: 6px;
+    margin-bottom: 6px;
+    position: relative;
+}
+    .trigger-price-area {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    text-align: left;
+}
+
+.trigger-price-label {
+    font-size: 12px;
+    color: #ffd700;
+    margin-bottom: 6px;
+}
+
+.trigger-price-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.trigger-price-input {
+    width: 70px;
+    height: 28px;
+    padding: 2px 5px;
+    border: 1px solid #34404d;
+    border-radius: 5px;
+    background: #0b0f14;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+}
+
+.set-trigger-button {
+    height: 20px;
+    padding: 2px 5px;
+    border: 1px solid #34404d;
+    border-radius: 5px;
+    background: #202a35;
+    color: #ffffff;
+    font-size: 8px;
+    cursor: pointer;
+}
+
+.trigger-price-display {
+    font-size: 8px;
+    margin-top: 2px;
+}
+
+.stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.stock-title {
+    min-width: 0;
+}
+
+.stock-symbol {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.stock-company {
+    font-size: 9px;
+    color: #8e99a6;
+    margin-top: 1px;
+    line-height: 1.15;
+}
+
+.exchange-badge {
+    border: 1px solid #34404d;
+    border-radius: 6px;
+    padding: 2px 5px;
+    font-size: 9px;
+    color: #aeb8c3;
+    white-space: nowrap;
+}
+
+.price-area {
+    margin-top: 5px;
+}
+
+.current-price {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.price-change {
+    font-size: 10px;
+    margin-top: 1px;
+}
+
+.stock-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.info-box {
+    background: #0b0f14;
+    border: 1px solid #1f2933;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.info-label {
+    color: #7f8b98;
+    font-size: 8px;
+}
+
+.info-value {
+    font-size: 20px;
+    margin-top: 1px;
+    font-weight: 600;
+}
+
+    /* =========================================================
+   PRICE HISTORY — COMPACT
+========================================================= */
+
+.chart-section {
+    display: none;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 7px;
+    padding: 3px;
+    margin-bottom: 4px;
+}
+
+.section-title {
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.period-buttons {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    margin-bottom: 3px;
+}
+
+.period-btn {
+    flex: 0 0 auto;
+    background: #0b0f14;
+    border: 1px solid #29343f;
+    color: #8e99a5;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 8px;
+    cursor: pointer;
+}
+
+.period-btn.active {
+    background: #202b37;
+    color: #fff;
+    border-color: #536273;
+}
+
+.chart-container {
+    width: 100%;
+    height: 100px;
+    position: relative;
+}
+
+#priceChart {
+    width: 100%;
+    height: 100%;
+}
+
+.history-table-wrap {
+    margin-top: 3px;
+    overflow-x: auto;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 260px;
+}
+
+.history-table th {
+    background: #0b0f14;
+    color: #8995a2;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 3px;
+    text-align: left;
+    border-bottom: 1px solid #202a35;
+}
+
+.history-table td {
+    padding: 3px;
+    font-size: 9px;
+    border-bottom: 1px solid #202a35;
+}
+
+.history-table th:not(:first-child),
+.history-table td:not(:first-child) {
+    text-align: right;
+}
+
+.history-up {
+    color: #35c978;
+    font-weight: 600;
+}
+
+.history-down {
+    color: #ff5f5f;
+    font-weight: 600;
+}
+
+.history-neutral {
+    color: #aab4bf;
+}
+
+/* QUICK LINKS */
+
+.quick-links {
+    display: none;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 14px;
+}
+
+.links-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.quick-link {
+    display: block;
+    text-decoration: none;
+    color: #c5ced8;
+    background: #000000;
+    border: 1px solid #26313c;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.quick-link:hover {
+    background: #18212b;
+}
+/* =========================================================
+   QUICK LINKS — COMPACT 20% LARGER
+========================================================= */
+
+.quick-links {
+    display: none;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 8px;
+    padding: 5px;
+    margin-bottom: 6px;
+}
+
+.links-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+}
+
+.quick-link {
+    display: block;
+    text-decoration: none;
+    color: #c5ced8;
+    background: #000000;
+    border: 1px solid #26313c;
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center;
+    font-size: 9px;
+}
+
+.quick-link:hover {
+    background: #18212b;
+}
+
+/* QUICK LINK COLORS */
+
+#yahooLink {
+    background: #5b3f8c;
+    color: #ffffff;
+}
+
+#googleLink {
+    background: #315f9e;
+    color: #ffffff;
+}
+
+#screenerLink {
+    background: #2f7d4a;
+    color: #ffffff;
+}
+
+#nseLink {
+    background: #b7652b;
+    color: #ffffff;
+}
+
+/* Hover */
+
+#yahooLink:hover {
+    background: #704fa8;
+}
+
+#googleLink:hover {
+    background: #3d75bf;
+}
+
+#screenerLink:hover {
+    background: #39965a;
+}
+
+#nseLink:hover {
+    background: #d07838;
+}
+/* =========================================================
+   LATEST NEWS — VERY COMPACT
+========================================================= */
+
+.news-section {
+    display: none;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 6px;
+    padding: 3px;
+    margin-bottom: 4px;
+}
+
+.news-label {
+    color: #7f8b98;
+    font-size: 8px;
+    margin-top: -1px;
+    margin-bottom: 3px;
+}
+
+.news-item {
+    padding: 3px 0;
+    border-bottom: 1px solid #202a35;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+.news-title {
+    color: #e8edf3;
+    font-size: 9px;
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.news-meta {
+    color: #7f8b98;
+    font-size: 7px;
+    margin-top: 2px;
+}
+
+/* STATUS / LOADING */
+
+.status-message {
+    display: none;
+    text-align: center;
+    color: #8995a2;
+    font-size: 13px;
+    padding: 20px 10px;
+}
+
+.error-message {
+    color: #ff6b6b;
+}
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    color: #626d78;
+    font-size: 10px;
+    padding: 12px 0 20px;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .container {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 21px;
+    }
+
+    .current-price {
+        font-size: 27px;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+}
+.watchlist-section {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.watchlist-item {
+    width: 100%;
+    max-width: 100%;
+    }
+@media (min-width: 700px) {
+
+    .stock-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .links-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+    /* PRICE HISTORY — DATE-WISE TOGGLE
+========================================================= */
+
+.history-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 30px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    margin-bottom: 4px;
+    padding: 2px 3px;
+}
+
+.history-toggle-label {
+    font-size: 10px;
+    color: #8e99a6;
+}
+    /* =========================================================
+   LIGHT THEME
+========================================================= */
+
+body.light-theme {
+    background: #f4f6f8;
+    color: #20252b;
+}
+
+body.light-theme .container {
+    background: #f4f6f8;
+}
+
+body.light-theme .header {
+    color: #20252b;
+}
+
+body.light-theme .header p {
+    color: #66717d;
+}
+
+/* Main Menu */
+
+body.light-theme .main-menu-button {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #d5dbe1;
+}
+
+body.light-theme .main-menu-panel {
+    background: #ffffff;
+    border-color: #d5dbe1;
+}
+
+body.light-theme .main-menu-panel button {
+    background: #ffffff;
+    color: #20252b;
+    border-bottom-color: #e3e7eb;
+}
+
+/* Sections */
+
+body.light-theme .search-section,
+body.light-theme .watchlist-section,
+body.light-theme .stock-section,
+body.light-theme .history-section,
+body.light-theme .index-section {
+    background: #ffffff;
+    border-color: #dfe4e8;
+}
+
+/* Inputs */
+
+body.light-theme input,
+body.light-theme select {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #cfd6dd;
+}
+
+/* Watchlist */
+
+body.light-theme .watchlist-item {
+    background: #ffffff;
+    border-color: #dfe4e8;
+}
+
+body.light-theme .watchlist-stock {
+    color: #20252b;
+}
+
+body.light-theme .watchlist-selection-bar {
+    background: #eef1f4;
+    color: #5f6973;
+}
+
+body.light-theme .watchlist-selection-actions button {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #cfd6dd;
+}
+
+/* Buttons */
+
+body.light-theme button {
+    border-color: #cfd6dd;
+}
+
+/* Search Results */
+
+body.light-theme .search-result {
+    background: #ffffff;
+    color: #20252b;
+    border-color: #dfe4e8;
+}
+
+/* Cards / Common text */
+
+body.light-theme .company-name,
+body.light-theme .stock-name {
+    color: #20252b;
+}
+
+body.light-theme .exchange {
+    color: #66717d;
+}
+    /* =========================================================
+   LIGHT GRADIENT THEME
+========================================================= */
+
+body.gradient-theme {
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8b8bd 0%,
+            #f3d3df 32%,
+            #e5d9ee 58%,
+            #cbdcf5 100%
+        );
+
+    color: #18233d;
+
+    background-attachment: fixed;
+}
+
+
+/* Main container */
+
+body.gradient-theme .container {
+
+    background: transparent;
+
+}
+
+
+
+
+
+/* Main Menu */
+
+body.gradient-theme .main-menu-button {
+
+    background: rgba(255,255,255,0.62);
+
+    color: #18233d;
+
+    border-color: rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 3px 12px rgba(50,70,120,0.10);
+
+}
+
+body.gradient-theme .main-menu-panel {
+
+    background: rgba(255,255,255,0.92);
+
+    border-color: rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 8px 25px rgba(50,70,120,0.16);
+
+}
+
+body.gradient-theme .main-menu-panel button {
+
+    background: transparent;
+
+    color: #18233d;
+
+    border-bottom-color:
+        rgba(80,90,130,0.12);
+
+}
+
+
+/* Main Sections */
+
+body.gradient-theme .search-section,
+body.gradient-theme .watchlist-section,
+body.gradient-theme .stock-section,
+body.gradient-theme .history-section,
+body.gradient-theme .index-section {
+
+    background:
+        rgba(255,255,255,0.68);
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 4px 18px
+        rgba(60,80,130,0.08);
+
+}
+
+
+/* Inputs */
+
+body.gradient-theme input,
+body.gradient-theme select {
+
+    background:
+        rgba(255,255,255,0.82);
+
+    color: #18233d;
+
+    border-color:
+        rgba(100,110,150,0.20);
+
+}
+    /* QUICK LINKS — GRADIENT THEME */
+
+body.gradient-theme .quick-links {
+    background: #111720;
+    border-color: #202a35;
+}
+
+body.gradient-theme .quick-link {
+    background: #000000;
+    color: #c5ced8;
+    border-color: #26313c;
+}
+
+body.gradient-theme .quick-link:hover {
+    background: #18212b;
+}
+/* LIGHT THEMES - STOCK & HISTORY TEXT VISIBILITY */
+
+body.light-theme .exchange-badge,
+body.gradient-theme .exchange-badge {
+    color: #FFD700;
+}
+
+body.light-theme #previousClose,
+body.gradient-theme #previousClose,
+body.light-theme #tradingStatus,
+body.gradient-theme #tradingStatus {
+    color: #FFD700;
+}
+
+body.light-theme .section-title,
+body.gradient-theme .section-title {
+    color: #FFD700;
+}
+
+body.light-theme .history-table td:first-child,
+body.gradient-theme .history-table td:first-child {
+    color: #FFD700;
+}
+    body.light-theme .stock-symbol,
+body.gradient-theme .stock-symbol {
+    color: #FFD700;
+}
+
+/* Watchlist */
+
+body.gradient-theme .watchlist-item {
+
+    background:
+        rgba(255,255,255,0.62);
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+}
+
+body.gradient-theme .watchlist-stock {
+
+    color: #18233d;
+
+}
+
+body.gradient-theme .watchlist-selection-bar {
+
+    background:
+        rgba(255,255,255,0.55);
+
+    color: #5d6680;
+
+}
+
+body.gradient-theme
+.watchlist-selection-actions button {
+
+    background:
+        rgba(255,255,255,0.75);
+
+    color: #18233d;
+
+    border-color:
+        rgba(100,110,150,0.20);
+
+}
+
+
+/* Search Results */
+
+body.gradient-theme .search-result {
+
+    background:
+        rgba(255,255,255,0.78);
+
+    color: #18233d;
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+}
+
+
+/* Stock / Company text */
+
+body.gradient-theme .company-name,
+body.gradient-theme .stock-name {
+
+    color: #18233d;
+
+}
+
+body.gradient-theme .exchange {
+
+    color: #5d6680;
+
+}
+
+
+/* Quick Links */
+
+body.gradient-theme .quick-links {
+
+    background:
+        rgba(255,255,255,0.62);
+
+    border-color:
+        rgba(255,255,255,0.85);
+
+}
+
+
+/* History / Chart area */
+
+body.gradient-theme .chart-container {
+
+    background:
+        rgba(255,255,255,0.35);
+
+}
+
+
+/* Buttons */
+
+body.gradient-theme button {
+
+    border-color:
+        rgba(100,110,150,0.20);
+
+}
+
+
+/* =========================================================
+   GRADIENT — QUICK LINKS
+========================================================= */
+
+body.gradient-theme #yahooLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(70,40,120,0.12);
+
+}
+
+body.gradient-theme #googleLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(40,80,150,0.12);
+
+}
+
+body.gradient-theme #screenerLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(30,100,60,0.12);
+
+}
+
+body.gradient-theme #nseLink {
+
+    box-shadow:
+        0 3px 10px
+        rgba(160,80,20,0.12);
+
+}
+</style></head>
+    
+        <body>
+
+<!-- =========================================================
+     MAIN MENU
+========================================================= -->
+
+<div class="main-menu">
+
+    <button
+        id="mainMenuButton"
+        class="main-menu-button"
+        type="button"
+        title="Main Menu"
+    >
+        ☰
+    </button>
+
+    <div
+        id="mainMenuPanel"
+        class="main-menu-panel"
+        style="display:none;"
+    >
+
+        <button
+            id="tableViewButton"
+            type="button"
+        >
+            📋 Table View
+        </button>
+
+        <button
+            id="deleteStocksButton"
+            type="button"
+        >
+            🗑️ Delete Stocks
+        </button>
+
+        <button
+            id="themeButton"
+            type="button"
+        >
+            🎨 Theme
+        </button>
+
+        <button
+            id="logoutButton"
+            type="button"
+        >
+            🚪 Logout
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="container">
+
+<header class="header">
+    <h1>NSE BSE TRACKER V4</h1>
+    <p>Indian Stock Market Tracker</p>
+</header>
+
+<!-- NIFTY / SENSEX -->
+<section class="index-section">
+
+    <div class="index-card">
+        <div class="index-name">NIFTY 50</div>
+        <div id="niftyPrice" class="index-price">--</div>
+        <div id="niftyChange" class="index-change neutral">--</div>
+    </div>
+
+    <div class="index-card">
+        <div class="index-name">SENSEX</div>
+        <div class="index-price" id="sensexPrice">--</div>
+        <div id="sensexChange" class="index-change neutral">--</div>
+    </div>
+
+</section>
+
+<!-- SEARCH -->
+<section class="search-section">
+
+
+<!-- SEARCH -->
+<section class="search-section">
+
+    <div class="search-row">
+        <input
+type="text"
+id="searchInput"
+class="search-input"
+placeholder="Search stock or company..."
+autocomplete="off"
+>
+
+<button
+id="searchButton"
+class="search-button"
+type="button"
+>
+Search
+</button>
+
+<button
+id="screenshotButton"
+class="search-button"
+type="button"
+title="Add stocks from screenshot"
+>
+📎
+</button>
+
+<input
+type="file"
+id="screenshotInput"
+accept="image/*"
+style="display:none"
+>
+    </div>
+
+    <div class="exchange-row">
+        <button
+            class="exchange-btn active"
+            id="nseBtn"
+            type="button"
+            onclick="setExchange('NSE')"
+        >
+            NSE
+        </button>
+
+        <button
+            class="exchange-btn"
+            id="bseBtn"
+            type="button"
+            onclick="setExchange('BSE')"
+        >
+            BSE
+        </button>
+    </div>
+
+    <div id="searchResults" class="search-results"></div>
+
+</section>
+<!-- WATCHLIST -->
+<section class="watchlist-section">
+
+    <div class="watchlist-header">
+
+    <div class="watchlist-title">
+        My Watchlist
+    </div>
+
+    <button
+        id="watchlistToggle"
+        class="watchlist-toggle on"
+        type="button"
+        aria-pressed="true"
+    >
+        ON
+    </button>
+
+    </div>
+
+
+    <div
+        id="watchlist"
+        class="watchlist"
+    ></div>
+
+    <div
+    id="watchlistSelectionBar"
+    class="watchlist-selection-bar"
+    style="display:none;"
+>
+
+    <span id="selectedStocksCount">
+        0 selected
+    </span>
+
+    <div class="watchlist-selection-actions">
+
+        <button
+            id="confirmDeleteStocksButton"
+            type="button"
+        >
+            🗑️ Delete
+        </button>
+
+        <button
+            id="cancelDeleteStocksButton"
+            type="button"
+        >
+            ✕ Cancel
+        </button>
+
+    </div>
+
+    </div>
+</section>
+
+
+</section>
+
+<!-- STATUS -->
+<div id="statusMessage" class="status-message"></div>
+
+<!-- STOCK DETAILS -->
+<section id="stockPanel" class="stock-panel">
+
+    <div class="stock-header">
+
+        <div class="stock-title">
+            <div id="stockSymbol" class="stock-symbol">--</div>
+            <div id="stockCompany" class="stock-company">--</div>
+        </div>
+
+        <div id="exchangeBadge" class="exchange-badge">NSE</div>
+
+    </div>
+
+<div class="price-area">
+
+    <div class="current-price-box">
+
+        <div id="currentPrice" class="current-price">--</div>
+
+        <div id="priceChange" class="price-change neutral">
+            --
+        </div>
+
+    </div>
+
+    <!-- TRIGGER PRICE -->
+    <div class="trigger-price-area">
+
+        <div class="trigger-price-label">
+            Trigger
+        </div>
+
+        <div class="trigger-price-row">
+
+            <input
+                type="number"
+                id="triggerPriceInput"
+                class="trigger-price-input"
+                placeholder="Price"
+                step="0.01"
+            >
+
+            <button
+                type="button"
+                id="setTriggerPriceButton"
+                class="set-trigger-button"
+            >
+                Set
+            </button>
+
+        </div>
+
+        <div
+            id="triggerPriceDisplay"
+            class="trigger-price-display"
+        ></div>
+
+    </div>
+
+</div>
+
+    <div class="stock-info-grid">
+
+        <div class="info-box">
+            <div class="info-label">Previous Close</div>
+            <div id="previousClose" class="info-value">--</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">52W High</div>
+            <div id="weekHigh" class="info-value">--</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">52W Low</div>
+            <div id="weekLow" class="info-value">--</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">Trading Status</div>
+            <div id="tradingStatus" class="info-value">--</div>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- CHART -->
+<section id="chartSection" class="chart-section">
+
+    <div class="section-title">Price History</div>
+
+    <div class="period-buttons">
+
+        <button
+            class="period-btn active"
+            data-period="7d"
+            onclick="loadHistory('7d')"
+        >
+            7D
+        </button>
+
+        <button
+            class="period-btn"
+            data-period="1m"
+            onclick="loadHistory('1m')"
+        >
+            1M
+        </button>
+
+        <button
+            class="period-btn"
+            data-period="3m"
+            onclick="loadHistory('3m')"
+        >
+            3M
+        </button>
+
+        <button
+            class="period-btn"
+            data-period="6m"
+            onclick="loadHistory('6m')"
+        >
+            6M
+        </button>
+
+        <button
+            class="period-btn"
+            data-period="1y"
+            onclick="loadHistory('1y')"
+        >
+            1Y
+        </button>
+
+    </div>
+
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <!-- HISTORY TABLE TOGGLE -->
+
+<div class="history-toggle-row">
+
+    <div class="history-toggle-label">
+        Date-wise Data
+    </div>
+
+    <button 
+        id="historyToggleButton"
+        class="watchlist-toggle history-toggle off"
+        type="button" 
+        aria-pressed="false"
+        onclick="toggleHistoryTable()"
+        
+        >
+        OFF
+    </button>
+    
+
+</div>
+
+
+<div
+    id="historyTableContainer"
+    class="history-table-wrap"
+    style="display: none;"
+>
+
+    <table class="history-table">
+
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Close</th>
+                <th>Change</th>
+                <th>Change %</th>
+            </tr>
+        </thead>
+
+        <tbody id="historyTableBody">
+        </tbody>
+
+    </table>
+
+</div>
+</section>
+
+<!-- QUICK LINKS -->
+<section id="quickLinks" class="quick-links">
+
+    <div class="section-title">Quick Links</div>
+
+    <div class="links-grid">
+
+        <a
+            id="yahooLink"
+            class="quick-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
+            Yahoo Finance
+        </a>
+
+        <a
+            id="googleLink"
+            class="quick-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
+            Google Finance
+        </a>
+
+        <a
+            id="screenerLink"
+            class="quick-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
+            Screener
+        </a>
+
+        <a
+            id="nseLink"
+            class="quick-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
+            NSE
+        </a>
+
+    </div>
+
+</section>
+
+<!-- NEWS -->
+<section id="newsSection" class="news-section">
+
+    <div class="section-title">Latest News</div>
+
+    <div class="news-label">
+        Last 15 Days
+    </div>
+
+    <div id="newsList"></div>
+
+</section>
+
+<div class="footer">
+    NSE BSE TRACKER V4
+</div>
+
+</div><!-- Chart library --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+/* =========================================================
+   NSE BSE TRACKER V4
+   JAVASCRIPT — PART 1
+   ========================================================= */
+
+/* Cloudflare Worker */
+const API_BASE =
+    "https://nse-bse-tracker-v4.vasimbhaipainter.workers.dev";
+
+/* Current state */
+let selectedExchange = "NSE";
+let selectedSymbol = "";
+let selectedCompany = "";
+let priceChart = null;
+
+
+/* ---------------------------------------------------------
+   ELEMENT HELPERS
+--------------------------------------------------------- */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+/* ---------------------------------------------------------
+   EXCHANGE SELECTOR
+--------------------------------------------------------- */
+
+function setExchange(exchange) {
+
+    selectedExchange = exchange;
+
+    $("nseBtn").classList.remove("active");
+    $("bseBtn").classList.remove("active");
+
+    if (exchange === "NSE") {
+        $("nseBtn").classList.add("active");
+    } else {
+        $("bseBtn").classList.add("active");
+    }
+
+    const query = $("searchInput").value.trim();
+
+    if (query.length >= 2) {
+        searchStocks(query);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   STATUS
+--------------------------------------------------------- */
+
+function showStatus(message, isError = false) {
+
+    const box = $("statusMessage");
+
+    box.textContent = message;
+    box.className = "status-message";
+
+    if (isError) {
+        box.classList.add("error-message");
+    }
+
+    box.style.display = "block";
+}
+
+
+function hideStatus() {
+    $("statusMessage").style.display = "none";
+}
+
+
+/* ---------------------------------------------------------
+   NUMBER FORMAT
+--------------------------------------------------------- */
+
+function formatNumber(value, decimals = 2) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        Number.isNaN(Number(value))
+    ) {
+        return "--";
+    }
+
+    return Number(value).toLocaleString("en-IN", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}
+
+
+/* ---------------------------------------------------------
+   PRICE CHANGE CLASS
+--------------------------------------------------------- */
+
+function changeClass(value) {
+
+    const number = Number(value);
+
+    if (number > 0) {
+        return "up";
+    }
+
+    if (number < 0) {
+        return "down";
+    }
+
+    return "neutral";
+}
+
+/* =========================================================
+   WATCHLIST
+   ========================================================= */
+
+const WATCHLIST_STORAGE_KEY =
+    "nseBseTrackerV4Watchlist";
+
+let watchlist = [];
+
+let watchlistSelectionMode = false;
+
+let selectedWatchlistStocks = [];
+
+
+/* ---------------------------------------------------------
+   LOAD WATCHLIST
+--------------------------------------------------------- */
+
+function loadWatchlist() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                WATCHLIST_STORAGE_KEY
+            );
+
+        if (saved) {
+
+            const data = JSON.parse(saved);
+
+            if (Array.isArray(data)) {
+
+                watchlist = data;
+
+            } else {
+
+                watchlist = [];
+
+            }
+
+        } else {
+
+            watchlist = [];
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Watchlist load error:",
+            error
+        );
+
+        watchlist = [];
+
+    }
+
+    renderWatchlist();
+}
+
+
+/* ---------------------------------------------------------
+   SAVE WATCHLIST
+--------------------------------------------------------- */
+
+function saveWatchlist() {
+
+    localStorage.setItem(
+        WATCHLIST_STORAGE_KEY,
+        JSON.stringify(watchlist)
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   ADD STOCK
+--------------------------------------------------------- */
+
+function addStockToWatchlist(
+    symbol,
+    exchange,
+    company
+) {
+
+    if (!symbol || !exchange) {
+        return;
+    }
+
+    symbol =
+        String(symbol)
+            .trim()
+            .toUpperCase();
+
+    exchange =
+        String(exchange)
+            .trim()
+            .toUpperCase();
+
+    const exists =
+        watchlist.some(function (stock) {
+
+            return (
+                stock.symbol === symbol &&
+                stock.exchange === exchange
+            );
+
+        });
+
+    if (exists) {
+
+        renderWatchlist();
+
+        return;
+    }
+
+
+    watchlist.push({
+
+        symbol: symbol,
+
+        exchange: exchange,
+
+        company: company || ""
+
+    });
+
+
+    saveWatchlist();
+
+    renderWatchlist();
+
+}
+
+
+/* ---------------------------------------------------------
+   DELETE ONE STOCK
+--------------------------------------------------------- */
+
+function deleteStockFromWatchlist(
+    symbol,
+    exchange
+) {
+
+    watchlist =
+        watchlist.filter(function (stock) {
+
+            return !(
+                stock.symbol === symbol &&
+                stock.exchange === exchange
+            );
+
+        });
+
+
+    saveWatchlist();
+
+    renderWatchlist();
+
+}
+
+
+/* ---------------------------------------------------------
+   RENDER WATCHLIST
+--------------------------------------------------------- */
+
+function renderWatchlist() {
+
+    const box = $("watchlist");
+
+    if (!box) {
+        return;
+    }
+
+
+    if (watchlist.length === 0) {
+
+        box.innerHTML =
+            '<div class="watchlist-empty">' +
+            'No stocks added yet.' +
+            '</div>';
+
+        return;
+    }
+
+
+    box.innerHTML = "";
+
+
+    watchlist.forEach(function (stock, index) {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "watchlist-item";
+
+
+        /* ---------------------------------------------
+           Checkbox
+        --------------------------------------------- */
+
+        const checkbox =
+            document.createElement("input");
+
+        checkbox.type = "checkbox";
+
+        checkbox.className =
+            "watchlist-checkbox";
+
+        checkbox.checked =
+            selectedWatchlistStocks.some(
+                function (selected) {
+
+                    return (
+                        selected.symbol ===
+                            stock.symbol &&
+                        selected.exchange ===
+                            stock.exchange
+                    );
+
+                }
+            );
+
+
+        checkbox.addEventListener(
+            "change",
+            function () {
+
+                if (checkbox.checked) {
+
+                    selectedWatchlistStocks.push({
+                        symbol: stock.symbol,
+                        exchange: stock.exchange
+                    });
+
+                } else {
+
+                    selectedWatchlistStocks =
+                        selectedWatchlistStocks.filter(
+                            function (selected) {
+
+                                return !(
+                                    selected.symbol ===
+                                        stock.symbol &&
+                                    selected.exchange ===
+                                        stock.exchange
+                                );
+
+                            }
+                        );
+
+                }
+
+                updateSelectedStocksCount();
+
+            }
+        );
+
+
+        if (watchlistSelectionMode) {
+
+            checkbox.style.display =
+                "block";
+
+        } else {
+
+            checkbox.style.display =
+                "none";
+
+        }
+
+
+        /* ---------------------------------------------
+           Stock information
+        --------------------------------------------- */
+
+        const stockDiv =
+            document.createElement("div");
+
+        stockDiv.className =
+            "watchlist-stock";
+
+
+        const symbolDiv =
+            document.createElement("div");
+
+        symbolDiv.className =
+            "watchlist-symbol";
+
+        symbolDiv.textContent =
+            stock.symbol;
+
+
+        const companyDiv =
+            document.createElement("div");
+
+        companyDiv.className =
+            "watchlist-company";
+
+        companyDiv.textContent =
+            stock.company || "";
+
+
+        stockDiv.appendChild(symbolDiv);
+
+        stockDiv.appendChild(companyDiv);
+
+
+        /* ---------------------------------------------
+           Open Stock Details
+        --------------------------------------------- */
+
+        stockDiv.addEventListener(
+            "click",
+            function () {
+
+                if (watchlistSelectionMode) {
+
+                    checkbox.checked =
+                        !checkbox.checked;
+
+                    checkbox.dispatchEvent(
+                        new Event("change")
+                    );
+
+                    return;
+                }
+
+
+                selectedSymbol =
+                    stock.symbol;
+
+                selectedCompany =
+                    stock.company || "";
+
+                selectedExchange =
+                    stock.exchange;
+
+
+                $("searchInput").value =
+                    stock.symbol;
+
+
+                $("nseBtn")
+                    .classList
+                    .remove("active");
+
+                $("bseBtn")
+                    .classList
+                    .remove("active");
+
+
+                if (stock.exchange === "NSE") {
+
+                    $("nseBtn")
+                        .classList
+                        .add("active");
+
+                } else {
+
+                    $("bseBtn")
+                        .classList
+                        .add("active");
+
+                }
+
+
+                loadStock(
+                    stock.symbol,
+                    stock.exchange
+                );
+                loadSavedTriggerPrice();
+                loadSavedReadyPrice();
+
+            }
+        );
+
+
+        /* ---------------------------------------------
+           Exchange
+        --------------------------------------------- */
+
+        const exchangeDiv =
+            document.createElement("div");
+
+        exchangeDiv.className =
+            "watchlist-exchange";
+
+        exchangeDiv.textContent =
+            stock.exchange;
+
+
+        /* ---------------------------------------------
+           Delete
+        --------------------------------------------- */
+
+
+
+        item.appendChild(checkbox);
+
+        item.appendChild(stockDiv);
+
+        item.appendChild(exchangeDiv);
+
+        
+
+        box.appendChild(item);
+
+    });
+
+
+    updateSelectedStocksCount();
+
+}
+
+
+/* ---------------------------------------------------------
+   SELECTED STOCK COUNT
+--------------------------------------------------------- */
+
+function updateSelectedStocksCount() {
+
+    const count =
+        selectedWatchlistStocks.length;
+
+    $("selectedStocksCount").textContent =
+        count + " selected";
+
+}
+    /* ---------------------------------------------------------
+   WATCHLIST ON / OFF
+--------------------------------------------------------- */
+
+const WATCHLIST_TOGGLE_KEY =
+    "nseBseTrackerV4WatchlistToggle";
+
+
+function applyWatchlistToggle() {
+
+    const toggle =
+        $("watchlistToggle");
+
+    const box =
+        $("watchlist");
+
+    if (!toggle || !box) {
+        return;
+    }
+
+    const savedState =
+        localStorage.getItem(
+            WATCHLIST_TOGGLE_KEY
+        );
+
+    const isOn =
+        savedState !== "off";
+
+    if (isOn) {
+
+        toggle.textContent = "ON";
+
+        toggle.classList
+            .remove("off");
+
+        toggle.classList
+            .add("on");
+
+        toggle.setAttribute(
+            "aria-pressed",
+            "true"
+        );
+
+        box.style.display = "";
+
+    } else {
+
+        toggle.textContent = "OFF";
+
+        toggle.classList
+            .remove("on");
+
+        toggle.classList
+            .add("off");
+
+        toggle.setAttribute(
+            "aria-pressed",
+            "false"
+        );
+
+        box.style.display = "none";
+
+    }
+
+}
+
+
+$("watchlistToggle").addEventListener(
+    "click",
+    function () {
+
+        const currentState =
+            localStorage.getItem(
+                WATCHLIST_TOGGLE_KEY
+            );
+
+        const turnOn =
+            currentState === "off";
+
+        if (turnOn) {
+
+            localStorage.setItem(
+                WATCHLIST_TOGGLE_KEY,
+                "on"
+            );
+
+        } else {
+
+            localStorage.setItem(
+                WATCHLIST_TOGGLE_KEY,
+                "off"
+            );
+
+        }
+
+        applyWatchlistToggle();
+
+    }
+);
+
+
+/* Default = ON */
+
+applyWatchlistToggle();
+    /* =========================================================
+   MAIN MENU — COMPLETE
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   MAIN MENU OPEN / CLOSE
+--------------------------------------------------------- */
+
+$("mainMenuButton").addEventListener(
+    "click",
+    function () {
+
+        const menu =
+            $("mainMenuPanel");
+
+        if (menu.style.display === "none") {
+
+            menu.style.display = "block";
+
+        } else {
+
+            menu.style.display = "none";
+
+        }
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   MAIN MENU PANEL
+   ONE LISTENER FOR ALL MENU BUTTONS
+--------------------------------------------------------- */
+
+$("mainMenuPanel").addEventListener(
+    "click",
+    function (event) {
+
+        const id =
+            event.target.id;
+
+
+        /* -------------------------------------------------
+           DELETE STOCKS
+        ------------------------------------------------- */
+
+        if (id === "deleteStocksButton") {
+
+            watchlistSelectionMode = true;
+
+            selectedWatchlistStocks = [];
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            $("watchlistSelectionBar").style.display =
+                "block";
+
+            renderWatchlist();
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           TABLE VIEW
+        ------------------------------------------------- */
+
+        if (id === "tableViewButton") {
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            /* Table View will be added later */
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           THEME
+        ------------------------------------------------- */
+
+        if (id === "themeButton") {
+
+            $("mainMenuPanel").innerHTML = `
+
+                <button
+                    id="backToMainMenu"
+                    type="button"
+                >
+                    ← Main Menu
+                </button>
+
+                <button
+                    id="darkThemeOption"
+                    type="button"
+                >
+                    🌑 Dark
+                </button>
+
+                <button
+                    id="gradientThemeOption"
+                    type="button"
+                >
+                    🌈 Light Gradient
+                </button>
+
+                <button
+                    id="lightThemeOption"
+                    type="button"
+                >
+                    ☀️ Light
+                </button>
+
+            `;
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           BACK TO MAIN MENU
+        ------------------------------------------------- */
+
+        if (id === "backToMainMenu") {
+
+            $("mainMenuPanel").innerHTML = `
+
+                <button
+                    id="tableViewButton"
+                    type="button"
+                >
+                    📋 Table View
+                </button>
+
+                <button
+                    id="deleteStocksButton"
+                    type="button"
+                >
+                    🗑️ Delete Stocks
+                </button>
+
+                <button
+                    id="themeButton"
+                    type="button"
+                >
+                    🎨 Theme
+                </button>
+
+                <button
+                    id="logoutButton"
+                    type="button"
+                >
+                    🚪 Logout
+                </button>
+
+            `;
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           DARK THEME
+        ------------------------------------------------- */
+
+        if (id === "darkThemeOption") {
+
+            applyTheme("dark");
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           LIGHT GRADIENT
+        ------------------------------------------------- */
+
+        if (id === "gradientThemeOption") {
+
+            applyTheme("gradient");
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           LIGHT THEME
+        ------------------------------------------------- */
+
+        if (id === "lightThemeOption") {
+
+            applyTheme("light");
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           LOGOUT
+        ------------------------------------------------- */
+
+        if (id === "logoutButton") {
+
+            $("mainMenuPanel").style.display =
+                "none";
+
+            /* Existing logout system will be connected later */
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           CONFIRM DELETE
+        ------------------------------------------------- */
+
+        if (id === "confirmDeleteStocksButton") {
+
+            deleteSelectedWatchlistStocks();
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           CANCEL DELETE
+        ------------------------------------------------- */
+
+        if (id === "cancelDeleteStocksButton") {
+
+            cancelDeleteStocks();
+
+            return;
+        }
+
+    }
+);
+
+
+
+/* ---------------------------------------------------------
+   DELETE SELECTED STOCKS
+--------------------------------------------------------- */
+
+function deleteSelectedWatchlistStocks() {
+
+    if (selectedWatchlistStocks.length === 0) {
+
+        return;
+    }
+
+    watchlist =
+        watchlist.filter(function (stock) {
+
+            return !selectedWatchlistStocks.some(
+                function (selected) {
+
+                    return (
+                        selected.symbol === stock.symbol &&
+                        selected.exchange === stock.exchange
+                    );
+
+                }
+            );
+
+        });
+
+
+    selectedWatchlistStocks = [];
+
+    watchlistSelectionMode = false;
+
+    saveWatchlist();
+
+    $("watchlistSelectionBar").style.display =
+        "none";
+
+    renderWatchlist();
+
+}
+
+
+    /* ---------------------------------------------------------
+CANCEL DELETE MODE
+--------------------------------------------------------- */
+
+function cancelDeleteStocks() {
+
+selectedWatchlistStocks = [];  
+
+watchlistSelectionMode = false;  
+
+$("watchlistSelectionBar").style.display =  
+    "none";  
+
+renderWatchlist();
+
+}
+
+
+
+
+/* ---------------------------------------------------------
+   APPLY THEME
+--------------------------------------------------------- */
+
+function applyTheme(theme) {
+
+    document.body.classList.remove(
+        "light-theme",
+        "gradient-theme"
+    );
+
+    if (theme === "light") {
+
+        document.body.classList.add(
+            "light-theme"
+        );
+
+    } else if (theme === "gradient") {
+
+        document.body.classList.add(
+            "gradient-theme"
+        );
+
+    }
+
+    localStorage.setItem(
+        "nseBseTrackerV4Theme",
+        theme
+    );
+}
+
+/* ---------------------------------------------------------
+   LOAD SAVED THEME
+   Default = Light Gradient
+--------------------------------------------------------- */
+
+const savedTheme =
+    localStorage.getItem(
+        "nseBseTrackerV4Theme"
+    ) || "gradient";
+
+applyTheme(savedTheme);
+
+
+
+
+
+    /* ---------------------------------------------------------
+   DELETE BUTTON
+--------------------------------------------------------- */
+
+$("confirmDeleteStocksButton").addEventListener(
+    "click",
+    function () {
+
+        deleteSelectedWatchlistStocks();
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   CANCEL BUTTON
+--------------------------------------------------------- */
+
+$("cancelDeleteStocksButton").addEventListener(
+    "click",
+    function () {
+
+        cancelDeleteStocks();
+
+        $("mainMenuPanel").style.display =
+            "none";
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   INITIAL LOAD
+--------------------------------------------------------- */
+
+loadWatchlist();
+/* ---------------------------------------------------------
+   SEARCH BUTTON
+--------------------------------------------------------- */
+
+$("searchButton").addEventListener("click", function () {
+
+    const query = $("searchInput").value.trim();
+
+    if (!query) {
+        showStatus("Please enter a stock symbol or company name.", true);
+        return;
+    }
+
+    searchStocks(query);
+});
+
+
+/* ---------------------------------------------------------
+   ENTER KEY SEARCH
+--------------------------------------------------------- */
+
+$("searchInput").addEventListener("keydown", function (event) {
+
+    if (event.key === "Enter") {
+
+        const query = $("searchInput").value.trim();
+
+        if (query) {
+            searchStocks(query);
+        }
+    }
+});
+
+
+/* ---------------------------------------------------------
+   SEARCH API
+--------------------------------------------------------- */
+
+async function searchStocks(query) {
+
+    try {
+
+        hideStatus();
+
+        $("searchResults").style.display = "block";
+
+        $("searchResults").innerHTML =
+            '<div class="search-result-item">Searching...</div>';
+
+        const url =
+            API_BASE +
+            "/search?q=" +
+            encodeURIComponent(query) +
+            "&exchange=" +
+            encodeURIComponent(selectedExchange);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Search request failed");
+        }
+
+        const data = await response.json();
+
+        renderSearchResults(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        $("searchResults").innerHTML =
+            '<div class="search-result-item">Unable to search right now.</div>';
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SEARCH RESULTS RENDER
+--------------------------------------------------------- */
+
+function renderSearchResults(data) {
+
+    const box = $("searchResults");
+
+    let results = [];
+
+    if (Array.isArray(data)) {
+        results = data;
+    } else if (Array.isArray(data.results)) {
+        results = data.results;
+    } else if (Array.isArray(data.data)) {
+        results = data.data;
+    }
+
+    if (results.length === 0) {
+
+        box.innerHTML =
+            '<div class="search-result-item">No matching stock found.</div>';
+
+        return;
+    }
+
+    box.innerHTML = "";
+
+    results.forEach(function (item) {
+
+        const symbol =
+            item.symbol ||
+            item.tradingsymbol ||
+            item.code ||
+            item.scrip_code ||
+            "";
+
+        const company =
+            item.company ||
+            item.company_name ||
+            item.name ||
+            item.companyName ||
+            "";
+
+        const div = document.createElement("div");
+
+        div.className = "search-result-item";
+
+        div.innerHTML = `
+            <div class="result-symbol">${escapeHtml(symbol)}</div>
+            <div class="result-company">${escapeHtml(company)}</div>
+        `;
+
+        div.addEventListener("click", function () {
+
+    selectedSymbol = symbol;
+    selectedCompany = company;
+
+    $("searchInput").value = symbol;
+    box.style.display = "none";
+
+    /* Add selected stock to Watchlist */
+
+    addStockToWatchlist(
+        symbol,
+        selectedExchange,
+        company
+    );
+
+    /* Existing Stock Details */
+
+    loadStock(
+        symbol,
+        selectedExchange
+    );
+});
+
+        box.appendChild(div);
+    });
+}
+
+
+/* ---------------------------------------------------------
+   HTML ESCAPE
+--------------------------------------------------------- */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/* ---------------------------------------------------------
+   TRIGGER MONITORING — CURRENT MARKET PRICE
+--------------------------------------------------------- */
+
+let currentMarketPrice = null;
+/* ---------------------------------------------------------
+   LOAD STOCK
+--------------------------------------------------------- */
+
+async function loadStock(symbol, exchange) {
+
+    try {
+
+        showStatus("Loading stock data...");
+
+        const url =
+            API_BASE +
+            "/stock?symbol=" +
+            encodeURIComponent(symbol) +
+            "&exchange=" +
+            encodeURIComponent(exchange);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Stock request failed");
+        }
+
+        const data = await response.json();
+
+        renderStock(data, symbol, exchange);
+
+        hideStatus();
+
+        $("chartSection").style.display = "block";
+        $("quickLinks").style.display = "block";
+        $("newsSection").style.display = "block";
+
+        loadHistory("1m");
+        loadNews(symbol, exchange);
+
+    } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+            "Unable to load stock data. Please try again.",
+            true
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RENDER STOCK
+--------------------------------------------------------- */
+
+function renderStock(data, symbol, exchange) {
+
+    const stock = data.stock || {};
+    alert("STOCK DATA PASSED");
+    const market = data.market || {};
+
+    const price = market.price;
+    currentMarketPrice = Number(price);
+    /* ---------------------------------------------------------
+   TRIGGER CONDITION CHECK
+--------------------------------------------------------- */
+
+const triggerResult =
+    checkTriggerCondition(
+        currentMarketPrice
+    );
+
+if (triggerResult) {
+
+    console.log(
+        "TRIGGER STATUS:",
+        triggerResult
+    );
+
+}
+
+    const previousClose = market.previous_close;
+
+    const change = market.change;
+
+    $("stockPanel").style.display = "block";
+
+    $("stockSymbol").textContent =
+        stock.symbol || symbol;
+
+    $("stockCompany").textContent =
+        stock.company_name || "";
+
+    $("exchangeBadge").textContent =
+        exchange;
+
+    $("currentPrice").className =
+    "current-price " + changeClass(change);
+
+$("currentPrice").textContent =
+    formatNumber(price);
+
+    $("previousClose").textContent =
+        formatNumber(previousClose);
+
+    $("weekHigh").className =
+    "info-value up";
+
+$("weekHigh").textContent =
+    formatNumber(
+        market.fifty_two_week_high
+    );
+
+$("weekLow").className =
+    "info-value down";
+
+$("weekLow").textContent =
+    formatNumber(
+        market.fifty_two_week_low
+    );
+
+    $("tradingStatus").textContent =
+        stock.trading_status || "--";
+
+    const changeElement =
+        $("priceChange");
+
+    changeElement.className =
+        "price-change " + changeClass(change);
+
+    if (change !== null && change !== undefined) {
+
+        const sign =
+            Number(change) > 0 ? "+" : "";
+
+        changeElement.textContent =
+            sign + formatNumber(change);
+
+    } else {
+
+        changeElement.textContent = "--";
+    }
+
+    updateQuickLinks(
+        stock.symbol || symbol,
+        exchange
+    );
+}
+/* ---------------------------------------------------------
+QUICK LINKS
+--------------------------------------------------------- */
+
+function updateQuickLinks(symbol, exchange) {
+
+let yahooSymbol = symbol;
+
+if (exchange === "NSE") {
+    yahooSymbol = symbol + ".NS";
+}
+
+if (exchange === "BSE") {
+    yahooSymbol = symbol + ".BO";
+}
+
+$("yahooLink").href =
+    "https://finance.yahoo.com/quote/" +
+    encodeURIComponent(yahooSymbol);
+
+$("googleLink").href =
+    "https://www.google.com/finance/quote/" +
+    encodeURIComponent(symbol) +
+    ":" +
+    encodeURIComponent(exchange);
+
+$("screenerLink").href =
+    "https://www.screener.in/company/" +
+    encodeURIComponent(symbol) +
+    "/";
+
+$("nseLink").href =
+    "https://www.nseindia.com/get-quotes/equity?symbol=" +
+    encodeURIComponent(symbol);
+
+}
+/* ---------------------------------------------------------
+LOAD HISTORY
+--------------------------------------------------------- */
+
+async function loadHistory(period = "7d") {
+
+if (!selectedSymbol) {
+    return;
+}
+
+try {
+
+    document
+        .querySelectorAll(".period-btn")
+        .forEach(function (button) {
+
+            button.classList.remove("active");
+
+            if (button.dataset.period === period) {
+                button.classList.add("active");
+            }
+        });
+
+    const url =
+        API_BASE +
+        "/history?symbol=" +
+        encodeURIComponent(selectedSymbol) +
+        "&exchange=" +
+        encodeURIComponent(selectedExchange) +
+        "&period=" +
+        encodeURIComponent(period);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("History request failed");
+    }
+
+    const data = await response.json();
+
+    renderHistory(data);
+
+} catch (error) {
+
+    console.error(error);
+
+    const canvas = $("priceChart");
+
+    if (priceChart) {
+        priceChart.destroy();
+        priceChart = null;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+}
+
+}
+
+/* ---------------------------------------------------------
+RENDER HISTORY
+--------------------------------------------------------- */
+
+function renderHistory(data) {
+
+    let history = [];
+
+    if (Array.isArray(data)) {
+        history = data;
+    } else if (Array.isArray(data.history)) {
+        history = data.history;
+    } else if (Array.isArray(data.data)) {
+        history = data.data;
+    } else if (Array.isArray(data.results)) {
+        history = data.results;
+    }
+
+    if (history.length === 0) {
+        return;
+    }
+
+    // CHART: oldest → newest
+    const chartHistory = [...history].sort(function (a, b) {
+        return Number(a.timestamp || 0) - Number(b.timestamp || 0);
+    });
+
+    const labels = [];
+    const prices = [];
+
+    chartHistory.forEach(function (item) {
+
+        const date =
+            item.date ||
+            item.datetime ||
+            item.timestamp ||
+            item.time;
+
+        const price =
+            item.close ??
+            item.price ??
+            item.close_price ??
+            item.last_price;
+
+        if (
+            date !== undefined &&
+            price !== undefined &&
+            price !== null
+        ) {
+            labels.push(formatChartDate(date));
+            prices.push(Number(price));
+        }
+    });
+
+    if (prices.length > 0) {
+        drawChart(labels, prices);
+    }
+
+    // TABLE: newest → oldest
+    const tableHistory = [...history].sort(function (a, b) {
+        return Number(b.timestamp || 0) - Number(a.timestamp || 0);
+    });
+
+    const tableBody = document.getElementById("historyTableBody");
+
+    if (!tableBody) {
+        return;
+    }
+
+    let html = "";
+
+    tableHistory.forEach(function (item, index) {
+
+        const date =
+            item.date ||
+            item.datetime ||
+            item.timestamp ||
+            item.time;
+
+        const price = Number(
+            item.close ??
+            item.price ??
+            item.close_price ??
+            item.last_price
+        );
+
+        if (
+            date === undefined ||
+            isNaN(price)
+        ) {
+            return;
+        }
+
+        // Next item = previous trading day
+        const previousItem = tableHistory[index + 1];
+
+        let change = null;
+        let changePercent = null;
+
+        if (previousItem) {
+
+            const previousPrice = Number(
+                previousItem.close ??
+                previousItem.price ??
+                previousItem.close_price ??
+                previousItem.last_price
+            );
+
+            if (!isNaN(previousPrice) && previousPrice !== 0) {
+
+                change = price - previousPrice;
+
+                changePercent =
+                    (change / previousPrice) * 100;
+            }
+        }
+
+        let changeText = "-";
+        let percentText = "-";
+        let changeClass = "history-neutral";
+
+        if (change !== null) {
+
+            const changeSign =
+                change > 0 ? "+" : "";
+
+            changeText =
+                changeSign + formatNumber(change);
+
+            percentText =
+                changeSign +
+                changePercent.toFixed(2) +
+                "%";
+
+            if (change > 0) {
+                changeClass = "history-up";
+            } else if (change < 0) {
+                changeClass = "history-down";
+            }
+        }
+
+        html += `
+            <tr>
+                <td>${formatChartDate(date)}</td>
+                <td class="${changeClass}">${formatNumber(price)}</td>
+                <td class="${changeClass}">${changeText}</td>
+                <td class="${changeClass}">${percentText}</td>
+            </tr>
+        `;
+    });
+
+    tableBody.innerHTML = html;
+}
+/* ---------------------------------------------------------
+CHART DATE FORMAT
+--------------------------------------------------------- */
+
+function formatChartDate(value) {
+
+if (!value) {
+    return "";
+}
+
+const date = new Date(value);
+
+if (Number.isNaN(date.getTime())) {
+    return String(value);
+}
+
+return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short"
+});
+
+}
+
+/* ---------------------------------------------------------
+DRAW PRICE CHART
+--------------------------------------------------------- */
+
+function drawChart(labels, prices) {
+
+const canvas = $("priceChart");
+
+if (priceChart) {
+    priceChart.destroy();
+}
+
+const ctx = canvas.getContext("2d");
+
+priceChart = new Chart(ctx, {
+
+    type: "line",
+
+    data: {
+        labels: labels,
+
+        datasets: [{
+            label: selectedSymbol,
+            data: prices,
+
+            borderWidth: 2,
+
+            pointRadius: 2,
+
+            pointHoverRadius: 5,
+
+            tension: 0.25,
+
+            fill: false
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        interaction: {
+            mode: "index",
+            intersect: false
+        },
+
+        plugins: {
+
+            legend: {
+                display: false
+            },
+
+            tooltip: {
+
+                callbacks: {
+
+                    label: function (context) {
+
+                        return "₹ " +
+                            formatNumber(
+                                context.parsed.y
+                            );
+                    }
+                }
+            }
+        },
+
+        scales: {
+
+            x: {
+
+                ticks: {
+                    color: "#8995a2",
+                    maxTicksLimit: 7,
+                    font: {
+                        size: 10
+                    }
+                },
+
+                grid: {
+                    display: false
+                }
+            },
+
+            y: {
+
+                ticks: {
+
+                    color: "#8995a2",
+
+                    font: {
+                        size: 10
+                    },
+
+                    callback: function (value) {
+                        return "₹ " +
+                            Number(value).toLocaleString(
+                                "en-IN"
+                            );
+                    }
+                },
+
+                grid: {
+                    color: "#202a35"
+                }
+            }
+        }
+    }
+});
+
+}
+
+/* ---------------------------------------------------------
+LOAD NEWS
+--------------------------------------------------------- */
+
+async function loadNews(symbol, exchange) {
+
+const newsSection = $("newsSection");
+const newsList = $("newsList");
+
+newsSection.style.display = "block";
+
+newsList.innerHTML =
+    '<div class="news-item">' +
+    '<div class="news-meta">Loading news...</div>' +
+    '</div>';
+
+try {
+
+    const url =
+        API_BASE +
+        "/news?symbol=" +
+        encodeURIComponent(symbol) +
+        "&exchange=" +
+        encodeURIComponent(exchange);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("News request failed");
+    }
+
+    const data = await response.json();
+
+    renderNews(data);
+
+} catch (error) {
+
+    console.error(error);
+
+    newsList.innerHTML =
+        '<div class="news-item">' +
+        '<div class="news-meta">' +
+        'News unavailable right now.' +
+        '</div>' +
+        '</div>';
+}
+
+}
+
+/* ---------------------------------------------------------
+RENDER NEWS
+--------------------------------------------------------- */
+
+function renderNews(data) {
+
+const newsList = $("newsList");
+
+let news = [];
+
+if (Array.isArray(data)) {
+    news = data;
+} else if (Array.isArray(data.news)) {
+    news = data.news;
+} else if (Array.isArray(data.data)) {
+    news = data.data;
+} else if (Array.isArray(data.results)) {
+    news = data.results;
+}
+
+if (news.length === 0) {
+
+    newsList.innerHTML =
+        '<div class="news-item">' +
+        '<div class="news-meta">' +
+        'No news found for the last 15 days.' +
+        '</div>' +
+        '</div>';
+
+    return;
+}
+
+newsList.innerHTML = "";
+
+news.forEach(function (item) {
+
+    const title =
+        item.title ||
+        item.headline ||
+        "";
+
+    const source =
+        item.source ||
+        item.publisher ||
+        "";
+
+    const link =
+        item.link ||
+        item.url ||
+        "#";
+
+    const date =
+        item.date ||
+        item.published_at ||
+        item.published ||
+        "";
+
+    const article = document.createElement("div");
+
+    article.className = "news-item";
+
+    article.innerHTML = `
+        <a
+            class="news-title"
+            href="${escapeHtml(link)}"
+            target="_blank"
+            rel="noopener"
+        >
+            ${escapeHtml(title)}
+        </a>
+
+        <div class="news-meta">
+            ${escapeHtml(source)}
+            ${date ? " • " + escapeHtml(formatNewsDate(date)) : ""}
+        </div>
+    `;
+
+    newsList.appendChild(article);
+});
+
+}
+
+/* ---------------------------------------------------------
+NEWS DATE FORMAT
+--------------------------------------------------------- */
+
+function formatNewsDate(value) {
+
+if (!value) {
+    return "";
+}
+
+const date = new Date(value);
+
+if (Number.isNaN(date.getTime())) {
+    return String(value);
+}
+
+return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+});
+
+  }
+  /* ---------------------------------------------------------
+LOAD NIFTY 50 AND SENSEX
+--------------------------------------------------------- */
+
+async function loadMarketIndices() {
+
+try {
+
+    const niftyUrl =
+        API_BASE +
+        "/stock?symbol=NIFTY&exchange=NSE";
+
+    const sensexUrl =
+        API_BASE +
+        "/stock?symbol=SENSEX&exchange=BSE";
+
+    const results = await Promise.allSettled([
+
+        fetch(niftyUrl),
+        fetch(sensexUrl)
+
+    ]);
+
+    /* NIFTY */
+
+    if (
+        results[0].status === "fulfilled" &&
+        results[0].value.ok
+    ) {
+
+        const niftyData =
+            await results[0].value.json();
+
+        renderIndex(
+            niftyData,
+            "niftyPrice",
+            "niftyChange"
+        );
+    }
+
+    /* SENSEX */
+
+    if (
+        results[1].status === "fulfilled" &&
+        results[1].value.ok
+    ) {
+
+        const sensexData =
+            await results[1].value.json();
+
+        renderIndex(
+            sensexData,
+            "sensexPrice",
+            "sensexChange"
+        );
+    }
+
+} catch (error) {
+
+    console.error(
+        "Index loading error:",
+        error
+    );
+}
+
+}
+
+/* ---------------------------------------------------------
+RENDER INDEX
+--------------------------------------------------------- */
+
+function renderIndex(
+    data,
+    priceElementId,
+    changeElementId
+) {
+
+    const stock = data.stock || {};
+    const market = data.market || {};
+
+    const price =
+        market.price;
+
+    const change =
+        market.change;
+
+    const priceElement =
+        $(priceElementId);
+
+    priceElement.className =
+        "index-price " +
+        changeClass(change);
+
+    priceElement.textContent =
+        formatNumber(price);
+
+    const changeElement =
+        $(changeElementId);
+
+    changeElement.className =
+        "index-change " +
+        changeClass(change);
+
+    if (
+        change !== null &&
+        change !== undefined
+    ) {
+
+        const sign =
+            Number(change) > 0
+                ? "+"
+                : "";
+
+        changeElement.textContent =
+            sign +
+            formatNumber(change);
+
+    } else {
+
+        changeElement.textContent =
+            "--";
+    }
+
+}
+
+/* ---------------------------------------------------------
+HIDE SEARCH RESULTS WHEN CLICKING OUTSIDE
+--------------------------------------------------------- */
+
+document.addEventListener(
+"click",
+function (event) {
+
+    const searchSection =
+        document.querySelector(
+            ".search-section"
+        );
+
+    if (
+        searchSection &&
+        !searchSection.contains(event.target)
+    ) {
+
+        $("searchResults").style.display =
+            "none";
+    }
+}
+
+);
+
+/* ---------------------------------------------------------
+INITIAL PAGE LOAD
+--------------------------------------------------------- */
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+    loadMarketIndices();
+
+}
+
+);
+
+/* ---------------------------------------------------------
+REFRESH MARKET INDICES
+Every 60 seconds
+--------------------------------------------------------- */
+
+setInterval(
+function () {
+
+    loadMarketIndices();
+
+},
+60000
+
+);
+    /* ---------------------------------------------------------
+PREVENT EMPTY SEARCH
+--------------------------------------------------------- */
+
+$("searchInput").addEventListener(
+"input",
+function () {
+
+    if (
+        this.value.trim().length === 0
+    ) {
+
+        $("searchResults").style.display =
+            "none";
+    }
+}
+
+);
+
+const screenshotButton =
+    document.getElementById("screenshotButton");
+
+const screenshotInput =
+    document.getElementById("screenshotInput");
+
+screenshotButton.addEventListener(
+    "click",
+    function () {
+        screenshotInput.click();
+    }
+);
+
+
+/* ---------------------------------------------------------
+SCREENSHOT OCR
+--------------------------------------------------------- */
+/* ---------------------------------------------------------
+   SCREENSHOT OCR
+--------------------------------------------------------- */
+
+screenshotInput.addEventListener(
+    "change",
+    async function (event) {
+
+        const file =
+            event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        try {
+
+            screenshotButton.disabled = true;
+            screenshotButton.textContent = "⏳";
+
+            console.log(
+                "Screenshot OCR started"
+            );
+
+            const result =
+                await Tesseract.recognize(
+                    file,
+                    "eng",
+                    {
+                        logger: function (info) {
+
+                            console.log(
+                                "OCR:",
+                                info
+                            );
+
+                        }
+                    }
+                );
+
+            const text =
+                result.data.text || "";
+
+            console.log(
+                "OCR TEXT:",
+                text
+            );
+
+            if (!text.trim()) {
+
+                alert(
+                    "Screenshot se koi stock text nahi mila."
+                );
+
+                return;
+            }
+
+            /*
+             * OCR text ko line-by-line process karenge
+             */
+
+            const lines =
+                text
+                    .split(/\r?\n/)
+                    .map(
+                        line => line.trim()
+                    )
+                    .filter(
+                        line => line.length > 0
+                    );
+
+            console.log(
+                "OCR LINES:",
+                lines
+            );
+
+            let addedCount = 0;
+
+            for (
+                const line of lines
+            ) {
+
+                /*
+                 * Sirf useful text search ke liye bhejenge.
+                 */
+
+                if (
+                    line.length < 2 ||
+                    line.length > 80
+                ) {
+                    continue;
+                }
+
+                try {
+
+                    const searchUrl =
+                        API_BASE +
+                        "/search?q=" +
+                        encodeURIComponent(line) +
+                        "&exchange=" +
+                        encodeURIComponent(
+                            selectedExchange
+                        );
+
+                    const response =
+                        await fetch(
+                            searchUrl
+                        );
+
+                    if (!response.ok) {
+                        continue;
+                    }
+
+                    const data =
+                        await response.json();
+
+                    console.log(
+                        "OCR SEARCH:",
+                        line,
+                        data
+                    );
+
+                    /*
+                     * Search result milne par
+                     * pehla verified stock use karenge.
+                     */
+
+                    if (
+                        data.status === "ok" &&
+                        Array.isArray(
+                            data.results
+                        ) &&
+                        data.results.length > 0
+                    ) {
+
+                        const stock =
+                            data.results[0];
+
+                        /*
+                         * Existing watchlist function
+                         * available ho to use karenge.
+                         */
+
+                        if (
+                            typeof addStockToWatchlist ===
+                            "function"
+                        ) {
+
+                            addStockToWatchlist(
+                                stock.symbol,
+                                stock.exchange,
+                                stock.company ||
+                                stock.company_name ||
+                                stock.name ||
+                                ""
+                            );
+
+                            addedCount++;
+                        }
+                    }
+
+                } catch (searchError) {
+
+                    console.error(
+                        "OCR search error:",
+                        line,
+                        searchError
+                    );
+                }
+            }
+
+            alert(
+                addedCount +
+                " stock(s) screenshot se add hue."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Screenshot OCR error:",
+                error
+            );
+
+            alert(
+                "Screenshot read nahi ho saka."
+            );
+
+        } finally {
+
+            screenshotButton.disabled = false;
+            screenshotButton.textContent = "📎";
+
+            /*
+             * Same screenshot dobara select
+             * karne ki permission
+             */
+
+            screenshotInput.value = "";
+
+        }
+
+    }
+);
+
+/* ---------------------------------------------------------
+   TRIGGER PRICE — SET & SAVE
+--------------------------------------------------------- */
+
+document
+    .getElementById("setTriggerPriceButton")
+    .addEventListener("click", function () {
+
+        const input =
+            document.getElementById(
+                "triggerPriceInput"
+            );
+
+        const display =
+            document.getElementById(
+                "triggerPriceDisplay"
+            );
+
+        const value =
+            input.value.trim();
+
+        if (value === "") {
+
+            alert(
+                "Please enter a trigger price."
+            );
+
+            return;
+        }
+
+        const triggerPrice =
+            Number(value);
+
+        if (
+            !Number.isFinite(triggerPrice) ||
+            triggerPrice <= 0
+        ) {
+
+            alert(
+                "Please enter a valid price."
+            );
+
+            return;
+        }
+
+        /*
+         * Current selected stock ke liye
+         * trigger price save karenge.
+         */
+
+        if (
+            !selectedSymbol ||
+            !selectedExchange
+        ) {
+
+            alert(
+                "Please select a stock first."
+            );
+
+            return;
+        }
+
+        /* ---------------------------------------------------------
+           LOCK STARTING PRICE
+        --------------------------------------------------------- */
+
+        if (
+            !Number.isFinite(currentMarketPrice) ||
+            currentMarketPrice <= 0
+        ) {
+
+            alert(
+                "Current market price is not available."
+            );
+
+            return;
+        }
+
+        const startingPrice =
+            currentMarketPrice;
+
+        /* ---------------------------------------------------------
+           SAVE STARTING PRICE
+        --------------------------------------------------------- */
+
+        const startingPriceKey =
+            "nseBseTrackerV4TriggerStart_" +
+            selectedExchange +
+            "_" +
+            selectedSymbol;
+
+        localStorage.setItem(
+            startingPriceKey,
+            String(startingPrice)
+        );
+
+        /* ---------------------------------------------------------
+           CALCULATE READY / SEMIFINAL PRICE
+        --------------------------------------------------------- */
+
+        const priceDifference =
+            Math.abs(
+                triggerPrice -
+                startingPrice
+            );
+
+        let readyPrice;
+
+        if (triggerPrice > startingPrice) {
+
+            readyPrice =
+                startingPrice +
+                (priceDifference * 0.85);
+
+        } else {
+
+            readyPrice =
+                startingPrice -
+                (priceDifference * 0.85);
+        }
+
+        const triggerKey =
+            "nseBseTrackerV4Trigger_" +
+            selectedExchange +
+            "_" +
+            selectedSymbol;
+
+        localStorage.setItem(
+            triggerKey,
+            String(triggerPrice)
+        );
+        /* ---------------------------------------------------------
+   SAVE READY / SEMIFINAL PRICE
+--------------------------------------------------------- */
+
+const readyPriceKey =
+    "nseBseTrackerV4TriggerReady_" +
+    selectedExchange +
+    "_" +
+    selectedSymbol;
+
+localStorage.setItem(
+    readyPriceKey,
+    String(readyPrice)
+);
+
+        display.textContent =
+            "Set: ₹" +
+            triggerPrice;
+
+        input.value =
+            triggerPrice;
+
+    });
+
+/* ---------------------------------------------------------
+   LOAD SAVED TRIGGER PRICE
+--------------------------------------------------------- */
+
+function loadSavedTriggerPrice() {
+
+    const input =
+        document.getElementById(
+            "triggerPriceInput"
+        );
+
+    const display =
+        document.getElementById(
+            "triggerPriceDisplay"
+        );
+
+    if (
+        !input ||
+        !display ||
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        return;
+    }
+
+    const triggerKey =
+        "nseBseTrackerV4Trigger_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+    const savedTrigger =
+    localStorage.getItem(
+        triggerKey
+    );
+
+    if (savedTrigger !== null) {
+
+        input.value =
+            savedTrigger;
+
+        display.textContent =
+            "Set: ₹" +
+            savedTrigger;
+
+    } else {
+
+        input.value = "";
+
+        display.textContent = "";
+
+    }
+
+}
+    /* ---------------------------------------------------------
+   LOAD SAVED READY / SEMIFINAL PRICE
+--------------------------------------------------------- */
+
+function loadSavedReadyPrice() {
+
+    if (
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        return;
+    }
+
+    const readyPriceKey =
+        "nseBseTrackerV4TriggerReady_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const savedReadyPrice =
+        localStorage.getItem(
+            readyPriceKey
+        );
+
+    if (savedReadyPrice !== null) {
+
+        console.log(
+            "Saved Ready Price:",
+            savedReadyPrice
+        );
+
+    } else {
+
+        console.log(
+            "No Saved Ready Price"
+        );
+
+    }
+
+}
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — MARKET HOURS
+--------------------------------------------------------- */
+
+function isIndianMarketOpen() {
+
+    const now =
+        new Date();
+
+    /*
+     * India Standard Time (IST)
+     */
+
+    const indiaTime =
+        new Date(
+            now.toLocaleString(
+                "en-US",
+                {
+                    timeZone:
+                        "Asia/Kolkata"
+                }
+            )
+        );
+
+    const day =
+        indiaTime.getDay();
+
+    const hours =
+        indiaTime.getHours();
+
+    const minutes =
+        indiaTime.getMinutes();
+
+    /*
+     * Saturday = 6
+     * Sunday = 0
+     */
+
+    if (
+        day === 0 ||
+        day === 6
+    ) {
+        return false;
+    }
+
+    /*
+     * Convert current time
+     * into minutes from midnight
+     */
+
+    const currentMinutes =
+        (hours * 60) +
+        minutes;
+
+    const marketOpen =
+        (9 * 60) + 15;
+
+    const marketClose =
+        (15 * 60) + 30;
+
+    return (
+        currentMinutes >= marketOpen &&
+        currentMinutes <= marketClose
+    );
+
+    }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — LOAD SAVED DATA
+--------------------------------------------------------- */
+
+function loadTriggerMonitoringData() {
+
+    if (
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        return null;
+    }
+
+    const triggerKey =
+        "nseBseTrackerV4Trigger_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const startingPriceKey =
+        "nseBseTrackerV4TriggerStart_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const readyPriceKey =
+        "nseBseTrackerV4TriggerReady_" +
+        selectedExchange +
+        "_" +
+        selectedSymbol;
+
+    const savedTrigger =
+        localStorage.getItem(
+            triggerKey
+        );
+
+    const savedStartingPrice =
+        localStorage.getItem(
+            startingPriceKey
+        );
+
+    const savedReadyPrice =
+        localStorage.getItem(
+            readyPriceKey
+        );
+
+    if (
+        savedTrigger === null ||
+        savedStartingPrice === null ||
+        savedReadyPrice === null
+    ) {
+        return null;
+    }
+
+    return {
+
+        triggerPrice:
+            Number(savedTrigger),
+
+        startingPrice:
+            Number(savedStartingPrice),
+
+        readyPrice:
+            Number(savedReadyPrice)
+
+    };
+
+    }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — CHECK READY / FINAL
+--------------------------------------------------------- */
+
+function checkTriggerCondition(currentPrice) {
+
+    const data =
+        loadTriggerMonitoringData();
+
+    if (!data) {
+        return null;
+    }
+
+    if (
+        !Number.isFinite(currentPrice) ||
+        currentPrice <= 0
+    ) {
+        return null;
+    }
+
+    const startingPrice =
+        data.startingPrice;
+
+    const readyPrice =
+        data.readyPrice;
+
+    const triggerPrice =
+        data.triggerPrice;
+
+    /*
+     * UPWARD TRIGGER
+     */
+
+    if (triggerPrice > startingPrice) {
+
+        if (
+            currentPrice >=
+            triggerPrice
+        ) {
+
+            return "FINAL";
+
+        }
+
+        if (
+            currentPrice >=
+            readyPrice
+        ) {
+
+            return "READY";
+
+        }
+
+    }
+
+    /*
+     * DOWNWARD TRIGGER
+     */
+
+    if (triggerPrice < startingPrice) {
+
+        if (
+            currentPrice <=
+            triggerPrice
+        ) {
+
+            return "FINAL";
+
+        }
+
+        if (
+            currentPrice <=
+            readyPrice
+        ) {
+
+            return "READY";
+
+        }
+
+    }
+
+    return null;
+
+    }
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — 5 MINUTE TIMER
+-------------------------------------------------------- */
+
+let triggerMonitoringTimer = null;
+    /* ---------------------------------------------------------
+   TRIGGER MONITORING — FETCH CURRENT PRICE
+--------------------------------------------------------- */
+
+async function monitorCurrentStockPrice() {
+
+    if (
+        !selectedSymbol ||
+        !selectedExchange
+    ) {
+        console.log(
+            "TRIGGER MONITORING: NO STOCK SELECTED"
+        );
+
+        return;
+    }
+
+    if (
+        !isIndianMarketOpen()
+    ) {
+        console.log(
+            "TRIGGER MONITORING: MARKET CLOSED"
+        );
+
+        return;
+    }
+
+    try {
+
+                const response =
+            await fetch(
+                API_BASE + "/stock?symbol=" +
+                encodeURIComponent(
+                    selectedSymbol
+                ) +
+                "&exchange=" +
+                encodeURIComponent(
+                    selectedExchange
+                )
+            );
+        
+
+        const data =
+            await response.json();
+
+        const market =
+            data.market || {};
+
+        const currentPrice =
+            Number(
+                market.price
+            );
+
+        if (
+            !Number.isFinite(currentPrice) ||
+            currentPrice <= 0
+        ) {
+
+            console.log(
+                "TRIGGER MONITORING: INVALID PRICE"
+            );
+
+            return;
+        }
+
+        currentMarketPrice =
+            currentPrice;
+
+        console.log(
+            "TRIGGER MONITORING PRICE:",
+            currentPrice
+        );
+
+        const triggerResult =
+            checkTriggerCondition(
+                currentPrice
+            );
+
+        if (triggerResult) {
+
+            console.log(
+                "TRIGGER STATUS:",
+                triggerResult
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "TRIGGER MONITORING ERROR:",
+            error
+        );
+
+    }
+
+    }
+    /* ---------------------------------------------------------
+   START TRIGGER MONITORING
+--------------------------------------------------------- */
+
+function startTriggerMonitoring() {
+
+    if (
+        triggerMonitoringTimer !== null
+    ) {
+
+        clearInterval(
+            triggerMonitoringTimer
+        );
+
+    }
+
+    triggerMonitoringTimer =
+        setInterval(
+            function () {
+
+                monitorCurrentStockPrice();
+
+            },
+            300000
+        );
+
+    }
+
+/* ---------------------------------------------------------
+   START TRIGGER MONITORING
+   IMPORTANT: call only AFTER triggerMonitoringTimer is initialized
+--------------------------------------------------------- */
+
+startTriggerMonitoring();
+
+
+     /* ---------------------------------------------------------
+    PRICE HISTORY — DATE-WISE DATA TOGGLE
+ --------------------------------------------------------- */
+
+let historyTableVisible = false;
+
+function toggleHistoryTable() {
+
+    const container =
+        document.getElementById(
+            "historyTableContainer"
+        );
+
+    const button =
+        document.getElementById(
+            "historyToggleButton"
+        );
+
+    if (!container || !button) {
+        return;
+    }
+
+    historyTableVisible =
+        !historyTableVisible;
+    console.log(
+    "HISTORY TOGGLE:",
+    historyTableVisible
+);
+
+    if (historyTableVisible) {
+
+        container.style.display = "block";
+
+        button.textContent = "ON";
+        button.classList.add("on");
+        button.classList.remove("off");
+        button.setAttribute(
+            "aria-pressed",
+            "true"
+        );
+
+    } else {
+
+        container.style.display = "none";
+
+        button.textContent = "OFF";
+        button.classList.remove("on");
+        button.classList.add("off");
+        button.setAttribute(
+            "aria-pressed",
+            "false"
+        );
+    }
+}
+
+
+/* DEFAULT = OFF */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const container =
+            document.getElementById(
+                "historyTableContainer"
+            );
+
+        const button =
+            document.getElementById(
+                "historyToggleButton"
+            );
+
+        if (container) {
+            container.style.display = "none";
+        }
+
+        if (button) {
+
+            button.textContent = "OFF";
+
+            button.classList.remove("on");
+            button.classList.add("off");
+
+            button.setAttribute(
+                "aria-pressed",
+                "false"
+            );
+        }
+    }
+);
+/* ---------------------------------------------------------
+END OF JAVASCRIPT
+--------------------------------------------------------- */
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</body>
+</html>
