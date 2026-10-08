@@ -38,8 +38,9 @@ function jsonResponse(data, status = 200) {
         "Content-Type": "application/json; charset=UTF-8",
         "Cache-Control": "no-store",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+"Access-Control-Allow-Headers": "Content-Type, Authorization"
+        
       }
     }
   );
@@ -71,8 +72,287 @@ async function ensureSchema(env) {
     CREATE INDEX IF NOT EXISTS idx_instruments_name
     ON instruments(search_name)
   `).run();
+    // --------------------------------------------------
+  // AUTH TABLES
+  // --------------------------------------------------
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      password_salt TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_sessions_token_hash
+    ON sessions(token_hash)
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_sessions_user_id
+    ON sessions(user_id)
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      used INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_password_resets_token_hash
+    ON password_resets(token_hash)
+  `).run();
+}
+// ==================================================
+// AUTH HELPERS
+// ==================================================
+
+function base64FromBytes(bytes) {
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary);
 }
 
+function bytesFromBase64(value) {
+  const binary = atob(value);
+
+  const bytes = new Uint8Array(
+    binary.length
+  );
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return bytes;
+}
+
+function randomBase64(byteLength = 32) {
+  const bytes = new Uint8Array(byteLength);
+
+  crypto.getRandomValues(bytes);
+
+  return base64FromBytes(bytes);
+}
+
+async function sha256Base64(value) {
+  const data =
+    new TextEncoder().encode(value);
+
+  const hash =
+    await crypto.subtle.digest(
+      "SHA-256",
+      data
+    );
+
+  return base64FromBytes(
+    new Uint8Array(hash)
+  );
+}
+
+async function hashPassword(
+  password,
+  saltBase64
+) {
+
+  const salt =
+    saltBase64
+      ? bytesFromBase64(saltBase64)
+      : crypto.getRandomValues(
+          new Uint8Array(16)
+        );
+
+  const key =
+    await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"]
+    );
+
+  const bits =
+    await crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: 120000,
+        hash: "SHA-256"
+      },
+      key,
+      256
+    );
+
+  return {
+    hash: base64FromBytes(
+      new Uint8Array(bits)
+    ),
+
+    salt: base64FromBytes(salt)
+  };
+}
+
+async function verifyPassword(
+  password,
+  storedHash,
+  storedSalt
+) {
+
+  const result =
+    await hashPassword(
+      password,
+      storedSalt
+    );
+
+  return result.hash === storedHash;
+}
+
+async function getAuthUser(
+  request,
+  env
+) {
+
+  const authHeader =
+    request.headers.get(
+      "Authorization"
+    ) || "";
+
+  if (
+    !authHeader
+      .toLowerCase()
+      .startsWith("bearer ")
+  ) {
+    return null;
+  }
+
+  const token =
+    authHeader
+      .substring(7)
+      .trim();
+
+  if (!token) {
+    return null;
+  }
+
+  const tokenHash =
+    await sha256Base64(token);
+
+  const now =
+    Date.now();
+
+  const session =
+    await env.DB.prepare(`
+      SELECT
+        sessions.id AS session_id,
+        sessions.user_id,
+        sessions.expires_at,
+        users.email
+      FROM sessions
+      JOIN users
+        ON users.id = sessions.user_id
+      WHERE sessions.token_hash = ?
+        AND sessions.expires_at > ?
+      LIMIT 1
+    `)
+      .bind(
+        tokenHash,
+        now
+      )
+      .first();
+
+  if (!session) {
+    return null;
+  }
+
+  return {
+    id: Number(session.user_id),
+    email: session.email,
+    session_id:
+      Number(session.session_id)
+  };
+}
+
+async function createSession(
+  userId,
+  env
+) {
+
+  const token =
+    randomBase64(32);
+
+  const tokenHash =
+    await sha256Base64(token);
+
+  const now =
+    Date.now();
+
+  // 30 days
+  const expiresAt =
+    now +
+    30 * 24 * 60 * 60 * 1000;
+
+  await env.DB.prepare(`
+    INSERT INTO sessions (
+      user_id,
+      token_hash,
+      created_at,
+      expires_at
+    )
+    VALUES (?, ?, ?, ?)
+  `)
+    .bind(
+      userId,
+      tokenHash,
+      now,
+      expiresAt
+    )
+    .run();
+
+  return {
+    token,
+    expires_at: expiresAt
+  };
+}
+
+function authError(
+  message,
+  status = 401
+) {
+
+  return jsonResponse(
+    {
+      status: "error",
+      message
+    },
+    status
+  );
+        }
 function normalizeExchange(exchange) {
   const value = normalize(exchange);
 
@@ -618,7 +898,322 @@ export default {
 
       await ensureSchema(env);
 
-    
+    // ==================================================
+// AUTH - SIGN UP
+// ==================================================
+
+if (
+  path === "/auth/signup" &&
+  request.method === "POST"
+) {
+
+  const body =
+    await request.json();
+
+  const email =
+    String(
+      body?.email || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const password =
+    String(
+      body?.password || ""
+    );
+
+  if (!email) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message: "Email is required"
+      },
+      400
+    );
+  }
+
+  if (
+    !email.includes("@") ||
+    !email.includes(".")
+  ) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message: "Enter a valid email address"
+      },
+      400
+    );
+  }
+
+  if (password.length < 8) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message:
+          "Password must be at least 8 characters"
+      },
+      400
+    );
+  }
+
+  const existing =
+    await env.DB.prepare(`
+      SELECT id
+      FROM users
+      WHERE email = ?
+      LIMIT 1
+    `)
+      .bind(email)
+      .first();
+
+  if (existing) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message:
+          "An account with this email already exists"
+      },
+      409
+    );
+  }
+
+  const passwordData =
+    await hashPassword(password);
+
+  const now =
+    Date.now();
+
+  const result =
+    await env.DB.prepare(`
+      INSERT INTO users (
+        email,
+        password_hash,
+        password_salt,
+        created_at,
+        updated_at
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `)
+      .bind(
+        email,
+        passwordData.hash,
+        passwordData.salt,
+        now,
+        now
+      )
+      .run();
+
+  const userId =
+    Number(
+      result.meta?.last_row_id
+    );
+
+  const session =
+    await createSession(
+      userId,
+      env
+    );
+
+  return jsonResponse({
+    status: "ok",
+
+    message:
+      "Account created successfully",
+
+    token:
+      session.token,
+
+    expires_at:
+      session.expires_at,
+
+    user: {
+      id: userId,
+      email
+    }
+  });
+}
+
+
+// ==================================================
+// AUTH - LOGIN
+// ==================================================
+
+if (
+  path === "/auth/login" &&
+  request.method === "POST"
+) {
+
+  const body =
+    await request.json();
+
+  const email =
+    String(
+      body?.email || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const password =
+    String(
+      body?.password || ""
+    );
+
+  if (!email || !password) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message:
+          "Email and password are required"
+      },
+      400
+    );
+  }
+
+  const user =
+    await env.DB.prepare(`
+      SELECT
+        id,
+        email,
+        password_hash,
+        password_salt
+      FROM users
+      WHERE email = ?
+      LIMIT 1
+    `)
+      .bind(email)
+      .first();
+
+  if (!user) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message:
+          "Wrong email or password"
+      },
+      401
+    );
+  }
+
+  const valid =
+    await verifyPassword(
+      password,
+      user.password_hash,
+      user.password_salt
+    );
+
+  if (!valid) {
+
+    return jsonResponse(
+      {
+        status: "error",
+        message:
+          "Wrong email or password"
+      },
+      401
+    );
+  }
+
+  const session =
+    await createSession(
+      Number(user.id),
+      env
+    );
+
+  return jsonResponse({
+    status: "ok",
+
+    message:
+      "Login successful",
+
+    token:
+      session.token,
+
+    expires_at:
+      session.expires_at,
+
+    user: {
+      id:
+        Number(user.id),
+
+      email:
+        user.email
+    }
+  });
+}
+
+
+// ==================================================
+// AUTH - CURRENT USER
+// ==================================================
+
+if (
+  path === "/auth/me" &&
+  request.method === "GET"
+) {
+
+  const user =
+    await getAuthUser(
+      request,
+      env
+    );
+
+  if (!user) {
+
+    return authError(
+      "Not authenticated"
+    );
+  }
+
+  return jsonResponse({
+    status: "ok",
+
+    user: {
+      id: user.id,
+      email: user.email
+    }
+  });
+}
+
+
+// ==================================================
+// AUTH - LOGOUT
+// ==================================================
+
+if (
+  path === "/auth/logout" &&
+  request.method === "POST"
+) {
+
+  const user =
+    await getAuthUser(
+      request,
+      env
+    );
+
+  if (user) {
+
+    await env.DB.prepare(`
+      DELETE FROM sessions
+      WHERE id = ?
+    `)
+      .bind(
+        user.session_id
+      )
+      .run();
+  }
+
+  return jsonResponse({
+    status: "ok",
+    message:
+      "Logged out successfully"
+  });
+      }
       // --------------------------------------------------
       // ROOT
       // --------------------------------------------------
