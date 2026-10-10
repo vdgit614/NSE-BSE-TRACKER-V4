@@ -2040,6 +2040,24 @@ const dashboardView = document.getElementById("dashboardView");
 const authSubmitBtn = document.getElementById("authSubmitBtn");
 const signupSubmitBtn = document.getElementById("signupSubmitBtn");
 const continueToDashboardBtn = document.getElementById("continueToDashboardBtn");
+    
+    /* --- 0. AUTO-LOGIN (चेक करें कि क्या यूज़र पहले से लॉगिन है?) --- */
+window.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("nseBseTrackerV4AuthToken");
+    
+    // अगर ब्राउज़र में टोकन मौजूद है, तो सीधे ऐप खोल दें
+    if (token) {
+        document.getElementById("loginView").style.display = "none";
+        document.getElementById("welcomeView").style.display = "none";
+        document.getElementById("dashboardView").style.display = "block";
+        
+        // ऐप खुलते ही मार्केट इंडेक्स लोड करें
+        if (typeof loadMarketIndices === "function") {
+            loadMarketIndices();
+        }
+    }
+});
+    
 
 /* --- 1. स्विच बटन (Login <-> Signup बदलना) --- */
 document.getElementById("authSwitchToSignup").addEventListener("click", function () {
