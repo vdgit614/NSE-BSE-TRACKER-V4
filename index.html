@@ -1487,7 +1487,6 @@ body.gradient-theme .welcome-text {
         
         <!-- A. LOGIN CARD -->
         <div id="loginCard" class="auth-card">
-            <h2 id="authTitle" class="auth-title">Welcome Back</h2>
             <p id="authSubtitle" class="auth-subtitle">Login to your account</p>
 
             <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" autocomplete="off">
@@ -3022,19 +3021,48 @@ $("mainMenuPanel").addEventListener(
         }
 
 
-        /* -------------------------------------------------
+                /* -------------------------------------------------
            LOGOUT
         ------------------------------------------------- */
 
         if (id === "logoutButton") {
 
-            $("mainMenuPanel").style.display =
-                "none";
-
-            /* Existing logout system will be connected later */
+            $("mainMenuPanel").style.display = "none";
+            
+            // Cloudflare API को लॉगआउट रिक्वेस्ट भेजना
+            const token = localStorage.getItem("nseBseTrackerV4AuthToken");
+            
+            if (token) {
+                // बैकग्राउंड में API कॉल (ताकि सर्वर से सेशन डिलीट हो जाए)
+                fetch(API_BASE + "/auth/logout", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    }
+                }).catch(err => console.error("Logout Error:", err));
+                
+                // ब्राउज़र से टोकन हटाना
+                localStorage.removeItem("nseBseTrackerV4AuthToken");
+            }
+            
+            // डैशबोर्ड और मेनू छुपाना
+            $("dashboardView").style.display = "none";
+            
+            // वापस Login स्क्रीन दिखाना
+            document.getElementById("loginCard").style.display = "block";
+            document.getElementById("signupCard").style.display = "none";
+            document.getElementById("loginView").style.display = "flex";
+            
+            // फॉर्म के इनपुट खाली करना
+            document.getElementById("authEmail").value = "";
+            document.getElementById("authPassword").value = "";
+            document.getElementById("authSubtitle").textContent = "Login to your account";
+            document.getElementById("authSubtitle").style.color = "#8995a2";
 
             return;
         }
+        
 
 
         /* -------------------------------------------------
