@@ -1323,6 +1323,161 @@ body.gradient-theme #nseLink {
         rgba(160,80,20,0.12);
 
 }
+    /* =========================================================
+   AUTHENTICATION UI (LOGIN / SIGNUP / WELCOME)
+========================================================= */
+
+.auth-view {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: #111720;
+    border: 1px solid #202a35;
+    border-radius: 24px;
+    padding: 35px 25px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+body.gradient-theme .auth-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 15px 40px rgba(50, 70, 120, 0.15);
+    color: #18233d;
+}
+
+body.light-theme .auth-card {
+    background: #ffffff;
+    border: 1px solid #dfe4e8;
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    color: #20252b;
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.auth-subtitle {
+    font-size: 13px;
+    color: #8995a2;
+    margin-bottom: 25px;
+}
+
+body.gradient-theme .auth-subtitle, 
+body.light-theme .auth-subtitle {
+    color: #5d6680;
+}
+
+.auth-input {
+    width: 100%;
+    background: #0b0f14;
+    color: #fff;
+    border: 1px solid #2a3542;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+body.gradient-theme .auth-input,
+body.light-theme .auth-input {
+    background: rgba(255, 255, 255, 0.9);
+    color: #18233d;
+    border: 1px solid rgba(100, 110, 150, 0.3);
+}
+
+.auth-input:focus {
+    border-color: #35c978;
+    box-shadow: 0 0 0 3px rgba(53, 201, 120, 0.2);
+}
+
+.auth-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #35c978 0%, #29a35f 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 18px;
+    margin-top: 5px;
+    box-shadow: 0 6px 15px rgba(53, 201, 120, 0.3);
+    transition: all 0.2s ease;
+}
+
+.auth-btn:active {
+    transform: scale(0.96);
+}
+
+.auth-switch {
+    font-size: 13px;
+    color: #8995a2;
+}
+
+body.gradient-theme .auth-switch,
+body.light-theme .auth-switch {
+    color: #5d6680;
+}
+
+.auth-switch span {
+    color: #315f9e;
+    font-weight: 700;
+    cursor: pointer;
+}
+ /* =========================================================
+   WELCOME SCREEN SPECIAL EFFECTS
+========================================================= */
+
+.welcome-card {
+    padding: 45px 30px;
+}
+
+.welcome-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    animation: float 3s ease-in-out infinite; /* रॉकेट को तैराने के लिए */
+}
+
+.welcome-text {
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    color: #c5ced8;
+}
+
+body.light-theme .welcome-text, 
+body.gradient-theme .welcome-text {
+    color: #5d6680;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #35c978 0%, #29a35f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 28px;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+    }
+    
 </style></head>
     
         <body>
@@ -1344,14 +1499,16 @@ body.gradient-theme #nseLink {
         </div>
     </div>
 
-    <!-- 2. WELCOME SCREEN -->
+        <!-- 2. WELCOME SCREEN -->
     <div id="welcomeView" class="auth-view" style="display: none;">
-        <div class="auth-card">
-            <h2 class="auth-title">Login Successful!</h2>
-            <p class="auth-subtitle" id="welcomeMessage">Loading your dashboard...</p>
+        <div class="auth-card welcome-card">
+            <div class="welcome-icon">🚀</div>
+            <h2 class="auth-title gradient-text">Welcome!</h2>
+            <p class="auth-subtitle welcome-text">The first step to analyze stocks smartly before buying & selling.</p>
             <button id="continueToDashboardBtn" class="auth-btn">Continue to Dashboard</button>
         </div>
     </div>
+            
 
     <!-- 3. DASHBOARD SCREEN (आपका मौजूदा ऐप) -->
     <div id="dashboardView" style="display: none; width: 100%; min-height: 100vh;">
@@ -1835,6 +1992,38 @@ let selectedExchange = "NSE";
 let selectedSymbol = "";
 let selectedCompany = "";
 let priceChart = null;
+    /* =========================================================
+   AUTHENTICATION UI LOGIC (UI Navigation)
+========================================================= */
+
+const loginView = document.getElementById("loginView");
+const welcomeView = document.getElementById("welcomeView");
+const dashboardView = document.getElementById("dashboardView");
+
+const authSubmitBtn = document.getElementById("authSubmitBtn");
+const continueToDashboardBtn = document.getElementById("continueToDashboardBtn");
+
+/* 1. Login बटन दबाने पर Welcome स्क्रीन दिखाना */
+authSubmitBtn.addEventListener("click", function () {
+    
+    loginView.style.display = "none";
+    welcomeView.style.display = "flex";
+    
+});
+
+/* 2. Continue to Dashboard बटन दबाने पर मेन ऐप खोलना */
+continueToDashboardBtn.addEventListener("click", function () {
+    
+    welcomeView.style.display = "none";
+    dashboardView.style.display = "block"; 
+    
+    /* ऐप खुलते ही मार्केट इंडेक्स लोड करें */
+    if (typeof loadMarketIndices === "function") {
+        loadMarketIndices();
+    }
+    
+});
+    
 
 
 /* ---------------------------------------------------------
