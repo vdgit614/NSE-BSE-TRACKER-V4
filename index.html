@@ -1482,22 +1482,51 @@ body.gradient-theme .welcome-text {
     
         <body>
             
-    <!-- 1. LOGIN / SIGNUP SCREEN -->
+        <!-- 1. LOGIN / SIGNUP SCREEN -->
     <div id="loginView" class="auth-view" style="display: flex;">
-        <div class="auth-card">
+        
+        <!-- A. LOGIN CARD -->
+        <div id="loginCard" class="auth-card">
             <h2 id="authTitle" class="auth-title">Welcome Back</h2>
             <p id="authSubtitle" class="auth-subtitle">Login to your account</p>
 
             <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" autocomplete="off">
-            <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+            
+            <!-- पासवर्ड इनपुट (Eye Icon के साथ) -->
+            <div style="position: relative; width: 100%;">
+                <input type="password" id="authPassword" class="auth-input" placeholder="Password" style="padding-right: 40px;">
+                <span id="loginEyeIcon" style="position: absolute; right: 15px; top: 16px; cursor: pointer; font-size: 16px; color: #8995a2;">👁️</span>
+            </div>
 
             <button id="authSubmitBtn" class="auth-btn">Login</button>
 
-            <div class="auth-switch" id="authSwitchText">
-                Don't have an account? <span id="authSwitchBtn">Sign Up</span>
+            <div class="auth-switch">
+                Don't have an account? <span id="authSwitchToSignup">Sign Up</span>
             </div>
         </div>
+        
+        <!-- B. SIGNUP CARD (Create Account) -->
+        <div id="signupCard" class="auth-card" style="display: none;">
+            <h2 class="auth-title">Create Account</h2>
+            <p id="signupSubtitle" class="auth-subtitle">Sign up to get started</p>
+
+            <input type="email" id="signupEmail" class="auth-input" placeholder="Email Address" autocomplete="off">
+            
+            <!-- नया पासवर्ड इनपुट (Eye Icon के साथ) -->
+            <div style="position: relative; width: 100%;">
+                <input type="password" id="signupPassword" class="auth-input" placeholder="Create Password" style="padding-right: 40px;">
+                <span id="signupEyeIcon" style="position: absolute; right: 15px; top: 16px; cursor: pointer; font-size: 16px; color: #8995a2;">👁️</span>
+            </div>
+
+            <button id="signupSubmitBtn" class="auth-btn">Sign Up</button>
+
+            <div class="auth-switch">
+                Already have an account? <span id="authSwitchToLogin">Login</span>
+            </div>
+        </div>
+
     </div>
+            
 
         <!-- 2. WELCOME SCREEN -->
     <div id="welcomeView" class="auth-view" style="display: none;">
@@ -1993,18 +2022,52 @@ let selectedSymbol = "";
 let selectedCompany = "";
 let priceChart = null;
     /* =========================================================
-   AUTHENTICATION UI LOGIC (UI Navigation)
+   AUTHENTICATION UI LOGIC (Navigation & Logic)
 ========================================================= */
 
 const loginView = document.getElementById("loginView");
+const loginCard = document.getElementById("loginCard");
+const signupCard = document.getElementById("signupCard");
 const welcomeView = document.getElementById("welcomeView");
 const dashboardView = document.getElementById("dashboardView");
 
 const authSubmitBtn = document.getElementById("authSubmitBtn");
+const signupSubmitBtn = document.getElementById("signupSubmitBtn");
 const continueToDashboardBtn = document.getElementById("continueToDashboardBtn");
 
+/* --- 1. स्विच बटन (Login <-> Signup बदलना) --- */
+document.getElementById("authSwitchToSignup").addEventListener("click", function () {
+    loginCard.style.display = "none";
+    signupCard.style.display = "block";
+});
 
-/* 1. Login बटन दबाने पर API कॉल करना */
+document.getElementById("authSwitchToLogin").addEventListener("click", function () {
+    signupCard.style.display = "none";
+    loginCard.style.display = "block";
+});
+
+/* --- 2. पासवर्ड देखने/छुपाने (👁️/😑) का लॉजिक --- */
+function toggleEyeIcon(inputId, eyeIconId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon = document.getElementById(eyeIconId);
+    
+    eyeIcon.addEventListener("click", function () {
+        if (input.type === "password") {
+            input.type = "text";
+            eyeIcon.textContent = "😑"; // छुपने वाला आइकॉन
+        } else {
+            input.type = "password";
+            eyeIcon.textContent = "👁️"; // देखने वाला आइकॉन
+        }
+    });
+}
+
+// दोनों बॉक्स के लिए आँख चालू करें
+toggleEyeIcon("authPassword", "loginEyeIcon");
+toggleEyeIcon("signupPassword", "signupEyeIcon");
+
+
+/* --- 3. Login API (Cloudflare Worker) --- */
 authSubmitBtn.addEventListener("click", async function () {
     
     const email = document.getElementById("authEmail").value.trim();
@@ -2012,76 +2075,106 @@ authSubmitBtn.addEventListener("click", async function () {
     const submitBtn = document.getElementById("authSubmitBtn");
     const subtitle = document.getElementById("authSubtitle");
     
-    // बेसिक वैलिडेशन (अगर खाली छोड़ दिया हो)
     if (!email || !password) {
         subtitle.textContent = "Please enter both email and password.";
-        subtitle.style.color = "#ff5f5f"; // लाल रंग का एरर
+        subtitle.style.color = "#ff5f5f"; 
         return;
     }
     
-    // लोडिंग इफ़ेक्ट दिखाना
-    const originalBtnText = submitBtn.textContent;
+    const originalText = submitBtn.textContent;
     submitBtn.textContent = "Logging in...";
     submitBtn.disabled = true;
     subtitle.textContent = "Authenticating...";
-    subtitle.style.color = "#8995a2"; // वापस नार्मल रंग
+    subtitle.style.color = "#8995a2";
     
     try {
-        // Cloudflare Worker API को कॉल करना
         const response = await fetch(API_BASE + "/auth/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: password })
         });
-        
         const data = await response.json();
         
         if (response.ok && data.status === "ok") {
-            // लॉगिन सफल (Success)
-            
-            // भविष्य के लिए टोकन सेव करना (ताकि बार-बार लॉगिन न करना पड़े)
             localStorage.setItem("nseBseTrackerV4AuthToken", data.token);
-            
-            // Welcome स्क्रीन दिखाना
             loginView.style.display = "none";
             welcomeView.style.display = "flex";
-            
         } else {
-            // लॉगिन फेल (Wrong Email/Password)
             subtitle.textContent = data.message || "Invalid email or password.";
             subtitle.style.color = "#ff5f5f";
         }
-        
     } catch (error) {
-        // नेटवर्क एरर या सर्वर डाउन
-        console.error("Login Error:", error);
         subtitle.textContent = "Network error. Please try again.";
         subtitle.style.color = "#ff5f5f";
     } finally {
-        // लोडिंग इफ़ेक्ट हटाना
-        submitBtn.textContent = originalBtnText;
+        submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }
-    
 });
-    
 
-/* 2. Continue to Dashboard बटन दबाने पर मेन ऐप खोलना */
-continueToDashboardBtn.addEventListener("click", function () {
+
+/* --- 4. Sign Up API (Cloudflare Worker) --- */
+signupSubmitBtn.addEventListener("click", async function () {
     
+    const email = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value;
+    const submitBtn = document.getElementById("signupSubmitBtn");
+    const subtitle = document.getElementById("signupSubtitle");
+    
+    if (!email || !password) {
+        subtitle.textContent = "Please enter both email and password.";
+        subtitle.style.color = "#ff5f5f"; 
+        return;
+    }
+    
+    if (password.length < 8) {
+        subtitle.textContent = "Password must be at least 8 characters.";
+        subtitle.style.color = "#ff5f5f"; 
+        return;
+    }
+    
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Creating Account...";
+    submitBtn.disabled = true;
+    subtitle.textContent = "Registering...";
+    subtitle.style.color = "#8995a2";
+    
+    try {
+        const response = await fetch(API_BASE + "/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: password })
+        });
+        const data = await response.json();
+        
+        if (response.ok && data.status === "ok") {
+            // अकाउंट बन गया! अब टोकन सेव करें और वेलकम स्क्रीन पर ले जाएं
+            localStorage.setItem("nseBseTrackerV4AuthToken", data.token);
+            loginView.style.display = "none";
+            welcomeView.style.display = "flex";
+        } else {
+            // अगर ईमेल पहले से हो या कोई और एरर
+            subtitle.textContent = data.message || "Failed to create account.";
+            subtitle.style.color = "#ff5f5f";
+        }
+    } catch (error) {
+        subtitle.textContent = "Network error. Please try again.";
+        subtitle.style.color = "#ff5f5f";
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+
+/* --- 5. Continue to Dashboard --- */
+continueToDashboardBtn.addEventListener("click", function () {
     welcomeView.style.display = "none";
     dashboardView.style.display = "block"; 
     
-    /* ऐप खुलते ही मार्केट इंडेक्स लोड करें */
     if (typeof loadMarketIndices === "function") {
         loadMarketIndices();
     }
-    
 });
     
 
