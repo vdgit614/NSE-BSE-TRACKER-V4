@@ -1498,6 +1498,11 @@ body.gradient-theme .welcome-text {
                 <input type="password" id="authPassword" class="auth-input" placeholder="Password" style="padding-right: 40px;">
                 <span id="loginEyeIcon" style="position: absolute; right: 15px; top: 16px; cursor: pointer; font-size: 16px; color: #8995a2;">👁️</span>
             </div>
+                        <!-- Forgot Password Link -->
+            <div style="text-align: right; margin-bottom: 18px; margin-top: -6px;">
+                <span id="forgotPasswordBtn" style="color: #315f9e; font-size: 13px; font-weight: 700; cursor: pointer;">Forgot Password? 🔑</span>
+            </div>
+            
 
             <button id="authSubmitBtn" class="auth-btn">Login</button>
 
@@ -2066,7 +2071,13 @@ function toggleEyeIcon(inputId, eyeIconId) {
 // दोनों बॉक्स के लिए आँख चालू करें
 toggleEyeIcon("authPassword", "loginEyeIcon");
 toggleEyeIcon("signupPassword", "signupEyeIcon");
-
+/* --- Forgot Password बटन का लॉजिक --- */
+document.getElementById("forgotPasswordBtn").addEventListener("click", function () {
+    const subtitle = document.getElementById("authSubtitle");
+    subtitle.textContent = "Password reset will be available soon. Contact Admin.";
+    subtitle.style.color = "#ff5f5f";
+});
+    
 
 /* --- 3. Login API (Cloudflare Worker) --- */
 authSubmitBtn.addEventListener("click", async function () {
