@@ -1326,6 +1326,36 @@ body.gradient-theme #nseLink {
 </style></head>
     
         <body>
+            
+    <!-- 1. LOGIN / SIGNUP SCREEN -->
+    <div id="loginView" class="auth-view" style="display: flex;">
+        <div class="auth-card">
+            <h2 id="authTitle" class="auth-title">Welcome Back</h2>
+            <p id="authSubtitle" class="auth-subtitle">Login to your account</p>
+
+            <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" autocomplete="off">
+            <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+
+            <button id="authSubmitBtn" class="auth-btn">Login</button>
+
+            <div class="auth-switch" id="authSwitchText">
+                Don't have an account? <span id="authSwitchBtn">Sign Up</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. WELCOME SCREEN -->
+    <div id="welcomeView" class="auth-view" style="display: none;">
+        <div class="auth-card">
+            <h2 class="auth-title">Login Successful!</h2>
+            <p class="auth-subtitle" id="welcomeMessage">Loading your dashboard...</p>
+            <button id="continueToDashboardBtn" class="auth-btn">Continue to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- 3. DASHBOARD SCREEN (आपका मौजूदा ऐप) -->
+    <div id="dashboardView" style="display: none; width: 100%; min-height: 100vh;">
+        
 
 <!-- =========================================================
      MAIN MENU
@@ -1787,6 +1817,7 @@ style="display:none"
 
 <div class="footer">
     NSE BSE TRACKER V4
+</div>
 </div>
 
 </div><!-- Chart library --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
