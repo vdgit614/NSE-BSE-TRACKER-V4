@@ -3736,69 +3736,76 @@ function renderHistory(data) {
     }
 
     /* =========================================================
-       52-WEEK HIGH / LOW (DATE & YEAR + SMART MEMORY)
+       52-WEEK HIGH / LOW (DATE & YEAR + CRASH-PROOF MEMORY)
     ========================================================= */
-    let tempMax = 0;
-    let tempMin = Infinity;
-    let tempMaxDate = "--";
-    let tempMinDate = "--";
+    try {
+        let tempMax = 0;
+        let tempMin = Infinity;
+        let tempMaxDate = "--";
+        let tempMinDate = "--";
 
-    chartHistory.forEach(function (item) {
-        const date = item.date || item.datetime || item.timestamp || item.time;
-        const price = Number(item.close ?? item.price ?? item.close_price ?? item.last_price);
+        chartHistory.forEach(function (item) {
+            const date = item.date || item.datetime || item.timestamp || item.time;
+            const price = Number(item.close ?? item.price ?? item.close_price ?? item.last_price);
 
-        if (date !== undefined && !isNaN(price) && price > 0) {
-            let fDate = formatChartDate(date); 
-            
-            let d = new Date(date);
-            if (String(date).length === 10 && !String(date).includes("-")) {
-                d = new Date(Number(date) * 1000);
+            if (date !== undefined && !isNaN(price) && price > 0) {
+                let fDate = formatChartDate(date); 
+                
+                // साल (Year) निकालने का लॉजिक
+                let d = new Date(date);
+                if (String(date).length === 10 && !String(date).includes("-")) {
+                    d = new Date(Number(date) * 1000);
+                }
+                let year = d.getFullYear();
+                if (!isNaN(year)) {
+                    fDate = fDate + " " + year; 
+                }
+
+                if (price > tempMax) {
+                    tempMax = price;
+                    tempMaxDate = fDate;
+                }
+                if (price < tempMin) {
+                    tempMin = price;
+                    tempMinDate = fDate;
+                }
             }
-            let year = d.getFullYear();
-            if (!isNaN(year)) {
-                fDate = fDate + " " + year; 
-            }
+        });
 
-            if (price > tempMax) {
-                tempMax = price;
-                tempMaxDate = fDate;
-            }
-            if (price < tempMin) {
-                tempMin = price;
-                tempMinDate = fDate;
-            }
-        }
-    });
+        // सुरक्षित (Safe) मेमोरी की
+        const memKey = typeof symbol !== 'undefined' ? symbol : (typeof currentSymbol !== 'undefined' ? currentSymbol : "active_stock");
+        window.stock52WeekMemory = window.stock52WeekMemory || {};
+        let savedData = window.stock52WeekMemory[memKey]; 
 
-    window.stock52WeekMemory = window.stock52WeekMemory || {};
-    let savedData = window.stock52WeekMemory[symbol]; 
-
-    if (!savedData || chartHistory.length >= savedData.length) {
-        window.stock52WeekMemory[symbol] = {
-            maxP: tempMax,
-            minP: tempMin,
-            maxD: tempMaxDate,
-            minD: tempMinDate,
-            length: chartHistory.length
-        };
-    }
-
-    const finalData = window.stock52WeekMemory[symbol];
-
-    if (finalData.maxP > 0 && finalData.minP !== Infinity) {
-        const highElement = document.getElementById("weekHigh");
-        if (highElement) {
-            highElement.innerHTML = `₹${formatNumber(finalData.maxP)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${finalData.maxD})</span>`;
-            highElement.style.color = "#00e676";
-            highElement.style.lineHeight = "1.2";
+        if (!savedData || chartHistory.length >= savedData.length) {
+            window.stock52WeekMemory[memKey] = {
+                maxP: tempMax,
+                minP: tempMin,
+                maxD: tempMaxDate,
+                minD: tempMinDate,
+                length: chartHistory.length
+            };
         }
 
-        const lowElement = document.getElementById("weekLow");
-        if (lowElement) {
-            lowElement.innerHTML = `₹${formatNumber(finalData.minP)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${finalData.minD})</span>`;
-            lowElement.style.color = "#ff5252";
-            lowElement.style.lineHeight = "1.2";
+        const finalData = window.stock52WeekMemory[memKey];
+
+        if (finalData.maxP > 0 && finalData.minP !== Infinity) {
+            const highElement = document.getElementById("weekHigh");
+            if (highElement) {
+                highElement.innerHTML = `₹${formatNumber(finalData.maxP)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${finalData.maxD})</span>`;
+                highElement.style.color = "#00e676";
+                highElement.style.lineHeight = "1.2";
+            }
+
+            const lowElement = document.getElementById("weekLow");
+            if (lowElement) {
+                lowElement.innerHTML = `₹${formatNumber(finalData.minP)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${finalData.minD})</span>`;
+                lowElement.style.color = "#ff5252";
+                lowElement.style.lineHeight = "1.2";
+            }
         }
+    } catch (error) {
+        console.error("52W Date Error: ", error);
     }
     /* ========================================================= */
 
@@ -3862,8 +3869,8 @@ function renderHistory(data) {
     });
 
     tableBody.innerHTML = html;
-    }
     
+
 
 /* ---------------------------------------------------------
 CHART DATE FORMAT
