@@ -3817,15 +3817,7 @@ function renderHistory(data) {
             lowElement.style.lineHeight = "1.2";
         }
     }
-    /* ========================================================= */
-
-    // TABLE: newest → oldest
-    const tableHistory = [...history].sort(function (a, b) {
-        return Number(b.timestamp || 0) - Number(a.timestamp || 0);
-    });
     
-    
-        
     /* ========================================================= */
 
 
