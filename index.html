@@ -3479,7 +3479,7 @@ async function loadStock(symbol, exchange) {
         $("quickLinks").style.display = "block";
         $("newsSection").style.display = "block";
 
-        loadHistory("3m");
+        loadHistory("1y");
         loadNews(symbol, exchange);
 
     } catch (error) {
@@ -3626,91 +3626,70 @@ $("nseLink").href =
     encodeURIComponent(symbol);
 
 }
-    /* ---------------------------------------------------------
-LOAD HISTORY (WITH SMART BACKGROUND MEMORY)
+    /* -----------------------------------------------------
+    LOAD HISTORY
 --------------------------------------------------------- */
-async function loadHistory(period = "3m") {
 
-    if (!selectedSymbol) {
-        return;
-    }
+async function loadHistory(period = "7d") {
 
-    try {
-        document
-            .querySelectorAll(".period-btn")
-            .forEach(function (button) {
-                button.classList.remove("active");
-                if (button.dataset.period === period) {
-                    button.classList.add("active");
-                }
-            });
+if (!selectedSymbol) {
+    return;
+}
 
-        // --- 1. SMART MEMORY AUTO-FETCH (सिर्फ पहली बार 1Y डेटा बैकग्राउंड में मंगाएगा) ---
-        const memKey = typeof symbol !== 'undefined' ? symbol : (typeof currentSymbol !== 'undefined' ? currentSymbol : selectedSymbol);
-        window.stock52WeekMemory = window.stock52WeekMemory || {};
-        
-        // अगर इस स्टॉक का 1 साल का हाई/लो सेव नहीं है, तो चुपचाप बैकग्राउंड में 1Y मंगा कर सेव कर लो
-        if (!window.stock52WeekMemory[memKey]) {
-            const url1y = API_BASE + "/history?symbol=" + encodeURIComponent(selectedSymbol) + "&exchange=" + encodeURIComponent(selectedExchange) + "&period=1y";
-            const res1y = await fetch(url1y);
-            
-            if (res1y.ok) {
-                const data1y = await res1y.json();
-                let hist1y = [];
-                if (Array.isArray(data1y)) hist1y = data1y;
-                else if (Array.isArray(data1y.history)) hist1y = data1y.history;
-                else if (Array.isArray(data1y.data)) hist1y = data1y.data;
-                else if (Array.isArray(data1y.results)) hist1y = data1y.results;
+try {
 
-                let tMax = 0, tMin = Infinity, tMaxD = "--", tMinD = "--";
-                
-                hist1y.forEach(function(item) {
-                    const d = item.date || item.datetime || item.timestamp || item.time;
-                    const p = Number(item.close ?? item.price ?? item.close_price ?? item.last_price);
-                    
-                    if (d !== undefined && !isNaN(p) && p > 0) {
-                        let fDate = typeof formatChartDate === 'function' ? formatChartDate(d) : d;
-                        let dt = new Date(d);
-                        if (String(d).length === 10 && !String(d).includes("-")) dt = new Date(Number(d) * 1000);
-                        let yr = dt.getFullYear();
-                        if (!isNaN(yr)) fDate = fDate + " " + yr;
-                        
-                        if (p > tMax) { tMax = p; tMaxD = fDate; }
-                        if (p < tMin) { tMin = p; tMinD = fDate; }
-                    }
-                });
-                // 1 साल का डेटा सेव हो गया!
-                window.stock52WeekMemory[memKey] = { maxP: tMax, minP: tMin, maxD: tMaxD, minD: tMinD, length: hist1y.length };
+    document
+        .querySelectorAll(".period-btn")
+        .forEach(function (button) {
+
+            button.classList.remove("active");
+
+            if (button.dataset.period === period) {
+                button.classList.add("active");
             }
-        }
-        // -----------------------------------------------------------------------
+        });
 
-        // --- 2. अब असली सेलेक्ट किया हुआ पीरियड (जैसे 3m) मंगाएं और स्क्रीन पर दिखाएं ---
-        const url = API_BASE + "/history?symbol=" + encodeURIComponent(selectedSymbol) + "&exchange=" + encodeURIComponent(selectedExchange) + "&period=" + encodeURIComponent(period);
+    const url =
+        API_BASE +
+        "/history?symbol=" +
+        encodeURIComponent(selectedSymbol) +
+        "&exchange=" +
+        encodeURIComponent(selectedExchange) +
+        "&period=" +
+        encodeURIComponent(period);
 
-        const response = await fetch(url);
+    const response = await fetch(url);
 
-        if (!response.ok) {
-            throw new Error("History request failed");
-        }
-
-        const data = await response.json();
-        renderHistory(data);
-
-    } catch (error) {
-        console.error(error);
-        const canvas = $("priceChart");
-        if (typeof priceChart !== 'undefined' && priceChart) {
-            priceChart.destroy();
-            priceChart = null;
-        }
-        if (canvas) {
-            const ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+    if (!response.ok) {
+        throw new Error("History request failed");
     }
+
+    const data = await response.json();
+
+    renderHistory(data);
+
+} catch (error) {
+
+    console.error(error);
+
+    const canvas = $("priceChart");
+
+    if (priceChart) {
+        priceChart.destroy();
+        priceChart = null;
     }
-            
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+}
+
+    }
 
 /* ---------------------------------------------------------
 RENDER HISTORY
