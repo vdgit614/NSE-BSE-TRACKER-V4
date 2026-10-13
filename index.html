@@ -3745,10 +3745,12 @@ function renderHistory(data) {
         }
     });
 
+        // चार्ट बनाने के बाद...
     if (prices.length > 0) {
         drawChart(labels, prices);
     }
-            /* =========================================================
+
+    /* =========================================================
        52-WEEK HIGH / LOW (DATE के साथ) ढूँढने का लॉजिक
     ========================================================= */
     let maxPrice = 0;
@@ -3774,15 +3776,13 @@ function renderHistory(data) {
         }
     });
 
-    // अगर डेटा मिल गया है, तो उसे स्क्रीन पर दिखाना (हरे और लाल रंग में)
     if (maxPrice > 0 && minPrice !== Infinity) {
-        
-                // 52-Week High (Green)
+        // 52-Week High (Green)
         const highElement = document.getElementById("weekHigh");
         if (highElement) {
             highElement.innerHTML = `₹${formatNumber(maxPrice)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${maxDate})</span>`;
             highElement.style.color = "#00e676";
-            highElement.style.lineHeight = "1.2"; // लाइनों के बीच गैप सेट करने के लिए
+            highElement.style.lineHeight = "1.2";
         }
 
         // 52-Week Low (Red)
@@ -3792,6 +3792,14 @@ function renderHistory(data) {
             lowElement.style.color = "#ff5252";
             lowElement.style.lineHeight = "1.2";
         }
+    }
+    /* ========================================================= */
+
+    // TABLE: newest → oldest
+    const tableHistory = [...history].sort(function (a, b) {
+        return Number(b.timestamp || 0) - Number(a.timestamp || 0);
+    });
+    
         
     /* ========================================================= */
 
