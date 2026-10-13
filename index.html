@@ -3713,7 +3713,7 @@ function renderHistory(data) {
         return;
     }
 
-    // CHART: oldest → newest
+        // CHART: oldest → newest
     const chartHistory = [...history].sort(function (a, b) {
         return Number(a.timestamp || 0) - Number(b.timestamp || 0);
     });
@@ -3722,36 +3722,21 @@ function renderHistory(data) {
     const prices = [];
 
     chartHistory.forEach(function (item) {
+        const date = item.date || item.datetime || item.timestamp || item.time;
+        const price = item.close ?? item.price ?? item.close_price ?? item.last_price;
 
-        const date =
-            item.date ||
-            item.datetime ||
-            item.timestamp ||
-            item.time;
-
-        const price =
-            item.close ??
-            item.price ??
-            item.close_price ??
-            item.last_price;
-
-                if (  // <-- यहाँ 'i' छोटा होना चाहिए
-            date !== undefined &&
-            price !== undefined &&
-            price !== null
-        ) {
+        if (date !== undefined && price !== undefined && price !== null) {
             labels.push(formatChartDate(date));
             prices.push(Number(price));
         }
     });
 
-        // चार्ट बनाने के बाद...
     if (prices.length > 0) {
         drawChart(labels, prices);
     }
 
     /* =========================================================
-       52-WEEK HIGH / LOW (DATE के साथ) ढूँढने का लॉजिक
+       52-WEEK HIGH / LOW (DATE & YEAR + SMART MEMORY)
     ========================================================= */
     let tempMax = 0;
     let tempMin = Infinity;
@@ -3765,7 +3750,6 @@ function renderHistory(data) {
         if (date !== undefined && !isNaN(price) && price > 0) {
             let fDate = formatChartDate(date); 
             
-            // साल (Year) निकालने का लॉजिक
             let d = new Date(date);
             if (String(date).length === 10 && !String(date).includes("-")) {
                 d = new Date(Number(date) * 1000);
@@ -3786,7 +3770,6 @@ function renderHistory(data) {
         }
     });
 
-    // --- स्मार्ट मेमोरी (Smart Memory) लॉजिक ---
     window.stock52WeekMemory = window.stock52WeekMemory || {};
     let savedData = window.stock52WeekMemory[symbol]; 
 
@@ -3817,9 +3800,7 @@ function renderHistory(data) {
             lowElement.style.lineHeight = "1.2";
         }
     }
-    
     /* ========================================================= */
-
 
     // TABLE: newest → oldest
     const tableHistory = [...history].sort(function (a, b) {
@@ -3835,48 +3816,22 @@ function renderHistory(data) {
     let html = "";
 
     tableHistory.forEach(function (item, index) {
+        const date = item.date || item.datetime || item.timestamp || item.time;
+        const price = Number(item.close ?? item.price ?? item.close_price ?? item.last_price);
 
-        const date =
-            item.date ||
-            item.datetime ||
-            item.timestamp ||
-            item.time;
-
-        const price = Number(
-            item.close ??
-            item.price ??
-            item.close_price ??
-            item.last_price
-        );
-
-        if (
-            date === undefined ||
-            isNaN(price)
-        ) {
+        if (date === undefined || isNaN(price)) {
             return;
         }
 
-        // Next item = previous trading day
         const previousItem = tableHistory[index + 1];
-
         let change = null;
         let changePercent = null;
 
         if (previousItem) {
-
-            const previousPrice = Number(
-                previousItem.close ??
-                previousItem.price ??
-                previousItem.close_price ??
-                previousItem.last_price
-            );
-
+            const previousPrice = Number(previousItem.close ?? previousItem.price ?? previousItem.close_price ?? previousItem.last_price);
             if (!isNaN(previousPrice) && previousPrice !== 0) {
-
                 change = price - previousPrice;
-
-                changePercent =
-                    (change / previousPrice) * 100;
+                changePercent = (change / previousPrice) * 100;
             }
         }
 
@@ -3885,17 +3840,9 @@ function renderHistory(data) {
         let changeClass = "history-neutral";
 
         if (change !== null) {
-
-            const changeSign =
-                change > 0 ? "+" : "";
-
-            changeText =
-                changeSign + formatNumber(change);
-
-            percentText =
-                changeSign +
-                changePercent.toFixed(2) +
-                "%";
+            const changeSign = change > 0 ? "+" : "";
+            changeText = changeSign + formatNumber(change);
+            percentText = changeSign + changePercent.toFixed(2) + "%";
 
             if (change > 0) {
                 changeClass = "history-up";
@@ -3915,7 +3862,9 @@ function renderHistory(data) {
     });
 
     tableBody.innerHTML = html;
-}
+    }
+    
+
 /* ---------------------------------------------------------
 CHART DATE FORMAT
 --------------------------------------------------------- */
