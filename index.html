@@ -3750,33 +3750,78 @@ function renderHistory(data) {
         drawChart(labels, prices);
     }
 
-    /* =========================================================
+        /* =========================================================
        52-WEEK HIGH / LOW (DATE के साथ) ढूँढने का लॉजिक
     ========================================================= */
-    let maxPrice = 0;
-    let minPrice = Infinity;
-    let maxDate = "--";
-    let minDate = "--";
+    let tempMax = 0;
+    let tempMin = Infinity;
+    let tempMaxDate = "--";
+    let tempMinDate = "--";
 
-        chartHistory.forEach(function (item) {
+    chartHistory.forEach(function (item) {
         const date = item.date || item.datetime || item.timestamp || item.time;
         const price = Number(item.close ?? item.price ?? item.close_price ?? item.last_price);
 
         if (date !== undefined && !isNaN(price) && price > 0) {
             let fDate = formatChartDate(date); 
             
-            // --- साल (Year) निकालने और जोड़ने का नया लॉजिक ---
+            // साल (Year) निकालने का लॉजिक
             let d = new Date(date);
-            // अगर तारीख API से सेकंड्स (10 अंकों) में आ रही है, तो उसे मिलीसेकंड्स में बदलें
             if (String(date).length === 10 && !String(date).includes("-")) {
                 d = new Date(Number(date) * 1000);
             }
             let year = d.getFullYear();
-            // अगर सही साल मिल गया है, तो उसे डेट के आगे जोड़ दें
             if (!isNaN(year)) {
                 fDate = fDate + " " + year; 
             }
-            // -----------------------------------------------
+
+            if (price > tempMax) {
+                tempMax = price;
+                tempMaxDate = fDate;
+            }
+            if (price < tempMin) {
+                tempMin = price;
+                tempMinDate = fDate;
+            }
+        }
+    });
+
+    // --- स्मार्ट मेमोरी (Smart Memory) लॉजिक ---
+    // यह चेक करेगा कि हमारे पास सबसे ज़्यादा डेटा (1Y) है या सिर्फ 7 दिन का!
+    window.stock52WeekMemory = window.stock52WeekMemory || {};
+    let savedData = window.stock52WeekMemory[symbol]; 
+
+    // अगर पहले से सेव नहीं है, या नया डेटा पुराने वाले से बड़ा है (मतलब पूरा साल है)
+    if (!savedData || chartHistory.length >= savedData.length) {
+        window.stock52WeekMemory[symbol] = {
+            maxP: tempMax,
+            minP: tempMin,
+            maxD: tempMaxDate,
+            minD: tempMinDate,
+            length: chartHistory.length
+        };
+    }
+
+    // हमेशा अपनी मेमोरी (सबसे बड़े डेटा) से ही असली 52-Week High/Low दिखाएं
+    const finalData = window.stock52WeekMemory[symbol];
+
+    if (finalData.maxP > 0 && finalData.minP !== Infinity) {
+        const highElement = document.getElementById("weekHigh");
+        if (highElement) {
+            highElement.innerHTML = `₹${formatNumber(finalData.maxP)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${finalData.maxD})</span>`;
+            highElement.style.color = "#00e676";
+            highElement.style.lineHeight = "1.2";
+        }
+
+        const lowElement = document.getElementById("weekLow");
+        if (lowElement) {
+            lowElement.innerHTML = `₹${formatNumber(finalData.minP)}<br><span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${finalData.minD})</span>`;
+            lowElement.style.color = "#ff5252";
+            lowElement.style.lineHeight = "1.2";
+        }
+    }
+    /* ========================================================= */
+                
 
             if (price > maxPrice) {
                 maxPrice = price;
