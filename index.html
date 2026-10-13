@@ -3758,12 +3758,25 @@ function renderHistory(data) {
     let maxDate = "--";
     let minDate = "--";
 
-    chartHistory.forEach(function (item) {
+        chartHistory.forEach(function (item) {
         const date = item.date || item.datetime || item.timestamp || item.time;
         const price = Number(item.close ?? item.price ?? item.close_price ?? item.last_price);
 
         if (date !== undefined && !isNaN(price) && price > 0) {
             let fDate = formatChartDate(date); 
+            
+            // --- साल (Year) निकालने और जोड़ने का नया लॉजिक ---
+            let d = new Date(date);
+            // अगर तारीख API से सेकंड्स (10 अंकों) में आ रही है, तो उसे मिलीसेकंड्स में बदलें
+            if (String(date).length === 10 && !String(date).includes("-")) {
+                d = new Date(Number(date) * 1000);
+            }
+            let year = d.getFullYear();
+            // अगर सही साल मिल गया है, तो उसे डेट के आगे जोड़ दें
+            if (!isNaN(year)) {
+                fDate = fDate + " " + year; 
+            }
+            // -----------------------------------------------
 
             if (price > maxPrice) {
                 maxPrice = price;
@@ -3775,6 +3788,7 @@ function renderHistory(data) {
             }
         }
     });
+    
 
     if (maxPrice > 0 && minPrice !== Infinity) {
         // 52-Week High (Green) - सही ID (weekHigh) और डिज़ाइन (<br>) के साथ
