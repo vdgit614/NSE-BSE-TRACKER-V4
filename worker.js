@@ -1223,64 +1223,7 @@ if (
       "Logged out successfully"
   });
       }
-      // ==================================================
-// SYNC - SAVE DATA TO CLOUD
-// ==================================================
-if (path === "/sync/save" && request.method === "POST") {
-  const user = await getAuthUser(request, env);
-  if (!user) {
-    return authError("Not authenticated");
-  }
 
-  const body = await request.json();
-  // यूज़र का डेटा (Watchlist, Triggers, Theme) JSON स्ट्रिंग में बदलें
-  const appDataString = JSON.stringify(body || {});
-
-  await env.DB.prepare(`
-    UPDATE users 
-    SET app_data = ?, updated_at = ? 
-    WHERE id = ?
-  `)
-  .bind(appDataString, Date.now(), user.id)
-  .run();
-
-  return jsonResponse({
-    status: "ok",
-    message: "Data synced to cloud successfully"
-  });
-}
-
-// ==================================================
-// SYNC - LOAD DATA FROM CLOUD
-// ==================================================
-if (path === "/sync/load" && request.method === "GET") {
-  const user = await getAuthUser(request, env);
-  if (!user) {
-    return authError("Not authenticated");
-  }
-
-  const result = await env.DB.prepare(`
-    SELECT app_data 
-    FROM users 
-    WHERE id = ?
-  `)
-  .bind(user.id)
-  .first();
-
-  let appData = {};
-  if (result && result.app_data) {
-    try {
-      appData = JSON.parse(result.app_data);
-    } catch (e) {
-      appData = {};
-    }
-  }
-
-  return jsonResponse({
-    status: "ok",
-    data: appData
-  });
-}
 
       // ==================================================
 // SYNC - SAVE DATA TO CLOUD
