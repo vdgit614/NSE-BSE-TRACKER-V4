@@ -5480,7 +5480,6 @@ async function syncDataToCloud() {
     const token = localStorage.getItem("nseBseTrackerV4AuthToken");
     if (!token) return;
 
-    // लोकल स्टोरेज से सारे ट्रिगर्स खोजना
     let savedTriggers = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -5493,7 +5492,7 @@ async function syncDataToCloud() {
         watchlist: watchlist,
         theme: localStorage.getItem("nseBseTrackerV4Theme") || "gradient",
         watchlistToggle: localStorage.getItem(WATCHLIST_TOGGLE_KEY) || "on",
-        triggers: savedTriggers // <-- ट्रिगर्स अब सर्वर पर जाएंगे
+        triggers: savedTriggers
     };
 
     try {
@@ -5532,8 +5531,6 @@ async function syncDataFromCloud() {
                     localStorage.setItem(WATCHLIST_TOGGLE_KEY, cloudData.watchlistToggle);
                     applyWatchlistToggle();
                 }
-                
-                // ट्रिगर्स को वापस मोबाइल में सेव करना
                 if (cloudData.triggers) {
                     for (const key in cloudData.triggers) {
                         localStorage.setItem(key, cloudData.triggers[key]);
@@ -5546,16 +5543,16 @@ async function syncDataFromCloud() {
     }
 }
 
-// पुराने फंक्शन्स को अपडेट करना
-const originalSaveWatchlist = saveWatchlist;
+// डुप्लीकेट क्रैश से बचाने के लिए सुरक्षित तरीका
+window.originalSaveWatchlist = window.originalSaveWatchlist || saveWatchlist;
 saveWatchlist = function() {
-    originalSaveWatchlist();
+    window.originalSaveWatchlist();
     syncDataToCloud();
 };
 
-const originalApplyTheme = applyTheme;
+window.originalApplyTheme = window.originalApplyTheme || applyTheme;
 applyTheme = function(theme) {
-    originalApplyTheme(theme);
+    window.originalApplyTheme(theme);
     syncDataToCloud();
 };
 
@@ -5567,74 +5564,7 @@ window.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("nseBseTrackerV4AuthToken");
     if (token) syncDataFromCloud();
 });
-    
 
-// =========================================================
-// मौजूदा फंक्शन को अपडेट करना (ताकि हर बदलाव सर्वर पर जाए)
-// =========================================================
-
-// आपके पुराने saveWatchlist फंक्शन को ओवरराइड (Override) कर रहे हैं
-const originalSaveWatchlist = saveWatchlist;
-saveWatchlist = function() {
-    originalSaveWatchlist(); // पहले लोकल में सेव करें (ताकि ऐप तेज़ चले)
-    syncDataToCloud();       // फिर बैकग्राउंड में सर्वर पर भेज दें
-};
-
-// थीम बदलने पर भी सर्वर को बताएँ
-const originalApplyTheme = applyTheme;
-applyTheme = function(theme) {
-    originalApplyTheme(theme);
-    syncDataToCloud();
-};
-
-// =========================================================
-// लॉगिन होते ही सर्वर से डेटा मंगाना
-// =========================================================
-// जहाँ आपका Login API सक्सेस होता है (continueToDashboardBtn वाले हिस्से में), वहाँ इसे जोड़ें:
-document.getElementById("continueToDashboardBtn").addEventListener("click", function () {
-    // ... आपका पुराना कोड ...
-    syncDataFromCloud(); // <--- यह लाइन जोड़ें
-});
-
-// अगर यूज़र पहले से लॉगिन है (Auto-Login), तो ऐप खुलते ही डेटा मंगाएँ:
-window.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("nseBseTrackerV4AuthToken");
-    if (token) {
-        syncDataFromCloud(); // <--- यह लाइन जोड़ें
-    }
-});
-    
-/* =========================================================
-   ALL STOCKS DETAIL (FEED MODE) TOGGLE LOGIC
-========================================================= */
-const allStocksToggle = document.getElementById("allStocksToggle");
-const feedContainer = document.getElementById("allStocksFeedContainer");
-
-if (allStocksToggle && feedContainer) {
-    
-    // 1. जब भी यूज़र टॉगल को खुद ON/OFF करेगा
-    allStocksToggle.addEventListener("change", function() {
-        if (this.checked) {
-            feedContainer.style.display = "block";
-            loadAllStocksFeed(); // यह फंक्शन सर्वर से डेटा मंगाएगा
-        } else {
-            feedContainer.style.display = "none";
-        }
-    });
-
-    // 2. जब ऐप पहली बार खुलेगी (चूँकि टॉगल पहले से ON है)
-    if (allStocksToggle.checked) {
-        feedContainer.style.display = "block";
-        
-        // 1.5 सेकंड का टाइमर ताकि क्लाउड से वॉचलिस्ट पहले लोड हो जाए
-        setTimeout(function() {
-            if (typeof loadAllStocksFeed === "function") {
-                loadAllStocksFeed();
-            }
-        }, 1500);
-    }
-}
-    
 /* =========================================================
    FEED MODE - TRIGGER LOGIC (Calculate & Save)
 ========================================================= */
@@ -5647,7 +5577,6 @@ function setFeedTrigger(symbol, exchange, safeSymbol, btnElement) {
         return;
     }
 
-    // करंट प्राइस खोजना (पैनल से)
     const panel = inputEl.closest('.stock-panel');
     const priceText = panel.querySelector('.current-price').textContent.replace(/[^0-9.]/g, '');
     const currentPrice = Number(priceText);
@@ -5657,7 +5586,6 @@ function setFeedTrigger(symbol, exchange, safeSymbol, btnElement) {
         return;
     }
 
-    // 85% Ready Price कैलकुलेट करना
     const startingPrice = currentPrice;
     const priceDifference = Math.abs(triggerValue - startingPrice);
     
@@ -5668,15 +5596,12 @@ function setFeedTrigger(symbol, exchange, safeSymbol, btnElement) {
         readyPrice = startingPrice - (priceDifference * 0.85);
     }
 
-    // लोकल स्टोरेज में सेव करना
     localStorage.setItem("nseBseTrackerV4TriggerStart_" + exchange + "_" + symbol, String(startingPrice));
     localStorage.setItem("nseBseTrackerV4Trigger_" + exchange + "_" + symbol, String(triggerValue));
     localStorage.setItem("nseBseTrackerV4TriggerReady_" + exchange + "_" + symbol, String(readyPrice));
 
-    // क्लाउड (सर्वर) पर सेव करना
     syncDataToCloud(); 
 
-    // बटन का रंग बदलकर 'Saved' दिखाना
     const originalText = btnElement.textContent;
     btnElement.textContent = "Saved ✓";
     btnElement.style.backgroundColor = "#35c978";
@@ -5691,7 +5616,6 @@ function setFeedTrigger(symbol, exchange, safeSymbol, btnElement) {
     }, 2000);
 }
 
-// जब भी 'All Stocks Detail' लोड हो, तो सेव किए हुए ट्रिगर्स दिखाना
 function populateFeedTriggers() {
     watchlist.forEach(item => {
         const safeSymbol = item.symbol.replace(/[^a-zA-Z0-9]/g, '');
@@ -5701,10 +5625,8 @@ function populateFeedTriggers() {
             if (saved) inputEl.value = saved;
         }
     });
-    }
+                    }
     
-/* ========================================================= */
-                          
 /* ---------------------------------------------------------
 END OF JAVASCRIPT
 --------------------------------------------------------- */
