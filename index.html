@@ -5382,9 +5382,13 @@ document.getElementById('allStocksToggle').addEventListener('change', function(e
 });
 
     // =====================================================================
-// PART 1: FEED CARD HTML TEMPLATE (100% EXACT CLONE OF YOUR APP)
+// PART 1: FEED CARD HTML TEMPLATE (FIXED PREVIOUS CLOSE)
 // =====================================================================
 function createFeedCardHTML(data) {
+    
+    // अगर रेट नहीं है, तो ₹ का निशान न दिखाएं
+    const showPrevClose = data.prevClose !== '--' ? '₹' + data.prevClose : '--';
+    
     return `
     <div class="stock-panel" style="display:block; margin-bottom:20px; border:2px solid #202a35; border-radius:10px; position:relative;">
         
@@ -5412,11 +5416,12 @@ function createFeedCardHTML(data) {
             </div>
         </div>
 
-        <!-- STOCK INFO GRID (Previous Close, 52W High/Low, Status) -->
+        <!-- STOCK INFO GRID -->
         <div class="stock-info-grid">
             <div class="info-box">
                 <div class="info-label">Previous Close</div>
-                <div class="info-value">₹${data.prevClose}</div>
+                <!-- यहाँ Previous Close रेट बिल्कुल सही दिखेगा -->
+                <div class="info-value feed-special-text">${showPrevClose}</div>
             </div>
             <div class="info-box">
                 <div class="info-label">52W High</div>
@@ -5428,7 +5433,7 @@ function createFeedCardHTML(data) {
             </div>
             <div class="info-box">
                 <div class="info-label">Trading Status</div>
-                <div class="info-value">${data.tradingStatus}</div>
+                <div class="info-value feed-special-text">${data.tradingStatus}</div>
             </div>
         </div>
 
@@ -5452,7 +5457,7 @@ function createFeedCardHTML(data) {
             </div>
         </div>
 
-        <!-- QUICK LINKS (EXACT COLORS) -->
+        <!-- QUICK LINKS -->
         <div class="quick-links" style="display:block;">
             <div class="section-title">Quick Links</div>
             <div class="links-grid">
@@ -5475,10 +5480,12 @@ function createFeedCardHTML(data) {
 }
 // =====================================================================
     
+// =====================================================================
+    
 
 
 // =====================================================================
-// PART 2: MAIN FEED GENERATOR (FETCH DATA, NEWS & TABLE)
+// PART 2: MAIN FEED GENERATOR (FIXED PREV CLOSE LOGIC)
 // =====================================================================
 async function loadAllStocksFeed() {
     const feedContainer = document.getElementById('allStocksFeedContainer');
@@ -5497,7 +5504,6 @@ async function loadAllStocksFeed() {
         const safeSymbol = symbol.replace(/[^a-zA-Z0-9]/g, '');
 
         try {
-            // एक साथ Stock, History और News मंगाना (ताकि ऐप तेज़ चले)
             const pStock = fetch(API_BASE + "/stock?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange));
             const pHist = fetch(API_BASE + "/history?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange) + "&period=1y");
             const pNews = fetch(API_BASE + "/news?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange));
@@ -5509,20 +5515,21 @@ async function loadAllStocksFeed() {
                 const data1y = await resHist.value.json();
                 const newsDataJson = (resNews.status === 'fulfilled' && resNews.value.ok) ? await resNews.value.json() : [];
 
-                const price = data.market ? Number(data.market.price) : 0;
-                const prevClose = data.market ? Number(data.market.previous_close) : 0;
+                // FIX: Previous Close और Current Price को ठीक किया गया
+                const price = data.market ? data.market.price : null;
+                const prevClose = data.market ? data.market.previous_close : null;
+                
                 let change = 0, changePercent = 0, changeText = "--", percentText = "--", changeClass = "history-neutral";
 
-                if (price > 0 && prevClose > 0) {
-                    change = price - prevClose;
-                    changePercent = (change / prevClose) * 100;
+                if (price && prevClose) {
+                    change = Number(price) - Number(prevClose);
+                    changePercent = (change / Number(prevClose)) * 100;
                     const sign = change > 0 ? "+" : "";
                     changeText = sign + formatNumber(change);
                     percentText = sign + changePercent.toFixed(2);
                     changeClass = change > 0 ? "history-up" : (change < 0 ? "history-down" : "history-neutral");
                 }
 
-                // History & 52W Data Logic
                 let hist1y = Array.isArray(data1y) ? data1y : (Array.isArray(data1y.history) ? data1y.history : (Array.isArray(data1y.data) ? data1y.data : []));
                 let tMax = 0, tMin = Infinity, tMaxD = "--", tMinD = "--";
                 const chartLabels = [], chartPrices = [];
@@ -5551,7 +5558,6 @@ async function loadAllStocksFeed() {
                     }
                 });
 
-                // Generate History Table
                 let tableHTML = "";
                 const tableHistory = [...hist1y].sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
                 tableHistory.forEach((h, index) => {
@@ -5572,7 +5578,6 @@ async function loadAllStocksFeed() {
                     tableHTML += `<tr><td>${typeof formatChartDate === 'function' ? formatChartDate(d) : d}</td><td class="${cClass}">₹${formatNumber(p)}</td><td class="${cClass}">${cText}</td><td class="${cClass}">${cpText}</td></tr>`;
                 });
 
-                // Generate News
                 let newsArr = Array.isArray(newsDataJson) ? newsDataJson : (Array.isArray(newsDataJson.news) ? newsDataJson.news : []);
                 let newsHTML = "";
                 if (newsArr.length > 0) {
@@ -5585,7 +5590,6 @@ async function loadAllStocksFeed() {
                     newsHTML = '<div class="news-item"><div class="news-meta">No news found.</div></div>';
                 }
 
-                // Yahoo Symbol Logic
                 let yahooSymbol = symbol;
                 if (exchange === "NSE") yahooSymbol = symbol + ".NS";
                 if (exchange === "BSE") yahooSymbol = symbol + ".BO";
@@ -5594,7 +5598,8 @@ async function loadAllStocksFeed() {
                     symbol: symbol, safeSymbol: safeSymbol, exchange: exchange,
                     compName: data.stock ? data.stock.company_name : symbol,
                     price: formatNumber(price), changeText: changeText, changePercentText: percentText, changeClass: changeClass,
-                    prevClose: formatNumber(prevClose), maxPrice: formatNumber(tMax), maxDate: tMaxD, minPrice: formatNumber(tMin), minDate: tMinD,
+                    prevClose: prevClose ? formatNumber(prevClose) : "--", 
+                    maxPrice: formatNumber(tMax), maxDate: tMaxD, minPrice: formatNumber(tMin), minDate: tMinD,
                     tradingStatus: data.stock ? (data.stock.trading_status || "--") : "--",
                     yahooSymbol: yahooSymbol, tableHTML: tableHTML, newsHTML: newsHTML
                 };
@@ -5614,6 +5619,8 @@ async function loadAllStocksFeed() {
     chartDataArray.forEach(cInfo => drawFeedChart(document.getElementById(cInfo.canvasId), cInfo.labels, cInfo.prices));
 }
 // =====================================================================
+    
+
                     
 
 // =====================================================================
