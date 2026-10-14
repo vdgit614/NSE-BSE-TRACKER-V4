@@ -5400,6 +5400,8 @@ async function loadAllStocksFeed() {
     
     feedContainer.innerHTML = feedHTML;
     chartDataArray.forEach(cInfo => drawFeedChart(document.getElementById(cInfo.canvasId), cInfo.labels, cInfo.prices));
+    populateFeedTriggers();
+    
 }
 // =====================================================================
                     
