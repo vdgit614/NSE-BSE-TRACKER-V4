@@ -72,7 +72,7 @@ async function ensureSchema(env) {
     CREATE INDEX IF NOT EXISTS idx_instruments_name
     ON instruments(search_name)
   `).run();
-    // --------------------------------------------------
+      // --------------------------------------------------
   // AUTH TABLES
   // --------------------------------------------------
 
@@ -83,9 +83,18 @@ async function ensureSchema(env) {
       password_hash TEXT NOT NULL,
       password_salt TEXT NOT NULL,
       created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      updated_at INTEGER NOT NULL,
+      app_data TEXT 
     )
   `).run();
+
+  // पुरानी टेबल को अपडेट करने के लिए यह लाइन जोड़ें
+  try {
+    await env.DB.prepare(`ALTER TABLE users ADD COLUMN app_data TEXT`).run();
+  } catch (e) {
+    // अगर कॉलम पहले से है, तो कुछ न करें
+  }
+  
 
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS sessions (
@@ -1214,6 +1223,65 @@ if (
       "Logged out successfully"
   });
       }
+      // ==================================================
+// SYNC - SAVE DATA TO CLOUD
+// ==================================================
+if (path === "/sync/save" && request.method === "POST") {
+  const user = await getAuthUser(request, env);
+  if (!user) {
+    return authError("Not authenticated");
+  }
+
+  const body = await request.json();
+  // यूज़र का डेटा (Watchlist, Triggers, Theme) JSON स्ट्रिंग में बदलें
+  const appDataString = JSON.stringify(body || {});
+
+  await env.DB.prepare(`
+    UPDATE users 
+    SET app_data = ?, updated_at = ? 
+    WHERE id = ?
+  `)
+  .bind(appDataString, Date.now(), user.id)
+  .run();
+
+  return jsonResponse({
+    status: "ok",
+    message: "Data synced to cloud successfully"
+  });
+}
+
+// ==================================================
+// SYNC - LOAD DATA FROM CLOUD
+// ==================================================
+if (path === "/sync/load" && request.method === "GET") {
+  const user = await getAuthUser(request, env);
+  if (!user) {
+    return authError("Not authenticated");
+  }
+
+  const result = await env.DB.prepare(`
+    SELECT app_data 
+    FROM users 
+    WHERE id = ?
+  `)
+  .bind(user.id)
+  .first();
+
+  let appData = {};
+  if (result && result.app_data) {
+    try {
+      appData = JSON.parse(result.app_data);
+    } catch (e) {
+      appData = {};
+    }
+  }
+
+  return jsonResponse({
+    status: "ok",
+    data: appData
+  });
+}
+      
       // --------------------------------------------------
       // ROOT
       // --------------------------------------------------
