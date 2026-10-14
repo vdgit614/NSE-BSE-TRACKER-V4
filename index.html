@@ -1589,6 +1589,20 @@ body.gradient-theme .feed-special-text {
     color: #FFD700 !important;
     }
     
+/* FEED MODE - BRIGHT GREEN ENHANCEMENT */
+#allStocksFeedContainer .up,
+#allStocksFeedContainer .history-up,
+#allStocksFeedContainer .current-price.history-up,
+#allStocksFeedContainer .price-change.history-up {
+    color: #00e676 !important; /* एकदम चमकदार हरा रंग */
+    text-shadow: 0 0 8px rgba(0, 230, 118, 0.4) !important; /* हरे रंग का हल्का सा ग्लो (Glow) */
+}
+
+/* Screener (Green) लिंक को और ब्राइट करना */
+#allStocksFeedContainer a[href*="screener.in"] {
+    background-color: #179e4d !important; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.5) !important;
+    }
     
 </style></head>
     
@@ -5682,7 +5696,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
     // =====================================================================
-// PART 3: DRAW CHART & TOGGLE FUNCTIONS FOR FEED
+// PART 3: DRAW CHART & TOGGLE FUNCTIONS FOR FEED (BRIGHT GREEN CHART)
 // =====================================================================
 function drawFeedChart(canvas, labels, prices) {
     if (!canvas) return;
@@ -5695,8 +5709,8 @@ function drawFeedChart(canvas, labels, prices) {
             labels: labels,
             datasets: [{
                 label: 'Price', data: prices,
-                borderColor: '#35c978', // आपकी ऐप का थीम कलर
-                backgroundColor: 'rgba(53, 201, 120, 0.1)',
+                borderColor: '#00e676', // एकदम ब्राइट (चमकदार) हरा रंग
+                backgroundColor: 'rgba(0, 230, 118, 0.15)', // हल्का सा हरा शेड
                 borderWidth: 2, fill: true, pointRadius: 0, pointHoverRadius: 4, tension: 0.25
             }]
         },
@@ -5705,7 +5719,7 @@ function drawFeedChart(canvas, labels, prices) {
             plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
             scales: {
                 x: { display: false },
-                y: { position: 'right', grid: { color: '#202a35', drawBorder: false }, ticks: { color: '#8995a2', font: {size: 10}, callback: function(value) { return '₹' + value; } } }
+                y: { position: 'right', grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: '#8995a2', font: {size: 10}, callback: function(value) { return '₹' + value; } } }
             },
             interaction: { mode: 'nearest', axis: 'x', intersect: false }
         }
@@ -5732,6 +5746,7 @@ function toggleFeedHistoryTable(safeSymbol) {
     }
 }
 // =====================================================================
+    
        
 
     
