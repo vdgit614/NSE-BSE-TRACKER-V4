@@ -5381,64 +5381,196 @@ document.getElementById('allStocksToggle').addEventListener('change', function(e
     }
 });
 
-// यह फंक्शन वॉचलिस्ट के हर स्टॉक का डेटा मंगाकर एक के नीचे एक लगाएगा
+    // =====================================================================
+// PART 1: FEED CARD HTML TEMPLATE (UPDATED FOR 52W DATA)
+// =====================================================================
+function createFeedCardHTML(symbol, exchange, price, compName, change, changePercent, changeClass, maxPrice, maxDate, minPrice, minDate) {
+    const safeSymbol = symbol.replace(/[^a-zA-Z0-9]/g, ''); 
+
+    return `
+    <div class="stock-panel" style="display:block; margin-bottom:25px; border:2px solid #2a2e39; border-radius:12px;">
+        
+        <!-- Header (नाम और रेट) -->
+        <div class="stock-header" style="padding:15px; border-bottom:1px solid #2a2e39;">
+            <div class="stock-info">
+                <div class="stock-symbol">${symbol} <span style="font-size:12px; color:#8995a2; background:#2a2e39; padding:2px 6px; border-radius:4px;">${exchange}</span></div>
+                <div class="stock-company" style="font-size:12px;">${compName}</div>
+            </div>
+            <div class="stock-price-container" style="text-align:right;">
+                <div class="stock-price" style="font-size:20px;">₹${formatNumber(price)}</div>
+                <div class="stock-change ${changeClass}" style="font-size:12px;">${change} (${changePercent}%)</div>
+            </div>
+        </div>
+
+        <!-- 52W High / Low -->
+        <div class="stats-grid" style="padding:15px; margin:0;">
+            <div class="stat-box">
+                <div class="stat-label">52-Week High</div>
+                <div class="stat-value" id="feedHigh_${safeSymbol}" style="font-size:14px; color:#00e676; line-height:1.2;">
+                    ₹${maxPrice}<br>
+                    <span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${maxDate})</span>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">52-Week Low</div>
+                <div class="stat-value" id="feedLow_${safeSymbol}" style="font-size:14px; color:#ff5252; line-height:1.2;">
+                     ₹${minPrice}<br>
+                    <span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${minDate})</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Chart -->
+        <div class="chart-section" style="display:block; padding:0 15px 15px 15px; margin:0;">
+            <div class="chart-container" style="height:200px;">
+                <canvas id="feedChart_${safeSymbol}"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links" style="display:block; padding:15px; border-top:1px solid #2a2e39;">
+            <h3 class="section-title" style="font-size:14px;">Quick Links</h3>
+            <div class="links-grid">
+                <a href="https://www.screener.in/company/${symbol}" target="_blank" class="link-card">Screener.in</a>
+                <a href="https://trendlyne.com/stock/${symbol}" target="_blank" class="link-card">Trendlyne</a>
+            </div>
+        </div>
+
+    </div>
+    `;
+}
+
+    
+
+    // =====================================================================
+// PART 2: MAIN FEED GENERATOR (WITH CHARTS & 52-WEEK HIGH/LOW)
+// =====================================================================
 async function loadAllStocksFeed() {
     const feedContainer = document.getElementById('allStocksFeedContainer');
     
-    // अगर वॉचलिस्ट खाली है, तो कुछ मत करो
     if (!watchlist || watchlist.length === 0) {
         feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Watchlist is empty. Add stocks above.</div>';
         return;
     }
 
-    feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Loading all stocks detail...</div>';
+    feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Loading all stocks detail... Please wait.</div>';
     
     let feedHTML = '';
+    const chartDataArray = []; // चार्ट डेटा स्टोर करने के लिए ऐरे
 
-    // वॉचलिस्ट के हर स्टॉक के लिए लूप
+    // 1. सारे स्टॉक्स का बेसिक डेटा (नाम, रेट) मंगा कर HTML ढांचा तैयार करना
     for (const item of watchlist) {
         const symbol = item.symbol;
         const exchange = item.exchange || 'NSE'; 
+        const safeSymbol = symbol.replace(/[^a-zA-Z0-9]/g, '');
 
         try {
-            // API से उस स्टॉक का डेटा मंगाओ
+            // बेसिक स्टॉक डेटा
             const url = API_BASE + "/stock?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange);
             const response = await fetch(url);
             
-            if (response.ok) {
+            // 1-Year हिस्ट्री डेटा (चार्ट और 52W हाई/लो के लिए)
+            const url1y = API_BASE + "/history?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange) + "&period=1y";
+            const res1y = await fetch(url1y);
+
+            if (response.ok && res1y.ok) {
                 const data = await response.json();
+                const data1y = await res1y.json();
                 
-                // अभी के लिए सिर्फ नाम और रेट दिखा रहे हैं (टेस्टिंग के लिए)
-                const price = data.market ? data.market.price : '--';
+                const price = data.market ? Number(data.market.price) : 0;
+                const prevClose = data.market ? Number(data.market.previous_close) : 0;
                 const compName = data.stock ? data.stock.company_name : symbol;
                 
-                feedHTML += `
-                    <div style="background:#1e222d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #2a2e39;">
-                        <h3 style="color:#d1d4dc; margin:0 0 10px 0;">${compName} <span style="font-size:12px; color:#8995a2;">(${exchange})</span></h3>
-                        <div style="font-size:24px; color:#ffffff; font-weight:bold; margin-bottom:10px;">₹${formatNumber(price)}</div>
-                        <div style="color:#00e676; font-size:12px;">Basic data loaded. Full UI (Charts, 52W High/Low) coming next!</div>
-                    </div>
-                `;
-            } else {
-                 feedHTML += `
-                    <div style="background:#1e222d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #2a2e39;">
-                        <div style="color:#ff5252;">Failed to load data for ${symbol}</div>
-                    </div>
-                `;
+                let change = 0;
+                let changePercent = 0;
+                let changeText = "--";
+                let percentText = "--";
+                let changeClass = "history-neutral";
+
+                if (price > 0 && prevClose > 0) {
+                    change = price - prevClose;
+                    changePercent = (change / prevClose) * 100;
+                    const sign = change > 0 ? "+" : "";
+                    changeText = sign + formatNumber(change);
+                    percentText = sign + changePercent.toFixed(2);
+                    changeClass = change > 0 ? "history-up" : (change < 0 ? "history-down" : "history-neutral");
+                }
+
+                // हिस्ट्री डेटा प्रोसेस करें
+                let hist1y = [];
+                if (Array.isArray(data1y)) hist1y = data1y;
+                else if (Array.isArray(data1y.history)) hist1y = data1y.history;
+                else if (Array.isArray(data1y.data)) hist1y = data1y.data;
+                else if (Array.isArray(data1y.results)) hist1y = data1y.results;
+
+                let tMax = 0, tMin = Infinity, tMaxD = "--", tMinD = "--";
+                const chartLabels = [];
+                const chartPrices = [];
+                
+                hist1y.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0)); // Oldest -> Newest
+
+                hist1y.forEach(function(histItem) {
+                    const d = histItem.date || histItem.datetime || histItem.timestamp || histItem.time;
+                    const p = Number(histItem.close ?? histItem.price ?? histItem.close_price ?? histItem.last_price);
+                    
+                    if (d !== undefined && !isNaN(p) && p > 0) {
+                        let fDate = typeof formatChartDate === 'function' ? formatChartDate(d) : d;
+                        
+                        // साल (Year) निकालने का लॉजिक
+                        let dt = new Date(d);
+                        if (String(d).length === 10 && !String(d).includes("-")) {
+                            dt = new Date(Number(d) * 1000);
+                        }
+                        let yr = dt.getFullYear();
+                        if (!isNaN(yr)) {
+                            fDate = fDate + " " + yr; 
+                        }
+                        
+                        // 52W High/Low कैलकुलेशन
+                        if (p > tMax) { tMax = p; tMaxD = fDate; }
+                        if (p < tMin) { tMin = p; tMinD = fDate; }
+
+                        // चार्ट डेटा (सिर्फ आखिरी 3 महीने का)
+                        const threeMonthsAgo = new Date();
+                        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                        if (dt >= threeMonthsAgo) {
+                            chartLabels.push(fDate);
+                            chartPrices.push(p);
+                        }
+                    }
+                });
+
+                // HTML कार्ड जनरेट करें (52W डेटा के साथ)
+                feedHTML += createFeedCardHTML(symbol, exchange, price, compName, changeText, percentText, changeClass, formatNumber(tMax), tMaxD, formatNumber(tMin), tMinD);
+                
+                // चार्ट बनाने के लिए डेटा स्टोर करें
+                if (chartPrices.length > 0) {
+                     chartDataArray.push({
+                        canvasId: `feedChart_${safeSymbol}`,
+                        labels: chartLabels,
+                        prices: chartPrices
+                    });
+                }
             }
         } catch (error) {
             console.error("Error loading feed for " + symbol, error);
-             feedHTML += `
-                <div style="background:#1e222d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #2a2e39;">
-                    <div style="color:#ff5252;">Error loading data for ${symbol}</div>
-                </div>
-            `;
         }
     }
     
-    // सारा HTML कंटेनर में डाल दो
+    // सारे स्टॉक्स के कार्ड कंटेनर में डाल दिए
     feedContainer.innerHTML = feedHTML;
+
+    // 2. अब हर स्टॉक का चार्ट रेंडर करें
+    chartDataArray.forEach(chartInfo => {
+        const canvas = document.getElementById(chartInfo.canvasId);
+        if (canvas) {
+           drawFeedChart(canvas, chartInfo.labels, chartInfo.prices);
+        }
+    });
 }
+    
+// =====================================================================
+                
 
 // जब ऐप लोड हो (शुरुआत में), तो चेक करो कि टॉगल ON है या नहीं
 document.addEventListener("DOMContentLoaded", function() {
@@ -5448,6 +5580,85 @@ document.addEventListener("DOMContentLoaded", function() {
         setTimeout(loadAllStocksFeed, 1000); 
     }
 });
+    // =====================================================================
+// PART 3: DRAW CHART FOR FEED
+// =====================================================================
+function drawFeedChart(canvas, labels, prices) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    // अगर इस कैनवास पर पहले से कोई चार्ट है, तो उसे हटा दें
+    if (canvas.chartInstance) {
+        canvas.chartInstance.destroy();
+    }
+
+    // Chart.js का उपयोग करके चार्ट बनाएँ (सुनिश्चित करें कि Chart.js लोड हो)
+    canvas.chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Price',
+                data: prices,
+                borderColor: '#2962ff',
+                backgroundColor: 'rgba(41, 98, 255, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += '₹' + context.parsed.y.toFixed(2);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: false // फीड व्यू में X-axis (Dates) को छुपाना बेहतर दिखता है
+                },
+                y: {
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#8995a2',
+                        callback: function(value) {
+                            return '₹' + value;
+                        }
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+}
+
+    
 /* ========================================================= */
                           
 /* ---------------------------------------------------------
