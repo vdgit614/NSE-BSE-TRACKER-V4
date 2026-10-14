@@ -4692,254 +4692,8 @@ screenshotInput.addEventListener(
     }
 );
 
-/* ---------------------------------------------------------
-   TRIGGER PRICE — SET & SAVE
---------------------------------------------------------- */
 
-document
-    .getElementById("setTriggerPriceButton")
-    .addEventListener("click", function () {
 
-        const input =
-            document.getElementById(
-                "triggerPriceInput"
-            );
-
-        const display =
-            document.getElementById(
-                "triggerPriceDisplay"
-            );
-
-        const value =
-            input.value.trim();
-
-        if (value === "") {
-
-            alert(
-                "Please enter a trigger price."
-            );
-
-            return;
-        }
-
-        const triggerPrice =
-            Number(value);
-
-        if (
-            !Number.isFinite(triggerPrice) ||
-            triggerPrice <= 0
-        ) {
-
-            alert(
-                "Please enter a valid price."
-            );
-
-            return;
-        }
-
-        /*
-         * Current selected stock ke liye
-         * trigger price save karenge.
-         */
-
-        if (
-            !selectedSymbol ||
-            !selectedExchange
-        ) {
-
-            alert(
-                "Please select a stock first."
-            );
-
-            return;
-        }
-
-        /* ---------------------------------------------------------
-           LOCK STARTING PRICE
-        --------------------------------------------------------- */
-
-        if (
-            !Number.isFinite(currentMarketPrice) ||
-            currentMarketPrice <= 0
-        ) {
-
-            alert(
-                "Current market price is not available."
-            );
-
-            return;
-        }
-
-        const startingPrice =
-            currentMarketPrice;
-
-        /* ---------------------------------------------------------
-           SAVE STARTING PRICE
-        --------------------------------------------------------- */
-
-        const startingPriceKey =
-            "nseBseTrackerV4TriggerStart_" +
-            selectedExchange +
-            "_" +
-            selectedSymbol;
-
-        localStorage.setItem(
-            startingPriceKey,
-            String(startingPrice)
-        );
-
-        /* ---------------------------------------------------------
-           CALCULATE READY / SEMIFINAL PRICE
-        --------------------------------------------------------- */
-
-        const priceDifference =
-            Math.abs(
-                triggerPrice -
-                startingPrice
-            );
-
-        let readyPrice;
-
-        if (triggerPrice > startingPrice) {
-
-            readyPrice =
-                startingPrice +
-                (priceDifference * 0.85);
-
-        } else {
-
-            readyPrice =
-                startingPrice -
-                (priceDifference * 0.85);
-        }
-
-        const triggerKey =
-            "nseBseTrackerV4Trigger_" +
-            selectedExchange +
-            "_" +
-            selectedSymbol;
-
-        localStorage.setItem(
-            triggerKey,
-            String(triggerPrice)
-        );
-        /* ---------------------------------------------------------
-   SAVE READY / SEMIFINAL PRICE
---------------------------------------------------------- */
-
-const readyPriceKey =
-    "nseBseTrackerV4TriggerReady_" +
-    selectedExchange +
-    "_" +
-    selectedSymbol;
-
-localStorage.setItem(
-    readyPriceKey,
-    String(readyPrice)
-);
-
-        display.textContent =
-            "Set: ₹" +
-            triggerPrice;
-
-        input.value =
-            triggerPrice;
-
-    });
-
-/* ---------------------------------------------------------
-   LOAD SAVED TRIGGER PRICE
---------------------------------------------------------- */
-
-function loadSavedTriggerPrice() {
-
-    const input =
-        document.getElementById(
-            "triggerPriceInput"
-        );
-
-    const display =
-        document.getElementById(
-            "triggerPriceDisplay"
-        );
-
-    if (
-        !input ||
-        !display ||
-        !selectedSymbol ||
-        !selectedExchange
-    ) {
-        return;
-    }
-
-    const triggerKey =
-        "nseBseTrackerV4Trigger_" +
-        selectedExchange +
-        "_" +
-        selectedSymbol;
-    const savedTrigger =
-    localStorage.getItem(
-        triggerKey
-    );
-
-    if (savedTrigger !== null) {
-
-        input.value =
-            savedTrigger;
-
-        display.textContent =
-            "Set: ₹" +
-            savedTrigger;
-
-    } else {
-
-        input.value = "";
-
-        display.textContent = "";
-
-    }
-
-}
-    /* ---------------------------------------------------------
-   LOAD SAVED READY / SEMIFINAL PRICE
---------------------------------------------------------- */
-
-function loadSavedReadyPrice() {
-
-    if (
-        !selectedSymbol ||
-        !selectedExchange
-    ) {
-        return;
-    }
-
-    const readyPriceKey =
-        "nseBseTrackerV4TriggerReady_" +
-        selectedExchange +
-        "_" +
-        selectedSymbol;
-
-    const savedReadyPrice =
-        localStorage.getItem(
-            readyPriceKey
-        );
-
-    if (savedReadyPrice !== null) {
-
-        console.log(
-            "Saved Ready Price:",
-            savedReadyPrice
-        );
-
-    } else {
-
-        console.log(
-            "No Saved Ready Price"
-        );
-
-    }
-
-}
     /* ---------------------------------------------------------
    TRIGGER MONITORING — MARKET HOURS
 --------------------------------------------------------- */
@@ -5831,7 +5585,37 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 });
     
+/* =========================================================
+   ALL STOCKS DETAIL (FEED MODE) TOGGLE LOGIC
+========================================================= */
+const allStocksToggle = document.getElementById("allStocksToggle");
+const feedContainer = document.getElementById("allStocksFeedContainer");
 
+if (allStocksToggle && feedContainer) {
+    
+    // 1. जब भी यूज़र टॉगल को खुद ON/OFF करेगा
+    allStocksToggle.addEventListener("change", function() {
+        if (this.checked) {
+            feedContainer.style.display = "block";
+            loadAllStocksFeed(); // यह फंक्शन सर्वर से डेटा मंगाएगा
+        } else {
+            feedContainer.style.display = "none";
+        }
+    });
+
+    // 2. जब ऐप पहली बार खुलेगी (चूँकि टॉगल पहले से ON है)
+    if (allStocksToggle.checked) {
+        feedContainer.style.display = "block";
+        
+        // 1.5 सेकंड का टाइमर ताकि क्लाउड से वॉचलिस्ट पहले लोड हो जाए
+        setTimeout(function() {
+            if (typeof loadAllStocksFeed === "function") {
+                loadAllStocksFeed();
+            }
+        }, 1500);
+    }
+}
+    
     
 /* ========================================================= */
                           
