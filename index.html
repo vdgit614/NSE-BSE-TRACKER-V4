@@ -1548,6 +1548,47 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+    /* =========================================================
+   FEED MODE - SHINY OIL PAINT EFFECT
+========================================================= */
+/* मेन कार्ड की शाइनिंग */
+.glossy-oil-paint {
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%) !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4), inset 0 2px 2px rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(5px);
+}
+
+/* छोटे इन्फो बॉक्स की शाइनिंग (Previous Close आदि) */
+.glossy-oil-paint-box {
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.15) 100%) !important;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* क्विक लिंक्स की शाइनिंग (Yahoo, Google आदि) */
+.glossy-link {
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.4) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+    font-weight: 700 !important;
+    transition: all 0.3s ease;
+}
+
+.glossy-link:hover {
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.35) 0%, rgba(0, 0, 0, 0.15) 100%) !important;
+    transform: translateY(-2px);
+}
+
+/* टेक्स्ट को थोड़ा चमकदार बनाना */
+.shiny-text {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+/* Previous Close और Trading Status के लिए फिक्स कलर */
+body.light-theme .feed-special-text,
+body.gradient-theme .feed-special-text {
+    color: #FFD700 !important;
+    }
+    
     
 </style></head>
     
@@ -5382,20 +5423,16 @@ document.getElementById('allStocksToggle').addEventListener('change', function(e
 });
 
     // =====================================================================
-// PART 1: FEED CARD HTML TEMPLATE (FIXED PREVIOUS CLOSE)
+// PART 1: FEED CARD HTML TEMPLATE (SHINY OIL PAINT & FIXED DATA)
 // =====================================================================
 function createFeedCardHTML(data) {
-    
-    // अगर रेट नहीं है, तो ₹ का निशान न दिखाएं
-    const showPrevClose = data.prevClose !== '--' ? '₹' + data.prevClose : '--';
-    
     return `
-    <div class="stock-panel" style="display:block; margin-bottom:20px; border:2px solid #202a35; border-radius:10px; position:relative;">
+    <div class="stock-panel glossy-oil-paint" style="display:block; margin-bottom:20px; border:1px solid #2a3542; border-radius:12px; position:relative;">
         
         <!-- HEADER -->
         <div class="stock-header">
             <div class="stock-title">
-                <div class="stock-symbol">${data.symbol}</div>
+                <div class="stock-symbol shiny-text">${data.symbol}</div>
                 <div class="stock-company">${data.compName}</div>
             </div>
             <div class="exchange-badge">${data.exchange}</div>
@@ -5404,7 +5441,7 @@ function createFeedCardHTML(data) {
         <!-- PRICE AREA & TRIGGER -->
         <div class="price-area">
             <div class="current-price-box">
-                <div class="current-price ${data.changeClass}">₹${data.price}</div>
+                <div class="current-price shiny-text ${data.changeClass}">₹${data.price}</div>
                 <div class="price-change ${data.changeClass}">${data.changeText} (${data.changePercentText}%)</div>
             </div>
             <div class="trigger-price-area">
@@ -5416,29 +5453,30 @@ function createFeedCardHTML(data) {
             </div>
         </div>
 
-        <!-- STOCK INFO GRID -->
+        <!-- STOCK INFO GRID (Fixed Missing Values) -->
         <div class="stock-info-grid">
-            <div class="info-box">
+            <div class="info-box glossy-oil-paint-box">
                 <div class="info-label">Previous Close</div>
-                <!-- यहाँ Previous Close रेट बिल्कुल सही दिखेगा -->
-                <div class="info-value feed-special-text">${showPrevClose}</div>
+                <!-- अब यह कभी खाली नहीं रहेगा -->
+                <div class="info-value feed-special-text shiny-text">${data.prevClose}</div>
             </div>
-            <div class="info-box">
+            <div class="info-box glossy-oil-paint-box">
                 <div class="info-label">52W High</div>
-                <div class="info-value up" style="line-height:1.2;">₹${data.maxPrice}<br><span style="font-size:9px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${data.maxDate})</span></div>
+                <div class="info-value up shiny-text" style="line-height:1.2;">₹${data.maxPrice}<br><span style="font-size:9px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${data.maxDate})</span></div>
             </div>
-            <div class="info-box">
+            <div class="info-box glossy-oil-paint-box">
                 <div class="info-label">52W Low</div>
-                <div class="info-value down" style="line-height:1.2;">₹${data.minPrice}<br><span style="font-size:9px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${data.minDate})</span></div>
+                <div class="info-value down shiny-text" style="line-height:1.2;">₹${data.minPrice}<br><span style="font-size:9px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${data.minDate})</span></div>
             </div>
-            <div class="info-box">
+            <div class="info-box glossy-oil-paint-box">
                 <div class="info-label">Trading Status</div>
-                <div class="info-value feed-special-text">${data.tradingStatus}</div>
+                <!-- अब यह भी खाली नहीं रहेगा -->
+                <div class="info-value feed-special-text shiny-text" style="font-size:14px;">${data.tradingStatus}</div>
             </div>
         </div>
 
         <!-- PRICE HISTORY CHART & DATE-WISE TOGGLE -->
-        <div class="chart-section" style="display:block; margin-top:8px;">
+        <div class="chart-section glossy-oil-paint-box" style="display:block; margin-top:10px; border:none;">
             <div class="section-title">Price History (3M)</div>
             <div class="chart-container" style="height:150px;">
                 <canvas id="feedChart_${data.safeSymbol}"></canvas>
@@ -5457,19 +5495,19 @@ function createFeedCardHTML(data) {
             </div>
         </div>
 
-        <!-- QUICK LINKS -->
-        <div class="quick-links" style="display:block;">
-            <div class="section-title">Quick Links</div>
+        <!-- QUICK LINKS (SHINY / OIL PAINT) -->
+        <div class="quick-links" style="display:block; border:none; background:transparent; padding:5px 0;">
+            <div class="section-title" style="margin-bottom:8px;">Quick Links</div>
             <div class="links-grid">
-                <a class="quick-link" style="background:#5b3f8c; color:#ffffff; border:none;" href="https://finance.yahoo.com/quote/${data.yahooSymbol}" target="_blank">Yahoo Finance</a>
-                <a class="quick-link" style="background:#315f9e; color:#ffffff; border:none;" href="https://www.google.com/finance/quote/${data.symbol}:${data.exchange}" target="_blank">Google Finance</a>
-                <a class="quick-link" style="background:#2f7d4a; color:#ffffff; border:none;" href="https://www.screener.in/company/${data.symbol}/" target="_blank">Screener</a>
-                <a class="quick-link" style="background:#b7652b; color:#ffffff; border:none;" href="https://www.nseindia.com/get-quotes/equity?symbol=${data.symbol}" target="_blank">NSE</a>
+                <a class="quick-link glossy-link" style="background-color:#5b3f8c; color:#ffffff; border:none;" href="https://finance.yahoo.com/quote/${data.yahooSymbol}" target="_blank">Yahoo Finance</a>
+                <a class="quick-link glossy-link" style="background-color:#315f9e; color:#ffffff; border:none;" href="https://www.google.com/finance/quote/${data.symbol}:${data.exchange}" target="_blank">Google Finance</a>
+                <a class="quick-link glossy-link" style="background-color:#2f7d4a; color:#ffffff; border:none;" href="https://www.screener.in/company/${data.symbol}/" target="_blank">Screener</a>
+                <a class="quick-link glossy-link" style="background-color:#b7652b; color:#ffffff; border:none;" href="https://www.nseindia.com/get-quotes/equity?symbol=${data.symbol}" target="_blank">NSE</a>
             </div>
         </div>
 
         <!-- LATEST NEWS -->
-        <div class="news-section" style="display:block;">
+        <div class="news-section glossy-oil-paint-box" style="display:block; margin-top:8px; border:none;">
             <div class="section-title">Latest News</div>
             <div class="news-label">Last 15 Days</div>
             <div>${data.newsHTML}</div>
@@ -5480,12 +5518,15 @@ function createFeedCardHTML(data) {
 }
 // =====================================================================
     
+
+// =====================================================================
+    
 // =====================================================================
     
 
 
 // =====================================================================
-// PART 2: MAIN FEED GENERATOR (FIXED PREV CLOSE LOGIC)
+// PART 2: MAIN FEED GENERATOR (BULLETPROOF DATA LOGIC)
 // =====================================================================
 async function loadAllStocksFeed() {
     const feedContainer = document.getElementById('allStocksFeedContainer');
@@ -5515,15 +5556,18 @@ async function loadAllStocksFeed() {
                 const data1y = await resHist.value.json();
                 const newsDataJson = (resNews.status === 'fulfilled' && resNews.value.ok) ? await resNews.value.json() : [];
 
-                // FIX: Previous Close और Current Price को ठीक किया गया
-                const price = data.market ? data.market.price : null;
-                const prevClose = data.market ? data.market.previous_close : null;
+                const price = data.market ? Number(data.market.price) : 0;
+                
+                // === FIX: बुलेटप्रूफ Previous Close और Trading Status ===
+                const pCloseVal = (data.market && data.market.previous_close !== undefined && data.market.previous_close !== null) ? Number(data.market.previous_close) : 0;
+                const pCloseFormatted = pCloseVal > 0 ? "₹" + formatNumber(pCloseVal) : "--";
+                const tStatusVal = (data.stock && data.stock.trading_status) ? data.stock.trading_status : "Active";
                 
                 let change = 0, changePercent = 0, changeText = "--", percentText = "--", changeClass = "history-neutral";
 
-                if (price && prevClose) {
-                    change = Number(price) - Number(prevClose);
-                    changePercent = (change / Number(prevClose)) * 100;
+                if (price > 0 && pCloseVal > 0) {
+                    change = price - pCloseVal;
+                    changePercent = (change / pCloseVal) * 100;
                     const sign = change > 0 ? "+" : "";
                     changeText = sign + formatNumber(change);
                     percentText = sign + changePercent.toFixed(2);
@@ -5584,7 +5628,7 @@ async function loadAllStocksFeed() {
                     newsArr.forEach(n => {
                         let nDate = n.date || n.published_at || "";
                         if(nDate && typeof formatNewsDate === 'function') nDate = formatNewsDate(nDate);
-                        newsHTML += `<div class="news-item"><a class="news-title" href="${escapeHtml(n.link || '#')}" target="_blank">${escapeHtml(n.title || n.headline)}</a><div class="news-meta">${escapeHtml(n.source || n.publisher)}${nDate ? " • " + nDate : ""}</div></div>`;
+                        newsHTML += `<div class="news-item"><a class="news-title shiny-text" href="${escapeHtml(n.link || '#')}" target="_blank">${escapeHtml(n.title || n.headline)}</a><div class="news-meta">${escapeHtml(n.source || n.publisher)}${nDate ? " • " + nDate : ""}</div></div>`;
                     });
                 } else {
                     newsHTML = '<div class="news-item"><div class="news-meta">No news found.</div></div>';
@@ -5598,9 +5642,9 @@ async function loadAllStocksFeed() {
                     symbol: symbol, safeSymbol: safeSymbol, exchange: exchange,
                     compName: data.stock ? data.stock.company_name : symbol,
                     price: formatNumber(price), changeText: changeText, changePercentText: percentText, changeClass: changeClass,
-                    prevClose: prevClose ? formatNumber(prevClose) : "--", 
+                    prevClose: pCloseFormatted, // यहाँ हमने नया बुलेटप्रूफ डेटा डाला है
                     maxPrice: formatNumber(tMax), maxDate: tMaxD, minPrice: formatNumber(tMin), minDate: tMinD,
-                    tradingStatus: data.stock ? (data.stock.trading_status || "--") : "--",
+                    tradingStatus: tStatusVal, // यहाँ हमने नया बुलेटप्रूफ डेटा डाला है
                     yahooSymbol: yahooSymbol, tableHTML: tableHTML, newsHTML: newsHTML
                 };
 
@@ -5618,6 +5662,8 @@ async function loadAllStocksFeed() {
     feedContainer.innerHTML = feedHTML;
     chartDataArray.forEach(cInfo => drawFeedChart(document.getElementById(cInfo.canvasId), cInfo.labels, cInfo.prices));
 }
+// =====================================================================
+                    
 // =====================================================================
     
 
