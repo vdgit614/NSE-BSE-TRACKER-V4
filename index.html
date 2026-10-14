@@ -5362,6 +5362,94 @@ document.addEventListener(
         }
     }
 );
+
+    /* =========================================================
+   ALL STOCKS DETAIL (FEED MODE) LOGIC
+========================================================= */
+
+// जब भी टॉगल बटन दबाया जाए (ON/OFF हो), तो यह फंक्शन चलेगा
+document.getElementById('allStocksToggle').addEventListener('change', function(e) {
+    const isChecked = e.target.checked;
+    const feedContainer = document.getElementById('allStocksFeedContainer');
+    
+    if (isChecked) {
+        feedContainer.style.display = 'block';
+        loadAllStocksFeed(); 
+    } else {
+        feedContainer.style.display = 'none';
+        feedContainer.innerHTML = ''; 
+    }
+});
+
+// यह फंक्शन वॉचलिस्ट के हर स्टॉक का डेटा मंगाकर एक के नीचे एक लगाएगा
+async function loadAllStocksFeed() {
+    const feedContainer = document.getElementById('allStocksFeedContainer');
+    
+    // अगर वॉचलिस्ट खाली है, तो कुछ मत करो
+    if (!watchlist || watchlist.length === 0) {
+        feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Watchlist is empty. Add stocks above.</div>';
+        return;
+    }
+
+    feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Loading all stocks detail...</div>';
+    
+    let feedHTML = '';
+
+    // वॉचलिस्ट के हर स्टॉक के लिए लूप
+    for (const item of watchlist) {
+        const symbol = item.symbol;
+        const exchange = item.exchange || 'NSE'; 
+
+        try {
+            // API से उस स्टॉक का डेटा मंगाओ
+            const url = API_BASE + "/stock?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange);
+            const response = await fetch(url);
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // अभी के लिए सिर्फ नाम और रेट दिखा रहे हैं (टेस्टिंग के लिए)
+                const price = data.market ? data.market.price : '--';
+                const compName = data.stock ? data.stock.company_name : symbol;
+                
+                feedHTML += `
+                    <div style="background:#1e222d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #2a2e39;">
+                        <h3 style="color:#d1d4dc; margin:0 0 10px 0;">${compName} <span style="font-size:12px; color:#8995a2;">(${exchange})</span></h3>
+                        <div style="font-size:24px; color:#ffffff; font-weight:bold; margin-bottom:10px;">₹${formatNumber(price)}</div>
+                        <div style="color:#00e676; font-size:12px;">Basic data loaded. Full UI (Charts, 52W High/Low) coming next!</div>
+                    </div>
+                `;
+            } else {
+                 feedHTML += `
+                    <div style="background:#1e222d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #2a2e39;">
+                        <div style="color:#ff5252;">Failed to load data for ${symbol}</div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error("Error loading feed for " + symbol, error);
+             feedHTML += `
+                <div style="background:#1e222d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #2a2e39;">
+                    <div style="color:#ff5252;">Error loading data for ${symbol}</div>
+                </div>
+            `;
+        }
+    }
+    
+    // सारा HTML कंटेनर में डाल दो
+    feedContainer.innerHTML = feedHTML;
+}
+
+// जब ऐप लोड हो (शुरुआत में), तो चेक करो कि टॉगल ON है या नहीं
+document.addEventListener("DOMContentLoaded", function() {
+    const toggle = document.getElementById('allStocksToggle');
+    if(toggle && toggle.checked) {
+        // थोड़ा डिले (Delay) ताकि पहले मेन वॉचलिस्ट लोड हो जाए
+        setTimeout(loadAllStocksFeed, 1000); 
+    }
+});
+/* ========================================================= */
+                          
 /* ---------------------------------------------------------
 END OF JAVASCRIPT
 --------------------------------------------------------- */
