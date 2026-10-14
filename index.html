@@ -5159,8 +5159,8 @@ document.getElementById('allStocksToggle').addEventListener('change', function(e
     }
 });
 
-    // =====================================================================
-// PART 1: FEED CARD HTML TEMPLATE (SHINY OIL PAINT & FIXED DATA)
+// =====================================================================
+// PART 1: FEED CARD HTML TEMPLATE (SHINY OIL PAINT & FIXED DATA + ACTIVE TRIGGER)
 // =====================================================================
 function createFeedCardHTML(data) {
     return `
@@ -5181,20 +5181,22 @@ function createFeedCardHTML(data) {
                 <div class="current-price shiny-text ${data.changeClass}">₹${data.price}</div>
                 <div class="price-change ${data.changeClass}">${data.changeText} (${data.changePercentText}%)</div>
             </div>
-            <div class="trigger-price-area">
-                <div class="trigger-price-label">Trigger</div>
-                <div class="trigger-price-row">
-                    <input type="number" id="feedTriggerInput_${data.safeSymbol}" class="trigger-price-input" placeholder="Price" step="0.01">
-                    <button type="button" class="set-trigger-button" onclick="alert('Trigger feature for feed coming soon!')">Set</button>
+            <div class="trigger-price-area" style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <div class="trigger-price-label" style="font-size:10px; color:#ffd700; margin-bottom:4px; font-weight:bold;">Set Trigger Price</div>
+                <div class="trigger-price-row" style="display:flex; gap:5px;">
+                    <input type="number" id="feedTriggerInput_${data.safeSymbol}" class="trigger-price-input" placeholder="Price" step="0.01" style="width:70px; padding:4px; border-radius:4px; border:1px solid #34404d; background:#0b0f14; color:#fff; text-align:center;">
+                    
+                    <!-- यहाँ बटन को एक्टिवेट कर दिया गया है -->
+                    <button type="button" class="set-trigger-button" onclick="setFeedTrigger('${data.symbol}', '${data.exchange}', '${data.safeSymbol}', this)" style="padding:4px 8px; background:#202a35; color:#fff; border:1px solid #34404d; border-radius:4px; cursor:pointer;">Set</button>
+                
                 </div>
             </div>
         </div>
 
-        <!-- STOCK INFO GRID (Fixed Missing Values) -->
-        <div class="stock-info-grid">
+        <!-- STOCK INFO GRID -->
+        <div class="stock-info-grid" style="margin-top:20px;">
             <div class="info-box glossy-oil-paint-box">
                 <div class="info-label">Previous Close</div>
-                <!-- अब यह कभी खाली नहीं रहेगा -->
                 <div class="info-value feed-special-text shiny-text">${data.prevClose}</div>
             </div>
             <div class="info-box glossy-oil-paint-box">
@@ -5207,7 +5209,6 @@ function createFeedCardHTML(data) {
             </div>
             <div class="info-box glossy-oil-paint-box">
                 <div class="info-label">Trading Status</div>
-                <!-- अब यह भी खाली नहीं रहेगा -->
                 <div class="info-value feed-special-text shiny-text" style="font-size:14px;">${data.tradingStatus}</div>
             </div>
         </div>
@@ -5232,7 +5233,7 @@ function createFeedCardHTML(data) {
             </div>
         </div>
 
-        <!-- QUICK LINKS (SHINY / OIL PAINT) -->
+        <!-- QUICK LINKS -->
         <div class="quick-links" style="display:block; border:none; background:transparent; padding:5px 0;">
             <div class="section-title" style="margin-bottom:8px;">Quick Links</div>
             <div class="links-grid">
@@ -5254,6 +5255,7 @@ function createFeedCardHTML(data) {
     `;
 }
 // =====================================================================
+    
     
 
 // =====================================================================
@@ -5469,43 +5471,40 @@ function toggleFeedHistoryTable(safeSymbol) {
     }
 }
 // =====================================================================
-    
-   /* =========================================================
-   CLOUD SYNC LOGIC (Save & Load from Server)
+    /* =========================================================
+   CLOUD SYNC LOGIC (Watchlist, Theme & Triggers)
 ========================================================= */
-
-// सर्वर पर डेटा सेव करने का फंक्शन
 async function syncDataToCloud() {
     const token = localStorage.getItem("nseBseTrackerV4AuthToken");
-    if (!token) return; // अगर लॉगिन नहीं है तो कुछ न करें
+    if (!token) return;
 
-    // लोकल स्टोरेज से सारा ज़रूरी डेटा इकट्ठा करें
+    // लोकल स्टोरेज से सारे ट्रिगर्स खोजना
+    let savedTriggers = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("nseBseTrackerV4Trigger")) {
+            savedTriggers[key] = localStorage.getItem(key);
+        }
+    }
+
     const dataToSync = {
-        watchlist: watchlist, // आपकी वॉचलिस्ट का ऐरे
+        watchlist: watchlist,
         theme: localStorage.getItem("nseBseTrackerV4Theme") || "gradient",
         watchlistToggle: localStorage.getItem(WATCHLIST_TOGGLE_KEY) || "on",
-        // हम ट्रिगर प्राइसेस भी सेव कर सकते हैं अगर चाहें
+        triggers: savedTriggers // <-- ट्रिगर्स अब सर्वर पर जाएंगे
     };
 
     try {
-        const response = await fetch(API_BASE + "/sync/save", {
+        await fetch(API_BASE + "/sync/save", {
             method: "POST",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            },
+            headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
             body: JSON.stringify(dataToSync)
         });
-        
-        if (response.ok) {
-            console.log("✅ Data successfully synced to cloud!");
-        }
     } catch (error) {
         console.error("Cloud Sync Error:", error);
     }
 }
 
-// सर्वर से डेटा लोड करने का फंक्शन (लॉगिन के तुरंत बाद कॉल होगा)
 async function syncDataFromCloud() {
     const token = localStorage.getItem("nseBseTrackerV4AuthToken");
     if (!token) return;
@@ -5513,10 +5512,7 @@ async function syncDataFromCloud() {
     try {
         const response = await fetch(API_BASE + "/sync/load", {
             method: "GET",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
+            headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" }
         });
 
         if (response.ok) {
@@ -5524,31 +5520,52 @@ async function syncDataFromCloud() {
             if (result.status === "ok" && result.data) {
                 const cloudData = result.data;
                 
-                // 1. Watchlist रिस्टोर करें
                 if (cloudData.watchlist && Array.isArray(cloudData.watchlist)) {
                     watchlist = cloudData.watchlist;
                     localStorage.setItem(WATCHLIST_STORAGE_KEY, JSON.stringify(watchlist));
                     renderWatchlist();
                 }
-
-                // 2. Theme रिस्टोर करें
-                if (cloudData.theme) {
-                    applyTheme(cloudData.theme);
-                }
-
-                // 3. Watchlist Toggle रिस्टोर करें
+                if (cloudData.theme) applyTheme(cloudData.theme);
                 if (cloudData.watchlistToggle) {
                     localStorage.setItem(WATCHLIST_TOGGLE_KEY, cloudData.watchlistToggle);
                     applyWatchlistToggle();
                 }
                 
-                console.log("📥 Data successfully loaded from cloud!");
+                // ट्रिगर्स को वापस मोबाइल में सेव करना
+                if (cloudData.triggers) {
+                    for (const key in cloudData.triggers) {
+                        localStorage.setItem(key, cloudData.triggers[key]);
+                    }
+                }
             }
         }
     } catch (error) {
         console.error("Cloud Load Error:", error);
     }
 }
+
+// पुराने फंक्शन्स को अपडेट करना
+const originalSaveWatchlist = saveWatchlist;
+saveWatchlist = function() {
+    originalSaveWatchlist();
+    syncDataToCloud();
+};
+
+const originalApplyTheme = applyTheme;
+applyTheme = function(theme) {
+    originalApplyTheme(theme);
+    syncDataToCloud();
+};
+
+// लॉगिन होते ही सर्वर से डेटा मंगाना
+document.getElementById("continueToDashboardBtn").addEventListener("click", function () {
+    syncDataFromCloud();
+});
+window.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("nseBseTrackerV4AuthToken");
+    if (token) syncDataFromCloud();
+});
+    
 
 // =========================================================
 // मौजूदा फंक्शन को अपडेट करना (ताकि हर बदलाव सर्वर पर जाए)
@@ -5616,6 +5633,73 @@ if (allStocksToggle && feedContainer) {
     }
 }
     
+/* =========================================================
+   FEED MODE - TRIGGER LOGIC (Calculate & Save)
+========================================================= */
+function setFeedTrigger(symbol, exchange, safeSymbol, btnElement) {
+    const inputEl = document.getElementById("feedTriggerInput_" + safeSymbol);
+    const triggerValue = Number(inputEl.value);
+
+    if (!triggerValue || triggerValue <= 0) {
+        alert("Please enter a valid trigger price.");
+        return;
+    }
+
+    // करंट प्राइस खोजना (पैनल से)
+    const panel = inputEl.closest('.stock-panel');
+    const priceText = panel.querySelector('.current-price').textContent.replace(/[^0-9.]/g, '');
+    const currentPrice = Number(priceText);
+
+    if (!currentPrice || currentPrice <= 0) {
+        alert("Current market price is not available.");
+        return;
+    }
+
+    // 85% Ready Price कैलकुलेट करना
+    const startingPrice = currentPrice;
+    const priceDifference = Math.abs(triggerValue - startingPrice);
+    
+    let readyPrice;
+    if (triggerValue > startingPrice) {
+        readyPrice = startingPrice + (priceDifference * 0.85);
+    } else {
+        readyPrice = startingPrice - (priceDifference * 0.85);
+    }
+
+    // लोकल स्टोरेज में सेव करना
+    localStorage.setItem("nseBseTrackerV4TriggerStart_" + exchange + "_" + symbol, String(startingPrice));
+    localStorage.setItem("nseBseTrackerV4Trigger_" + exchange + "_" + symbol, String(triggerValue));
+    localStorage.setItem("nseBseTrackerV4TriggerReady_" + exchange + "_" + symbol, String(readyPrice));
+
+    // क्लाउड (सर्वर) पर सेव करना
+    syncDataToCloud(); 
+
+    // बटन का रंग बदलकर 'Saved' दिखाना
+    const originalText = btnElement.textContent;
+    btnElement.textContent = "Saved ✓";
+    btnElement.style.backgroundColor = "#35c978";
+    btnElement.style.color = "white";
+    btnElement.style.border = "none";
+    
+    setTimeout(() => {
+        btnElement.textContent = originalText;
+        btnElement.style.backgroundColor = ""; 
+        btnElement.style.color = "";
+        btnElement.style.border = "";
+    }, 2000);
+}
+
+// जब भी 'All Stocks Detail' लोड हो, तो सेव किए हुए ट्रिगर्स दिखाना
+function populateFeedTriggers() {
+    watchlist.forEach(item => {
+        const safeSymbol = item.symbol.replace(/[^a-zA-Z0-9]/g, '');
+        const inputEl = document.getElementById("feedTriggerInput_" + safeSymbol);
+        if (inputEl) {
+            const saved = localStorage.getItem("nseBseTrackerV4Trigger_" + item.exchange + "_" + item.symbol);
+            if (saved) inputEl.value = saved;
+        }
+    });
+    }
     
 /* ========================================================= */
                           
