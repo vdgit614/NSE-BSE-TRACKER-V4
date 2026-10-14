@@ -5382,110 +5382,136 @@ document.getElementById('allStocksToggle').addEventListener('change', function(e
 });
 
     // =====================================================================
-// PART 1: FEED CARD HTML TEMPLATE (UPDATED FOR 52W DATA)
+// PART 1: FEED CARD HTML TEMPLATE (100% EXACT CLONE OF YOUR APP)
 // =====================================================================
-function createFeedCardHTML(symbol, exchange, price, compName, change, changePercent, changeClass, maxPrice, maxDate, minPrice, minDate) {
-    const safeSymbol = symbol.replace(/[^a-zA-Z0-9]/g, ''); 
-
+function createFeedCardHTML(data) {
     return `
-    <div class="stock-panel" style="display:block; margin-bottom:25px; border:2px solid #2a2e39; border-radius:12px;">
+    <div class="stock-panel" style="display:block; margin-bottom:20px; border:2px solid #202a35; border-radius:10px; position:relative;">
         
-        <!-- Header (नाम और रेट) -->
-        <div class="stock-header" style="padding:15px; border-bottom:1px solid #2a2e39;">
-            <div class="stock-info">
-                <div class="stock-symbol">${symbol} <span style="font-size:12px; color:#8995a2; background:#2a2e39; padding:2px 6px; border-radius:4px;">${exchange}</span></div>
-                <div class="stock-company" style="font-size:12px;">${compName}</div>
+        <!-- HEADER -->
+        <div class="stock-header">
+            <div class="stock-title">
+                <div class="stock-symbol">${data.symbol}</div>
+                <div class="stock-company">${data.compName}</div>
             </div>
-            <div class="stock-price-container" style="text-align:right;">
-                <div class="stock-price" style="font-size:20px;">₹${formatNumber(price)}</div>
-                <div class="stock-change ${changeClass}" style="font-size:12px;">${change} (${changePercent}%)</div>
-            </div>
+            <div class="exchange-badge">${data.exchange}</div>
         </div>
 
-        <!-- 52W High / Low -->
-        <div class="stats-grid" style="padding:15px; margin:0;">
-            <div class="stat-box">
-                <div class="stat-label">52-Week High</div>
-                <div class="stat-value" id="feedHigh_${safeSymbol}" style="font-size:14px; color:#00e676; line-height:1.2;">
-                    ₹${maxPrice}<br>
-                    <span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${maxDate})</span>
-                </div>
+        <!-- PRICE AREA & TRIGGER -->
+        <div class="price-area">
+            <div class="current-price-box">
+                <div class="current-price ${data.changeClass}">₹${data.price}</div>
+                <div class="price-change ${data.changeClass}">${data.changeText} (${data.changePercentText}%)</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">52-Week Low</div>
-                <div class="stat-value" id="feedLow_${safeSymbol}" style="font-size:14px; color:#ff5252; line-height:1.2;">
-                     ₹${minPrice}<br>
-                    <span style="font-size:11px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${minDate})</span>
+            <div class="trigger-price-area">
+                <div class="trigger-price-label">Trigger</div>
+                <div class="trigger-price-row">
+                    <input type="number" id="feedTriggerInput_${data.safeSymbol}" class="trigger-price-input" placeholder="Price" step="0.01">
+                    <button type="button" class="set-trigger-button" onclick="alert('Trigger feature for feed coming soon!')">Set</button>
                 </div>
             </div>
         </div>
 
-        <!-- Price Chart -->
-        <div class="chart-section" style="display:block; padding:0 15px 15px 15px; margin:0;">
-            <div class="chart-container" style="height:200px;">
-                <canvas id="feedChart_${safeSymbol}"></canvas>
+        <!-- STOCK INFO GRID (Previous Close, 52W High/Low, Status) -->
+        <div class="stock-info-grid">
+            <div class="info-box">
+                <div class="info-label">Previous Close</div>
+                <div class="info-value">₹${data.prevClose}</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">52W High</div>
+                <div class="info-value up" style="line-height:1.2;">₹${data.maxPrice}<br><span style="font-size:9px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${data.maxDate})</span></div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">52W Low</div>
+                <div class="info-value down" style="line-height:1.2;">₹${data.minPrice}<br><span style="font-size:9px; color:#8995a2; font-weight:normal; display:block; margin-top:2px;">(${data.minDate})</span></div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Trading Status</div>
+                <div class="info-value">${data.tradingStatus}</div>
             </div>
         </div>
 
-        <!-- Quick Links -->
-        <div class="quick-links" style="display:block; padding:15px; border-top:1px solid #2a2e39;">
-            <h3 class="section-title" style="font-size:14px;">Quick Links</h3>
+        <!-- PRICE HISTORY CHART & DATE-WISE TOGGLE -->
+        <div class="chart-section" style="display:block; margin-top:8px;">
+            <div class="section-title">Price History (3M)</div>
+            <div class="chart-container" style="height:150px;">
+                <canvas id="feedChart_${data.safeSymbol}"></canvas>
+            </div>
+            
+            <div class="history-toggle-row">
+                <div class="history-toggle-label">Date-wise Data</div>
+                <button id="feedHistoryToggleBtn_${data.safeSymbol}" class="watchlist-toggle history-toggle off" type="button" aria-pressed="false" onclick="toggleFeedHistoryTable('${data.safeSymbol}')">OFF</button>
+            </div>
+            
+            <div id="feedHistoryTableWrap_${data.safeSymbol}" class="history-table-wrap" style="display:none;">
+                <table class="history-table">
+                    <thead><tr><th>Date</th><th>Close</th><th>Change</th><th>Change %</th></tr></thead>
+                    <tbody>${data.tableHTML}</tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- QUICK LINKS (EXACT COLORS) -->
+        <div class="quick-links" style="display:block;">
+            <div class="section-title">Quick Links</div>
             <div class="links-grid">
-                <a href="https://www.screener.in/company/${symbol}" target="_blank" class="link-card">Screener.in</a>
-                <a href="https://trendlyne.com/stock/${symbol}" target="_blank" class="link-card">Trendlyne</a>
+                <a class="quick-link" style="background:#5b3f8c; color:#ffffff; border:none;" href="https://finance.yahoo.com/quote/${data.yahooSymbol}" target="_blank">Yahoo Finance</a>
+                <a class="quick-link" style="background:#315f9e; color:#ffffff; border:none;" href="https://www.google.com/finance/quote/${data.symbol}:${data.exchange}" target="_blank">Google Finance</a>
+                <a class="quick-link" style="background:#2f7d4a; color:#ffffff; border:none;" href="https://www.screener.in/company/${data.symbol}/" target="_blank">Screener</a>
+                <a class="quick-link" style="background:#b7652b; color:#ffffff; border:none;" href="https://www.nseindia.com/get-quotes/equity?symbol=${data.symbol}" target="_blank">NSE</a>
             </div>
+        </div>
+
+        <!-- LATEST NEWS -->
+        <div class="news-section" style="display:block;">
+            <div class="section-title">Latest News</div>
+            <div class="news-label">Last 15 Days</div>
+            <div>${data.newsHTML}</div>
         </div>
 
     </div>
     `;
 }
-
+// =====================================================================
     
 
-    // =====================================================================
-// PART 2: MAIN FEED GENERATOR (WITH CHARTS & 52-WEEK HIGH/LOW)
+
+// =====================================================================
+// PART 2: MAIN FEED GENERATOR (FETCH DATA, NEWS & TABLE)
 // =====================================================================
 async function loadAllStocksFeed() {
     const feedContainer = document.getElementById('allStocksFeedContainer');
-    
     if (!watchlist || watchlist.length === 0) {
-        feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Watchlist is empty. Add stocks above.</div>';
+        feedContainer.innerHTML = '<div class="watchlist-empty" style="text-align:center;">Watchlist is empty.</div>';
         return;
     }
-
-    feedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#8995a2;">Loading all stocks detail... Please wait.</div>';
+    feedContainer.innerHTML = '<div class="status-message" style="display:block;">Loading all stocks detail... Please wait.</div>';
     
     let feedHTML = '';
-    const chartDataArray = []; // चार्ट डेटा स्टोर करने के लिए ऐरे
+    const chartDataArray = []; 
 
-    // 1. सारे स्टॉक्स का बेसिक डेटा (नाम, रेट) मंगा कर HTML ढांचा तैयार करना
     for (const item of watchlist) {
         const symbol = item.symbol;
         const exchange = item.exchange || 'NSE'; 
         const safeSymbol = symbol.replace(/[^a-zA-Z0-9]/g, '');
 
         try {
-            // बेसिक स्टॉक डेटा
-            const url = API_BASE + "/stock?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange);
-            const response = await fetch(url);
+            // एक साथ Stock, History और News मंगाना (ताकि ऐप तेज़ चले)
+            const pStock = fetch(API_BASE + "/stock?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange));
+            const pHist = fetch(API_BASE + "/history?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange) + "&period=1y");
+            const pNews = fetch(API_BASE + "/news?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange));
             
-            // 1-Year हिस्ट्री डेटा (चार्ट और 52W हाई/लो के लिए)
-            const url1y = API_BASE + "/history?symbol=" + encodeURIComponent(symbol) + "&exchange=" + encodeURIComponent(exchange) + "&period=1y";
-            const res1y = await fetch(url1y);
+            const [resStock, resHist, resNews] = await Promise.allSettled([pStock, pHist, pNews]);
 
-            if (response.ok && res1y.ok) {
-                const data = await response.json();
-                const data1y = await res1y.json();
-                
+            if (resStock.status === 'fulfilled' && resStock.value.ok && resHist.status === 'fulfilled' && resHist.value.ok) {
+                const data = await resStock.value.json();
+                const data1y = await resHist.value.json();
+                const newsDataJson = (resNews.status === 'fulfilled' && resNews.value.ok) ? await resNews.value.json() : [];
+
                 const price = data.market ? Number(data.market.price) : 0;
                 const prevClose = data.market ? Number(data.market.previous_close) : 0;
-                const compName = data.stock ? data.stock.company_name : symbol;
-                
-                let change = 0;
-                let changePercent = 0;
-                let changeText = "--";
-                let percentText = "--";
-                let changeClass = "history-neutral";
+                let change = 0, changePercent = 0, changeText = "--", percentText = "--", changeClass = "history-neutral";
 
                 if (price > 0 && prevClose > 0) {
                     change = price - prevClose;
@@ -5496,41 +5522,26 @@ async function loadAllStocksFeed() {
                     changeClass = change > 0 ? "history-up" : (change < 0 ? "history-down" : "history-neutral");
                 }
 
-                // हिस्ट्री डेटा प्रोसेस करें
-                let hist1y = [];
-                if (Array.isArray(data1y)) hist1y = data1y;
-                else if (Array.isArray(data1y.history)) hist1y = data1y.history;
-                else if (Array.isArray(data1y.data)) hist1y = data1y.data;
-                else if (Array.isArray(data1y.results)) hist1y = data1y.results;
-
+                // History & 52W Data Logic
+                let hist1y = Array.isArray(data1y) ? data1y : (Array.isArray(data1y.history) ? data1y.history : (Array.isArray(data1y.data) ? data1y.data : []));
                 let tMax = 0, tMin = Infinity, tMaxD = "--", tMinD = "--";
-                const chartLabels = [];
-                const chartPrices = [];
+                const chartLabels = [], chartPrices = [];
                 
-                hist1y.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0)); // Oldest -> Newest
+                hist1y.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
 
-                hist1y.forEach(function(histItem) {
-                    const d = histItem.date || histItem.datetime || histItem.timestamp || histItem.time;
-                    const p = Number(histItem.close ?? histItem.price ?? histItem.close_price ?? histItem.last_price);
-                    
+                hist1y.forEach(function(h) {
+                    const d = h.date || h.datetime || h.timestamp || h.time;
+                    const p = Number(h.close ?? h.price ?? h.close_price ?? h.last_price);
                     if (d !== undefined && !isNaN(p) && p > 0) {
                         let fDate = typeof formatChartDate === 'function' ? formatChartDate(d) : d;
-                        
-                        // साल (Year) निकालने का लॉजिक
                         let dt = new Date(d);
-                        if (String(d).length === 10 && !String(d).includes("-")) {
-                            dt = new Date(Number(d) * 1000);
-                        }
+                        if (String(d).length === 10 && !String(d).includes("-")) dt = new Date(Number(d) * 1000);
                         let yr = dt.getFullYear();
-                        if (!isNaN(yr)) {
-                            fDate = fDate + " " + yr; 
-                        }
+                        if (!isNaN(yr)) fDate = fDate + " " + yr;
                         
-                        // 52W High/Low कैलकुलेशन
                         if (p > tMax) { tMax = p; tMaxD = fDate; }
                         if (p < tMin) { tMin = p; tMinD = fDate; }
 
-                        // चार्ट डेटा (सिर्फ आखिरी 3 महीने का)
                         const threeMonthsAgo = new Date();
                         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
                         if (dt >= threeMonthsAgo) {
@@ -5540,35 +5551,71 @@ async function loadAllStocksFeed() {
                     }
                 });
 
-                // HTML कार्ड जनरेट करें (52W डेटा के साथ)
-                feedHTML += createFeedCardHTML(symbol, exchange, price, compName, changeText, percentText, changeClass, formatNumber(tMax), tMaxD, formatNumber(tMin), tMinD);
-                
-                // चार्ट बनाने के लिए डेटा स्टोर करें
-                if (chartPrices.length > 0) {
-                     chartDataArray.push({
-                        canvasId: `feedChart_${safeSymbol}`,
-                        labels: chartLabels,
-                        prices: chartPrices
+                // Generate History Table
+                let tableHTML = "";
+                const tableHistory = [...hist1y].sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
+                tableHistory.forEach((h, index) => {
+                    const d = h.date || h.datetime || h.timestamp || h.time;
+                    const p = Number(h.close ?? h.price ?? h.close_price ?? h.last_price);
+                    if (d === undefined || isNaN(p)) return;
+                    const prevH = tableHistory[index + 1];
+                    let c = null, cp = null, cText = "-", cpText = "-", cClass = "history-neutral";
+                    if (prevH) {
+                        const pp = Number(prevH.close ?? prevH.price ?? prevH.close_price ?? prevH.last_price);
+                        if (!isNaN(pp) && pp !== 0) {
+                            c = p - pp; cp = (c / pp) * 100;
+                            const sign = c > 0 ? "+" : "";
+                            cText = sign + formatNumber(c); cpText = sign + cp.toFixed(2) + "%";
+                            cClass = c > 0 ? "history-up" : (c < 0 ? "history-down" : "history-neutral");
+                        }
+                    }
+                    tableHTML += `<tr><td>${typeof formatChartDate === 'function' ? formatChartDate(d) : d}</td><td class="${cClass}">₹${formatNumber(p)}</td><td class="${cClass}">${cText}</td><td class="${cClass}">${cpText}</td></tr>`;
+                });
+
+                // Generate News
+                let newsArr = Array.isArray(newsDataJson) ? newsDataJson : (Array.isArray(newsDataJson.news) ? newsDataJson.news : []);
+                let newsHTML = "";
+                if (newsArr.length > 0) {
+                    newsArr.forEach(n => {
+                        let nDate = n.date || n.published_at || "";
+                        if(nDate && typeof formatNewsDate === 'function') nDate = formatNewsDate(nDate);
+                        newsHTML += `<div class="news-item"><a class="news-title" href="${escapeHtml(n.link || '#')}" target="_blank">${escapeHtml(n.title || n.headline)}</a><div class="news-meta">${escapeHtml(n.source || n.publisher)}${nDate ? " • " + nDate : ""}</div></div>`;
                     });
+                } else {
+                    newsHTML = '<div class="news-item"><div class="news-meta">No news found.</div></div>';
+                }
+
+                // Yahoo Symbol Logic
+                let yahooSymbol = symbol;
+                if (exchange === "NSE") yahooSymbol = symbol + ".NS";
+                if (exchange === "BSE") yahooSymbol = symbol + ".BO";
+
+                const feedData = {
+                    symbol: symbol, safeSymbol: safeSymbol, exchange: exchange,
+                    compName: data.stock ? data.stock.company_name : symbol,
+                    price: formatNumber(price), changeText: changeText, changePercentText: percentText, changeClass: changeClass,
+                    prevClose: formatNumber(prevClose), maxPrice: formatNumber(tMax), maxDate: tMaxD, minPrice: formatNumber(tMin), minDate: tMinD,
+                    tradingStatus: data.stock ? (data.stock.trading_status || "--") : "--",
+                    yahooSymbol: yahooSymbol, tableHTML: tableHTML, newsHTML: newsHTML
+                };
+
+                feedHTML += createFeedCardHTML(feedData);
+                
+                if (chartPrices.length > 0) {
+                     chartDataArray.push({ canvasId: `feedChart_${safeSymbol}`, labels: chartLabels, prices: chartPrices });
                 }
             }
         } catch (error) {
-            console.error("Error loading feed for " + symbol, error);
+            console.error("Feed error for " + symbol, error);
         }
     }
     
-    // सारे स्टॉक्स के कार्ड कंटेनर में डाल दिए
     feedContainer.innerHTML = feedHTML;
-
-    // 2. अब हर स्टॉक का चार्ट रेंडर करें
-    chartDataArray.forEach(chartInfo => {
-        const canvas = document.getElementById(chartInfo.canvasId);
-        if (canvas) {
-           drawFeedChart(canvas, chartInfo.labels, chartInfo.prices);
-        }
-    });
+    chartDataArray.forEach(cInfo => drawFeedChart(document.getElementById(cInfo.canvasId), cInfo.labels, cInfo.prices));
 }
-    
+// =====================================================================
+                    
+
 // =====================================================================
                 
 
@@ -5580,83 +5627,59 @@ document.addEventListener("DOMContentLoaded", function() {
         setTimeout(loadAllStocksFeed, 1000); 
     }
 });
+
     // =====================================================================
-// PART 3: DRAW CHART FOR FEED
+// PART 3: DRAW CHART & TOGGLE FUNCTIONS FOR FEED
 // =====================================================================
 function drawFeedChart(canvas, labels, prices) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
-    // अगर इस कैनवास पर पहले से कोई चार्ट है, तो उसे हटा दें
-    if (canvas.chartInstance) {
-        canvas.chartInstance.destroy();
-    }
+    if (canvas.chartInstance) canvas.chartInstance.destroy();
 
-    // Chart.js का उपयोग करके चार्ट बनाएँ (सुनिश्चित करें कि Chart.js लोड हो)
     canvas.chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Price',
-                data: prices,
-                borderColor: '#2962ff',
-                backgroundColor: 'rgba(41, 98, 255, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                pointRadius: 0,
-                pointHoverRadius: 4
+                label: 'Price', data: prices,
+                borderColor: '#35c978', // आपकी ऐप का थीम कलर
+                backgroundColor: 'rgba(53, 201, 120, 0.1)',
+                borderWidth: 2, fill: true, pointRadius: 0, pointHoverRadius: 4, tension: 0.25
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.y !== null) {
-                                label += '₹' + context.parsed.y.toFixed(2);
-                            }
-                            return label;
-                        }
-                    }
-                }
-            },
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
             scales: {
-                x: {
-                    display: false // फीड व्यू में X-axis (Dates) को छुपाना बेहतर दिखता है
-                },
-                y: {
-                    display: true,
-                    position: 'right',
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.05)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        color: '#8995a2',
-                        callback: function(value) {
-                            return '₹' + value;
-                        }
-                    }
-                }
+                x: { display: false },
+                y: { position: 'right', grid: { color: '#202a35', drawBorder: false }, ticks: { color: '#8995a2', font: {size: 10}, callback: function(value) { return '₹' + value; } } }
             },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            }
+            interaction: { mode: 'nearest', axis: 'x', intersect: false }
         }
     });
 }
+
+function toggleFeedHistoryTable(safeSymbol) {
+    const container = document.getElementById('feedHistoryTableWrap_' + safeSymbol);
+    const btn = document.getElementById('feedHistoryToggleBtn_' + safeSymbol);
+    if (!container || !btn) return;
+    
+    if (container.style.display === "none") {
+        container.style.display = "block";
+        btn.textContent = "ON";
+        btn.classList.remove("off");
+        btn.classList.add("on");
+        btn.setAttribute("aria-pressed", "true");
+    } else {
+        container.style.display = "none";
+        btn.textContent = "OFF";
+        btn.classList.remove("on");
+        btn.classList.add("off");
+        btn.setAttribute("aria-pressed", "false");
+    }
+}
+// =====================================================================
+       
 
     
 /* ========================================================= */
